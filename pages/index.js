@@ -1672,6 +1672,3 @@ export default function Home() {
     </div>
   );
 }
-
-// Export (Ende der Datei)
-export default Home;
