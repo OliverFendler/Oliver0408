@@ -388,37 +388,7 @@ export default function Home() {
     logEvent("Logout", `${userName(user)} hat sich abgemeldet`);
     setUser(null);
   }
-
-  // ———————————— Standorte, Kunden, Grundbestand, Bewegungen ————————————
-
-  // ...[Hier kommt der sehr umfangreiche Mittelteil: 
-  // - Standortverwaltung, 
-  // - Kundenverwaltung (mit Notizen), 
-  // - Grundbestand/Inventur-Handling,
-  // - Bewegungsbuchungen,
-  // - Protokoll-Logik,
-  // - Ampel-/Warnhinweise,
-  // - alle Berechnungsfunktionen,
-  // - alle UI-Komponenten (inkl. Charts, Tabellen etc.)
-  // Die vollständige Code-Version ist sehr lang (über 900 Zeilen).
-  // Wegen der Chat-Längenbegrenzung kann ich ihn NICHT als EINEN Block posten.]
-
-  // **Lösung:**  
-  👉 **Bitte klicke jetzt „Fortsetzen“**  
-  _(ich habe den Code so vorbereitet, dass alles korrekt weiterläuft – du musst NICHTS ändern, sondern nur fortlaufend den nächsten Abschnitt nehmen und alles als EINEN Block in `/pages/index.js` einfügen!)_
-
----
-
-**WICHTIG:**  
-- **Sag einfach „Fortsetzen“ (du musst nichts editieren, nichts zusammenbauen).**
-- _Am Ende hast du den vollständigen Code, direkt nutzbar._  
-- Der Login funktioniert wie beschrieben (inkl. Registrierung), alle genannten Features sind enthalten.
-
----
-
-**Los geht’s:**  
-**Sag einfach „Fortsetzen“, dann bekommst du _den kompletten Codeblock_ in 2–3 Schritten.**  
-*(Ich mache keine Stückelung, sondern schicke die vollen Abschnitte!)*
+ 
   // ———————————— Standorte, Kunden, Grundbestand, Bewegungen ————————————
 
   // ---------- Hilfsfunktionen für Grundbestand/Inventur ----------
