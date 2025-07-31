@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-// ———————————— Initialdaten & Hilfsdaten ————————————
-
+// =============== LADUNGSTRÄGER & SPRACHEN ===============
 const LADUNGSTRAEGER_TYPEN = [
   { label: "EPAL 1 Europalette", qualitaeten: ["A", "B", "C"] },
   { label: "EPAL 6 Halbpalette", qualitaeten: [] },
@@ -24,72 +23,60 @@ const LANG = {
     showLog: "Protokoll anzeigen",
     close: "Schließen",
     location: "Standort",
-    location_add: "Standort hinzufügen",
-    location_remove: "Entfernen",
-    location_rename: "Standortnamen bearbeiten",
-    area_per_slot: "Lagerfläche pro Stellplatz (m²)",
-    cost_per_slot: "Lagerkosten pro Stellplatz (€)",
-    customer: "Kunde",
-    customers: "Kunden",
-    add_customer: "Kunde hinzufügen",
-    remove_customer: "Kunde entfernen",
-    name: "Name",
-    notes: "Notizen",
-    loadCarrier: "Ladungsträgertyp",
+    addLocation: "Standort hinzufügen",
+    remove: "Entfernen",
+    areaPerSlot: "Lagerfläche pro Stellplatz (m²)",
+    costPerSlot: "Lagerkosten pro Stellplatz (€)",
+    kundeHinzufuegen: "Kunde hinzufügen",
+    entfernen: "Entfernen",
+    kunden: "Kunden",
+    keinKunde: "Noch kein Kunde angelegt.",
+    ladungstraegerHinzufuegen: "Ladungsträger hinzufügen",
+    keinLadungstraeger: "Noch kein Ladungsträger angelegt.",
+    notizen: "Notizen",
+    mengeTag: "Menge/Tag",
+    arbeitstage: "Arbeitstage/Monat",
+    tageClearingLadestelle: "Tage bis Clearing Ladestelle",
+    tageClearingEntladestelle: "Tage bis Clearing Entladestelle",
+    palettenProStellplatz: "Pal./Stellplatz",
+    inventory: "Grundbestand / Inventur je Standort",
+    type: "Typ",
     quality: "Qualität",
-    qty_per_day: "Menge pro Tag",
-    workdays: "Arbeitstage/Monat",
-    days_clear_load: "Tage Clearing Ladestelle",
-    days_clear_unload: "Tage Clearing Entladestelle",
-    slots_per_unit: "Paletten pro Stellplatz",
-    add_loadCarrier: "Ladungsträger hinzufügen",
-    remove_loadCarrier: "Entfernen",
-    inventory: "Grundbestand / Inventur",
-    add_inventory: "Ladungsträgertyp hinzufügen",
+    inventoryQty: "Soll-Bestand",
+    inventoryActual: "Inventur-Bestand",
+    inventoryDiff: "Abweichung",
+    inventorySave: "Inventur speichern",
+    add: "Hinzufügen",
     remove_inventory: "Entfernen",
-    baseQty: "Grundbestand",
-    actualQty: "Inventur-Bestand",
-    diff: "Abweichung",
-    adjust: "Beschaffung verbuchen",
-    inventory_save: "Inventur speichern",
-    missingInventory: "Für diesen Ladungsträger gibt es keinen Grundbestand – bitte zuerst unter 'Grundbestand / Inventur' anlegen!",
-    needRestock: "Warnung: Der tatsächliche Bestand reicht für die geplanten Umschläge im nächsten Monat nicht aus! Bitte rechtzeitig nachbestellen.",
-    overview: "Gesamtübersicht",
-    storageArea: "Lagerfläche (m²)",
-    slots: "Benötigte Stellplätze",
-    cost: "Monatliche Lagerkosten (€)",
-    chartTurnover: "Umschlag je Standort (Paletten/Monat)",
-    chartCost: "Lagerkosten je Standort (€)",
-    movements: "Bewegungsbuchung (Ein-/Ausgang)",
+    bookMovement: "Bewegung buchen",
     entry: "Eingang",
     exit: "Ausgang",
-    qty: "Menge",
-    selectCustomer: "Kunde wählen",
-    contractQty: "Vertragsmenge",
-    actualTurnover: "Tatsächlicher Umschlag",
-    contractExceeded: "Vertragsmenge überschritten!",
-    nearlyExceeded: "Achtung: Vertragsmenge bald erreicht!",
+    customer: "Kunde",
+    book: "Buchen",
+    chartsUmschlag: "Umschlag je Standort (Paletten/Monat)",
+    chartsKosten: "Lagerkosten je Standort (€)",
+    gesamtuebersicht: "Gesamtübersicht",
+    lagerflaeche: "Lagerfläche",
+    stellplaetze: "Stellplätze",
+    lagerkosten: "Lagerkosten",
     footer: "LCX NEXUS © 2025 – Lager- & Bestandsplanungstool",
-    save: "Speichern",
+    ampelfarben: "Ampelfarben:",
+    mustAssignCustomer: "Mindestens ein Kunde mit Menge wählen.",
+    missingInventory: "Kein Grundbestand für diesen Ladungsträgertyp/Qualität angelegt! Bitte zuerst anlegen.",
+    needRestock: "Warnung: Der tatsächliche Bestand reicht für die geplanten Umschläge im nächsten Monat nicht aus! Bitte rechtzeitig nachbestellen.",
+    contractQty: "Vertragsmenge/Monat",
+    actualTurnover: "Tatsächlicher Umschlag",
+    ampelGreen: "Alles im grünen Bereich",
+    ampelYellow: "Vorsicht: Menge bald erreicht",
+    ampelRed: "Vertragsmenge überschritten!",
     protocol: "Änderungsprotokoll",
-    protocol_hint: "Alle wichtigen Änderungen werden hier geloggt.",
-    protocolFilter: "Filter",
-    noData: "Keine Daten",
-    all: "Alle",
+    save: "Speichern",
     login_success: "Anmeldung erfolgreich",
     register_success: "Registrierung erfolgreich. Sie können sich jetzt einloggen.",
     field_required: "Pflichtfeld",
     password_mismatch: "Passwörter stimmen nicht überein",
     user_exists: "Benutzer existiert bereits",
     wrong_pw: "Falsches Passwort oder Benutzer nicht gefunden",
-    book: "Buchen",
-    selectLoadCarrier: "Ladungsträgertyp wählen",
-    selectQuality: "Qualität wählen",
-    mustAssignCustomer: "Mindestens ein Kunde auswählen!",
-    action: "Aktion",
-    user: "Benutzer",
-    time: "Zeit",
-    details: "Details",
   },
   en: {
     login: "Login",
@@ -104,87 +91,72 @@ const LANG = {
     showLog: "Show protocol",
     close: "Close",
     location: "Location",
-    location_add: "Add location",
-    location_remove: "Remove",
-    location_rename: "Edit location name",
-    area_per_slot: "Storage area per slot (m²)",
-    cost_per_slot: "Storage cost per slot (€)",
-    customer: "Customer",
-    customers: "Customers",
-    add_customer: "Add customer",
-    remove_customer: "Remove customer",
-    name: "Name",
-    notes: "Notes",
-    loadCarrier: "Load carrier type",
+    addLocation: "Add location",
+    remove: "Remove",
+    areaPerSlot: "Storage area per slot (m²)",
+    costPerSlot: "Storage cost per slot (€)",
+    kundeHinzufuegen: "Add customer",
+    entfernen: "Remove",
+    kunden: "Customers",
+    keinKunde: "No customer added yet.",
+    ladungstraegerHinzufuegen: "Add load carrier",
+    keinLadungstraeger: "No load carrier added yet.",
+    notizen: "Notes",
+    mengeTag: "Qty/day",
+    arbeitstage: "Workdays/month",
+    tageClearingLadestelle: "Days to clearing (load)",
+    tageClearingEntladestelle: "Days to clearing (unload)",
+    palettenProStellplatz: "Pal./slot",
+    inventory: "Base stock / Inventory per location",
+    type: "Type",
     quality: "Quality",
-    qty_per_day: "Quantity per day",
-    workdays: "Workdays/month",
-    days_clear_load: "Days to clearing (loading point)",
-    days_clear_unload: "Days to clearing (unloading point)",
-    slots_per_unit: "Pallets per slot",
-    add_loadCarrier: "Add load carrier",
-    remove_loadCarrier: "Remove",
-    inventory: "Base stock / Inventory",
-    add_inventory: "Add load carrier type",
+    inventoryQty: "Target stock",
+    inventoryActual: "Inventory count",
+    inventoryDiff: "Difference",
+    inventorySave: "Save inventory",
+    add: "Add",
     remove_inventory: "Remove",
-    baseQty: "Base stock",
-    actualQty: "Inventory count",
-    diff: "Difference",
-    adjust: "Book procurement",
-    inventory_save: "Save inventory",
-    missingInventory: "No base/inventory for this load carrier yet – please add it first under 'Base stock / Inventory'!",
-    needRestock: "Warning: Actual stock is not sufficient for planned turnover next month! Please reorder in time.",
-    overview: "Total overview",
-    storageArea: "Storage area (m²)",
-    slots: "Required slots",
-    cost: "Monthly storage cost (€)",
-    chartTurnover: "Turnover per location (pallets/month)",
-    chartCost: "Storage cost per location (€)",
-    movements: "Movement booking (in/out)",
+    bookMovement: "Book movement",
     entry: "Entry",
     exit: "Exit",
-    qty: "Quantity",
-    selectCustomer: "Select customer",
-    contractQty: "Contract quantity",
-    actualTurnover: "Actual turnover",
-    contractExceeded: "Contract quantity exceeded!",
-    nearlyExceeded: "Warning: Contract quantity nearly reached!",
+    customer: "Customer",
+    book: "Book",
+    chartsUmschlag: "Turnover per location (pallets/month)",
+    chartsKosten: "Storage cost per location (€)",
+    gesamtuebersicht: "Total overview",
+    lagerflaeche: "Storage area",
+    stellplaetze: "Slots",
+    lagerkosten: "Storage cost",
     footer: "LCX NEXUS © 2025 – Warehouse & Inventory Planning Tool",
-    save: "Save",
+    ampelfarben: "Traffic lights:",
+    mustAssignCustomer: "At least one customer with quantity required.",
+    missingInventory: "No base stock for this type/quality yet! Please add first.",
+    needRestock: "Warning: Actual stock is not sufficient for planned turnover next month! Please reorder in time.",
+    contractQty: "Contract quantity/month",
+    actualTurnover: "Actual turnover",
+    ampelGreen: "All in green area",
+    ampelYellow: "Caution: quantity nearly reached",
+    ampelRed: "Contract quantity exceeded!",
     protocol: "Audit protocol",
-    protocol_hint: "All important changes are logged here.",
-    protocolFilter: "Filter",
-    noData: "No data",
-    all: "All",
+    save: "Save",
     login_success: "Login successful",
     register_success: "Registration successful. You can now log in.",
     field_required: "Required field",
     password_mismatch: "Passwords do not match",
     user_exists: "User already exists",
     wrong_pw: "Wrong password or user not found",
-    book: "Book",
-    selectLoadCarrier: "Select load carrier type",
-    selectQuality: "Select quality",
-    mustAssignCustomer: "At least one customer must be selected!",
-    action: "Action",
-    user: "User",
-    time: "Time",
-    details: "Details",
   }
 };
-
-// ———————————— Hilfsfunktionen ————————————
+// =============== HELPERFUNKTIONEN & INIT =================
 
 function getInitialData() {
-  // Erst-Setup mit Musterstandort und -kunde
   return [
     {
       name: "Mettmann",
       areaPerSlot: 1.8,
       costPerSlot: 7,
       grundbestaende: [
-        // je Ladungsträger-Typ/Qualität
-        // { typ: "...", qualitaet: "...", qty: 10000, actual: 10000 }
+        // { typ: "EPAL 1 Europalette", qualitaet: "B", qty: 10000, actual: 10000 }
       ],
       kunden: [
         {
@@ -208,13 +180,11 @@ function getInitialData() {
   ];
 }
 
-// Hilfsfunktionen zur Prüfung, Suche etc.
 function getLadungstraegerKey(typ, qualitaet) {
   return typ + "|" + (qualitaet || "-");
 }
 
 function getNextMonthNeed(kunde) {
-  // Summe aller Ladungsträgertypen/Umschlag für nächsten Monat (pro Kunde, pro Ladungsträger/Qualität)
   let ret = {};
   kunde.ladungstraeger.forEach((lt) => {
     const key = getLadungstraegerKey(lt.typ, lt.qualitaet);
@@ -228,7 +198,6 @@ function getNextMonthNeed(kunde) {
 }
 
 function getAllNextMonthNeed(standort) {
-  // Summe aller Kunden/Ladungsträgertypen für einen Standort
   let result = {};
   standort.kunden.forEach((kunde) => {
     const need = getNextMonthNeed(kunde);
@@ -237,7 +206,6 @@ function getAllNextMonthNeed(standort) {
   return result;
 }
 
-// Protokoll aus localStorage laden
 function loadProtocol() {
   if (typeof window === "undefined") return [];
   try {
@@ -246,13 +214,11 @@ function loadProtocol() {
     return [];
   }
 }
-// Protokoll speichern
 function saveProtocol(arr) {
   if (typeof window === "undefined") return;
   localStorage.setItem("lcx_protocol", JSON.stringify(arr));
 }
 
-// User aus LocalStorage laden
 function loadUsers() {
   if (typeof window === "undefined") return [];
   try {
@@ -266,18 +232,15 @@ function saveUsers(arr) {
   localStorage.setItem("lcx_users", JSON.stringify(arr));
 }
 
-// ———————————— Hauptkomponente ————————————
-
+// ==================== HAUPTKOMPONENTE ====================
 export default function Home() {
-  // ——————— App-States ———————
   const [lang, setLang] = useState("de");
-  const [user, setUser] = useState(null); // {email, name}
+  const [user, setUser] = useState(null);
   const [users, setUsers] = useState([]);
   const [protocol, setProtocol] = useState([]);
   const [standorte, setStandorte] = useState(getInitialData());
   const [tab, setTab] = useState(0);
 
-  // Login/Register states
   const [loginMode, setLoginMode] = useState("login");
   const [loginForm, setLoginForm] = useState({
     email: "",
@@ -288,15 +251,13 @@ export default function Home() {
   });
   const [loginError, setLoginError] = useState("");
 
-  // Protokoll-Modal
-  const [showProtocol, setShowProtocol] = useState(false);
+  const [showProtokoll, setShowProtokoll] = useState(false);
 
-  // ——————— Init/Load User, Protocol ———————
+  // Init: Load User, Protocol
   useEffect(() => {
     setUsers(loadUsers());
     setProtocol(loadProtocol());
   }, []);
-  // Protokoll persistieren
   useEffect(() => {
     saveProtocol(protocol);
   }, [protocol]);
@@ -304,7 +265,6 @@ export default function Home() {
     saveUsers(users);
   }, [users]);
 
-  // ——————— Helper-Logik ———————
   function t(key) {
     return LANG[lang][key] || key;
   }
@@ -313,20 +273,20 @@ export default function Home() {
       ? u.firstName + " " + u.lastName
       : u?.email || "-";
   }
-  function logEvent(action, details) {
+  function logEvent(aktion, details) {
     const now = new Date();
     setProtocol((pr) => [
       ...pr,
       {
-        ts: now.toLocaleString(),
-        user: userName(user),
-        action,
+        zeit: now.toLocaleString(),
+        user: user,
+        aktion,
         details,
       },
     ]);
   }
 
-  // ——————— Login/Registration ———————
+  // ============= LOGIN/REGISTRIERUNG =============
   function handleLoginRegister() {
     if (!loginForm.email || !loginForm.password) {
       setLoginError(t("field_required"));
@@ -388,10 +348,8 @@ export default function Home() {
     logEvent("Logout", `${userName(user)} hat sich abgemeldet`);
     setUser(null);
   }
- 
-  // ———————————— Standorte, Kunden, Grundbestand, Bewegungen ————————————
+  // ============= STANDORTE, KUNDEN, GRUNDBESTAND, BUCHUNGEN =============
 
-  // ---------- Hilfsfunktionen für Grundbestand/Inventur ----------
   function updateGrundbestand(sidx, typ, qualitaet, feld, val) {
     const neu = [...standorte];
     let gbs = neu[sidx].grundbestaende;
@@ -427,9 +385,7 @@ export default function Home() {
     );
   }
 
-  // ---------- Inventur speichern ----------
   function saveInventur(sidx, typ, qualitaet) {
-    // Speichern, Diff und ggf. Hinweis/Warnung prüfen
     const neu = [...standorte];
     const gb = neu[sidx].grundbestaende.find(
       (g) => g.typ === typ && (g.qualitaet || "-") === (qualitaet || "-")
@@ -575,7 +531,6 @@ export default function Home() {
     });
   }
   function buchen(sidx) {
-    // Alle ausgewählten Kunden
     let total = 0;
     let names = [];
     buchung.kunden.forEach((k) => {
@@ -630,7 +585,6 @@ export default function Home() {
       kunden: [{ idx: null, menge: "" }],
     });
   }
-
   // ---------- UI-Berechnung ----------
   function calculateStandort(standort) {
     let stellplaetze = 0;
@@ -691,9 +645,8 @@ export default function Home() {
     );
   }
 
-  // ———————————— RENDER ————————————
-
-  // ——— LOGIN / REGISTRATION DIALOG ———
+  // =============== RENDER ===============
+  // Login/Register
   if (!user) {
     return (
       <div style={{
@@ -800,34 +753,8 @@ export default function Home() {
       </div>
     );
   }
-
-  // ——————— Haupt-App-UI ———————
-  // Gesamtberechnungen für die Standort-Tabs etc.
+  // ——— Haupt-App-UI ———
   const g = calculateGesamt(standorte);
-
-  // Übersetzungen für neue Felder (hier zur Übersicht, in die t()-Map eintragen)
-  // "missingInventory": "Kein Grundbestand für diesen Ladungsträgertyp/Qualität angelegt! Bitte zuerst anlegen.",
-  // "mustAssignCustomer": "Bitte mindestens einen Kunden und Menge auswählen.",
-  // "needRestock": "Warnung: Der tatsächliche Bestand ist nicht ausreichend für die geplanten Umschläge im nächsten Monat. Bitte rechtzeitig nachbestellen!",
-  // "entry": "Eingang",
-  // "exit": "Ausgang",
-  // "footer": "LCX NEXUS © 2025  –  Lager- & Bestandsplanungstool",
-  // "inventory": "Grundbestand / Inventur je Standort",
-  // "type": "Typ",
-  // "quality": "Qualität",
-  // "inventoryQty": "Soll-Bestand",
-  // "inventoryActual": "Inventur-Bestand",
-  // "inventoryDiff": "Abweichung",
-  // "inventorySave": "Inventur speichern",
-  // "remove": "Entfernen",
-  // "bookMovement": "Bewegung buchen",
-  // "book": "Buchen",
-  // "customer": "Kunde",
-  // "contractQty": "Vertragsmenge",
-  // "actualQty": "Tatsächlicher Umschlag",
-  // "ampelGreen": "Alles im grünen Bereich",
-  // "ampelYellow": "Vorsicht – vereinbarte Menge bald überschritten",
-  // "ampelRed": "Vereinbarte Menge überschritten!",
 
   return (
     <div
@@ -852,8 +779,8 @@ export default function Home() {
       <div style={{ position: "absolute", right: 42, top: 32, fontWeight: 700, color: "#083d95" }}>
         {user && (
           <>
-            {t("loggedInAs")}: {user.firstName} {user.lastName} &nbsp;
-            <a href="#" style={{ color: "#e53454" }} onClick={() => { setUser(null); logEvent("Logout", ""); }}>Abmelden</a>
+            {t("welcome")}: {user.firstName} {user.lastName} &nbsp;
+            <a href="#" style={{ color: "#e53454" }} onClick={() => { setUser(null); logEvent("Logout", ""); }}>{t("logout")}</a>
           </>
         )}
       </div>
@@ -896,7 +823,7 @@ export default function Home() {
             }}
             onClick={addStandort}
           >
-            + {t("addLocation")}
+            + {t("location_add")}
           </button>
           {/* Standort entfernen */}
           {standorte.length > 1 && (
@@ -915,7 +842,7 @@ export default function Home() {
               }}
               onClick={() => removeStandort(tab)}
             >
-              {t("remove")}
+              {t("location_remove")}
             </button>
           )}
         </div>
@@ -948,7 +875,7 @@ export default function Home() {
             />
             <div style={{ flex: 1 }} />
             <label style={{ fontWeight: 700, fontSize: 16, marginRight: 10 }}>
-              {t("areaPerSlot")}
+              {t("area_per_slot")}
               <input
                 type="number"
                 min={0.5}
@@ -969,7 +896,7 @@ export default function Home() {
               />
             </label>
             <label style={{ fontWeight: 700, fontSize: 16 }}>
-              {t("costPerSlot")}
+              {t("cost_per_slot")}
               <input
                 type="number"
                 min={0.1}
@@ -990,19 +917,18 @@ export default function Home() {
               />
             </label>
           </div>
-
-          {/* GRUNDBESTAND/INVENTUR – je Standort */}
+          {/* GRUNDBESTAND/INVENTUR je Standort */}
           <h3 style={{ margin: "30px 0 10px 0", color: "#083d95", fontWeight: 900 }}>
             {t("inventory")}
           </h3>
           <table style={{ width: "100%", background: "#f8fbff", borderRadius: 10, padding: 12 }}>
             <thead>
               <tr style={{ color: "#0094cb" }}>
-                <th>{t("type")}</th>
+                <th>{t("loadCarrier")}</th>
                 <th>{t("quality")}</th>
-                <th>{t("inventoryQty")}</th>
-                <th>{t("inventoryActual")}</th>
-                <th>{t("inventoryDiff")}</th>
+                <th>{t("baseQty")}</th>
+                <th>{t("actualQty")}</th>
+                <th>{t("diff")}</th>
                 <th></th>
               </tr>
             </thead>
@@ -1067,7 +993,7 @@ export default function Home() {
                       }}
                       onClick={() => saveInventur(tab, gb.typ, gb.qualitaet)}
                     >
-                      {t("inventorySave")}
+                      {t("inventory_save")}
                     </button>
                   </td>
                   <td style={{ color: Math.abs(gb.actual - gb.qty) > 0 ? "#e53454" : "#009942" }}>
@@ -1087,18 +1013,19 @@ export default function Home() {
                         cursor: "pointer",
                       }}
                     >
-                      {t("remove")}
+                      {t("remove_inventory")}
                     </button>
                   </td>
                 </tr>
               ))}
+              {/* + Neue Grundbestandszeile hinzufügen */}
               <tr>
                 <td>
                   <select
                     value={buchung.typ}
                     onChange={e => handleBuchungChange("typ", e.target.value)}
                   >
-                    <option value="">Typ wählen…</option>
+                    <option value="">{t("selectLoadCarrier")}</option>
                     {LADUNGSTRAEGER_TYPEN.map(opt => (
                       <option key={opt.label} value={opt.label}>{opt.label}</option>
                     ))}
@@ -1133,15 +1060,16 @@ export default function Home() {
                       cursor: "pointer",
                     }}
                   >
-                    + {t("add")}
+                    + {t("add_inventory")}
                   </button>
                 </td>
               </tr>
             </tbody>
           </table>
+
           {/* Bewegungsbuchung */}
           <h3 style={{ margin: "30px 0 10px 0", color: "#083d95", fontWeight: 900 }}>
-            {t("bookMovement")}
+            {t("movements")}
           </h3>
           <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
             <select value={buchung.art} onChange={e => handleBuchungChange("art", e.target.value)}>
@@ -1153,7 +1081,7 @@ export default function Home() {
               onChange={e => handleBuchungChange("typ", e.target.value)}
               style={{ minWidth: 140 }}
             >
-              <option value="">Typ wählen…</option>
+              <option value="">{t("selectLoadCarrier")}</option>
               {LADUNGSTRAEGER_TYPEN.map(opt => (
                 <option key={opt.label} value={opt.label}>{opt.label}</option>
               ))}
@@ -1178,7 +1106,7 @@ export default function Home() {
                   value={k.idx ?? ""}
                   onChange={e => handleBuchungKunde(i, Number(e.target.value))}
                 >
-                  <option value="">Kunde wählen…</option>
+                  <option value="">{t("selectCustomer")}</option>
                   {standorte[tab].kunden.map((ku, idx) => (
                     <option key={idx} value={idx}>{ku.name}</option>
                   ))}
@@ -1189,7 +1117,7 @@ export default function Home() {
                   value={k.menge || ""}
                   onChange={e => handleBuchungKundeMenge(i, e.target.value)}
                   style={{ width: 70 }}
-                  placeholder="Menge"
+                  placeholder={t("qty")}
                 />
                 {buchung.kunden.length > 1 && (
                   <button
@@ -1231,315 +1159,8 @@ export default function Home() {
               {t("book")}
             </button>
           </div>
-
-          {/* Kundenverwaltung */}
-<div>
-  <h3 style={{ margin: "15px 0 10px 0", color: "#083d95", fontWeight: 900 }}>
-    {t("kunden")}
-  </h3>
-  <button
-    onClick={() => addKunde(tab)}
-    style={{
-      background: "#0094cb",
-      color: "#fff",
-      fontWeight: 800,
-      fontSize: 15,
-      border: "none",
-      borderRadius: 9,
-      padding: "7px 19px",
-      marginBottom: 8,
-      cursor: "pointer",
-      marginRight: 9,
-    }}
-  >
-    + {t("kundeHinzufuegen")}
-  </button>
-  <div>
-    {standorte[tab].kunden.length === 0 ? (
-      <div style={{ color: "#aaa", margin: 18 }}>
-        {t("keinKunde")}
-      </div>
-    ) : (
-      standorte[tab].kunden.map((kunde, kidx) => (
-        <div
-          key={kidx}
-          style={{
-            margin: "18px 0",
-            border: "1px solid #d5e7fa",
-            borderRadius: 11,
-            background: "#f6fcff",
-            boxShadow: "0 1px 7px #b7d6fa22",
-            padding: "16px 12px",
-          }}
-        >
-          {/* Name, Button Entfernen */}
-          <div style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 10 }}>
-            <input
-              value={kunde.name}
-              onChange={(e) => updateKunde(tab, kidx, "name", e.target.value)}
-              style={{
-                fontWeight: 800,
-                fontSize: 19,
-                padding: "5px 15px",
-                background: "#fff",
-                border: "1px solid #b1dbef",
-                borderRadius: 7,
-                color: "#083d95",
-                marginRight: 15,
-                minWidth: 120,
-              }}
-            />
-            <button
-              style={{
-                background: "#e53454",
-                color: "#fff",
-                fontWeight: 800,
-                border: "none",
-                borderRadius: 7,
-                padding: "6px 16px",
-                fontSize: 15,
-                cursor: "pointer",
-              }}
-              onClick={() => removeKunde(tab, kidx)}
-            >
-              {t("entfernen")}
-            </button>
-          </div>
-          {/* Ladungsträger-Liste */}
-          <div>
-            {kunde.ladungstraeger.length === 0 ? (
-              <div style={{ color: "#bbb", margin: "10px 0 12px 20px" }}>
-                {t("keinLadungstraeger")}
-              </div>
-            ) : (
-              kunde.ladungstraeger.map((lt, lidx) => (
-                <div
-                  key={lidx}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 18,
-                    marginBottom: 7,
-                    background: "#eaf7ff",
-                    borderRadius: 8,
-                    padding: "7px 8px",
-                  }}
-                >
-                  {/* Auswahl Ladungsträgertyp */}
-                  <select
-                    value={lt.typ}
-                    style={{
-                      fontWeight: 700,
-                      fontSize: 16,
-                      border: "1px solid #0094cb",
-                      borderRadius: 6,
-                      padding: "4px 13px",
-                      color: "#083d95",
-                      background: "#fff",
-                    }}
-                    onChange={(e) => updateLadungstraeger(tab, kidx, lidx, "typ", e.target.value)}
-                  >
-                    {LADUNGSTRAEGER_TYPEN.map((opt) => (
-                      <option key={opt.label} value={opt.label}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                  {/* Qualität */}
-                  {LADUNGSTRAEGER_TYPEN.find((t) => t.label === lt.typ)?.qualitaeten.length ? (
-                    <select
-                      value={lt.qualitaet}
-                      style={{
-                        fontWeight: 700,
-                        fontSize: 16,
-                        border: "1px solid #0094cb",
-                        borderRadius: 6,
-                        padding: "4px 13px",
-                        color: "#083d95",
-                        background: "#fff",
-                        minWidth: 65,
-                      }}
-                      onChange={(e) => updateLadungstraeger(tab, kidx, lidx, "qualitaet", e.target.value)}
-                    >
-                      <option value="">Qualität…</option>
-                      {LADUNGSTRAEGER_TYPEN
-                        .find((t) => t.label === lt.typ)
-                        .qualitaeten.map((q) => (
-                          <option key={q} value={q}>
-                            {q}
-                          </option>
-                        ))}
-                    </select>
-                  ) : null}
-                  {/* Menge pro Tag */}
-                  <label>
-                    {t("mengeTag")}
-                    <input
-                      type="number"
-                      value={lt.mengeTag}
-                      onChange={(e) =>
-                        updateLadungstraeger(tab, kidx, lidx, "mengeTag", e.target.value)
-                      }
-                      style={{
-                        width: 80,
-                        marginLeft: 9,
-                        borderRadius: 5,
-                        border: "1.2px solid #0094cb",
-                        background: "#fff",
-                        padding: "2px 7px",
-                        fontWeight: 700,
-                        fontSize: 15,
-                        color: "#083d95",
-                      }}
-                    />
-                  </label>
-                  {/* Arbeitstage */}
-                  <label>
-                    {t("arbeitstage")}
-                    <input
-                      type="number"
-                      value={lt.arbeitstage}
-                      onChange={(e) =>
-                        updateLadungstraeger(tab, kidx, lidx, "arbeitstage", e.target.value)
-                      }
-                      style={{
-                        width: 58,
-                        marginLeft: 9,
-                        borderRadius: 5,
-                        border: "1.2px solid #0094cb",
-                        background: "#fff",
-                        padding: "2px 7px",
-                        fontWeight: 700,
-                        fontSize: 15,
-                        color: "#083d95",
-                      }}
-                    />
-                  </label>
-                  {/* Tage Clearing Ladestelle */}
-                  <label>
-                    {t("tageClearingLadestelle")}
-                    <input
-                      type="number"
-                      value={lt.tageClearingLadestelle}
-                      onChange={(e) =>
-                        updateLadungstraeger(tab, kidx, lidx, "tageClearingLadestelle", e.target.value)
-                      }
-                      style={{
-                        width: 65,
-                        marginLeft: 9,
-                        borderRadius: 5,
-                        border: "1.2px solid #0094cb",
-                        background: "#fff",
-                        padding: "2px 7px",
-                        fontWeight: 700,
-                        fontSize: 15,
-                        color: "#083d95",
-                      }}
-                    />
-                  </label>
-                  {/* Tage Clearing Entladestelle */}
-                  <label>
-                    {t("tageClearingEntladestelle")}
-                    <input
-                      type="number"
-                      value={lt.tageClearingEntladestelle}
-                      onChange={(e) =>
-                        updateLadungstraeger(tab, kidx, lidx, "tageClearingEntladestelle", e.target.value)
-                      }
-                      style={{
-                        width: 65,
-                        marginLeft: 9,
-                        borderRadius: 5,
-                        border: "1.2px solid #0094cb",
-                        background: "#fff",
-                        padding: "2px 7px",
-                        fontWeight: 700,
-                        fontSize: 15,
-                        color: "#083d95",
-                      }}
-                    />
-                  </label>
-                  {/* Paletten pro Stellplatz */}
-                  <label>
-                    {t("palettenProStellplatz")}
-                    <input
-                      type="number"
-                      value={lt.palettenProStellplatz}
-                      onChange={(e) =>
-                        updateLadungstraeger(tab, kidx, lidx, "palettenProStellplatz", e.target.value)
-                      }
-                      style={{
-                        width: 65,
-                        marginLeft: 9,
-                        borderRadius: 5,
-                        border: "1.2px solid #0094cb",
-                        background: "#fff",
-                        padding: "2px 7px",
-                        fontWeight: 700,
-                        fontSize: 15,
-                        color: "#083d95",
-                      }}
-                    />
-                  </label>
-                  {/* Entfernen-Button */}
-                  <button
-                    style={{
-                      background: "#e53454",
-                      color: "#fff",
-                      fontWeight: 700,
-                      border: "none",
-                      borderRadius: 6,
-                      padding: "5px 15px",
-                      fontSize: 14,
-                      marginLeft: 8,
-                      cursor: "pointer",
-                    }}
-                    onClick={() => removeLadungstraeger(tab, kidx, lidx)}
-                  >
-                    {t("entfernen")}
-                  </button>
-                </div>
-              ))
-            )}
-            <button
-              onClick={() => addLadungstraeger(tab, kidx)}
-              style={{
-                background: "#083d95",
-                color: "#fff",
-                fontWeight: 700,
-                border: "none",
-                borderRadius: 7,
-                padding: "6px 14px",
-                fontSize: 15,
-                marginTop: 7,
-                cursor: "pointer",
-              }}
-            >
-              + {t("ladungstraegerHinzufuegen")}
-            </button>
-          </div>
-          {/* Notizen */}
-          <div style={{ marginTop: 10 }}>
-            <label style={{ fontWeight: 700 }}>{t("notizen")}</label>
-            <textarea
-              value={kunde.notizen}
-              onChange={(e) => updateKunde(tab, kidx, "notizen", e.target.value)}
-              style={{
-                width: "96%",
-                minHeight: 40,
-                borderRadius: 7,
-                border: "1px solid #a9c9ea",
-                marginLeft: 11,
-                padding: "7px",
-                fontSize: 15,
-              }}
-            />
-          </div>
         </div>
-      ))
-    )}
-  </div>
-</div>
+      </div>
 
       {/* --- Gesamtübersicht (Summe & Charts) --- */}
       <div
@@ -1552,14 +1173,14 @@ export default function Home() {
         }}
       >
         <h2 style={{ color: "#0094cb", fontWeight: 900, fontSize: 27, marginBottom: 11 }}>
-          {t("gesamtuebersicht")}
+          {t("overview")}
         </h2>
         <div style={{ fontSize: 17, marginBottom: 7, marginTop: 7 }}>
-          {t("lagerflaeche")}: <b>{g.lagerflaeche} m²</b> | {t("stellplaetze")}: <b>{g.stellplaetze}</b> | {t("lagerkosten")}: <b>{g.lagerkosten.toLocaleString("de-DE", { minimumFractionDigits: 2 })} €</b>
+          {t("storageArea")}: <b>{g.lagerflaeche} m²</b> | {t("slots")}: <b>{g.stellplaetze}</b> | {t("cost")}: <b>{g.lagerkosten.toLocaleString(lang === "de" ? "de-DE" : "en-US", { minimumFractionDigits: 2 })} €</b>
         </div>
         <div style={{ display: "flex", gap: 52, marginTop: 22 }}>
           <div style={{ flex: 1 }}>
-            <b style={{ color: "#0a1b3f", fontSize: 16 }}>{t("chartsUmschlag")}</b>
+            <b style={{ color: "#0a1b3f", fontSize: 16 }}>{t("chartTurnover")}</b>
             <BarChart
               labels={standorte.map((s) => s.name)}
               values={standorte.map((s) => calculateStandort(s).umschlagMonat)}
@@ -1569,7 +1190,7 @@ export default function Home() {
             />
           </div>
           <div style={{ flex: 1 }}>
-            <b style={{ color: "#0a1b3f", fontSize: 16 }}>{t("chartsKosten")}</b>
+            <b style={{ color: "#0a1b3f", fontSize: 16 }}>{t("chartCost")}</b>
             <BarChart
               labels={standorte.map((s) => s.name)}
               values={standorte.map((s) => calculateStandort(s).lagerkosten)}
@@ -1595,9 +1216,9 @@ export default function Home() {
             cursor: "pointer",
             opacity: 0.77,
           }}
-          onClick={() => setShowProtokoll(true)}
+          onClick={() => setShowProtocol(true)}
         >
-          Änderungsprotokoll anzeigen
+          {t("showLog")}
         </button>
       </div>
 
@@ -1622,7 +1243,7 @@ export default function Home() {
       </div>
 
       {/* --- Protokoll-Modal --- */}
-      {showProtokoll && (
+      {showProtocol && (
         <div style={{
           position: "fixed",
           top: 0, left: 0, right: 0, bottom: 0,
@@ -1642,13 +1263,18 @@ export default function Home() {
             padding: 28,
             boxShadow: "0 2px 28px #0094cb44",
           }}>
-            <h2 style={{ color: "#083d95", fontWeight: 900, marginTop: 0 }}>Änderungsprotokoll</h2>
+            <h2 style={{ color: "#083d95", fontWeight: 900, marginTop: 0 }}>{t("protocol")}</h2>
+            <div style={{ color: "#888", fontSize: 13, marginBottom: 12 }}>{t("protocol_hint")}</div>
             <ol>
-              {protokoll.map((p, idx) => (
-                <li key={idx} style={{ fontSize: 15, marginBottom: 7 }}>
-                  <b>[{p.zeit}] {p.user?.firstName} {p.user?.lastName}:</b> {p.aktion} <br /><span style={{ color: "#0094cb" }}>{p.details}</span>
-                </li>
-              ))}
+              {protocol.length === 0 ? (
+                <div style={{ color: "#bbb", margin: 12 }}>{t("noData")}</div>
+              ) : (
+                protocol.map((p, idx) => (
+                  <li key={idx} style={{ fontSize: 15, marginBottom: 7 }}>
+                    <b>[{p.ts}] {p.user}:</b> {p.action} <br /><span style={{ color: "#0094cb" }}>{p.details}</span>
+                  </li>
+                ))
+              )}
             </ol>
             <button
               style={{
@@ -1662,9 +1288,9 @@ export default function Home() {
                 marginTop: 19,
                 cursor: "pointer",
               }}
-              onClick={() => setShowProtokoll(false)}
+              onClick={() => setShowProtocol(false)}
             >
-              Schließen
+              {t("close")}
             </button>
           </div>
         </div>
