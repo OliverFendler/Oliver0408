@@ -1216,7 +1216,7 @@ export default function Home() {
             cursor: "pointer",
             opacity: 0.77,
           }}
-          onClick={() => setShowProtocol(true)}
+          onClick={() => setShowProtocoll(true)}
         >
           {t("showLog")}
         </button>
@@ -1243,7 +1243,7 @@ export default function Home() {
       </div>
 
       {/* --- Protokoll-Modal --- */}
-      {showProtocol && (
+      {showProtocoll && (
         <div style={{
           position: "fixed",
           top: 0, left: 0, right: 0, bottom: 0,
@@ -1288,7 +1288,7 @@ export default function Home() {
                 marginTop: 19,
                 cursor: "pointer",
               }}
-              onClick={() => setShowProtocol(false)}
+              onClick={() => setShowProtocoll(false)}
             >
               {t("close")}
             </button>
