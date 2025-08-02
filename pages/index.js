@@ -899,7 +899,7 @@ function BarChart({ labels, values, color, suffix = "", max = 100 }) {
 // ===== Helper-Funktionen =====
 
 // Zähle Werktage zwischen zwei Daten
-function (start, end) {
+function diffWeekdays(start, end) {
   let count = 0;
   let current = new Date(start);
   while (current <= end) {
