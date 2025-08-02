@@ -896,30 +896,5 @@ function BarChart({ labels, values, color, suffix = "", max = 100 }) {
   );
 }
 
-// ===== Helper-Funktionen =====
-
-// Zähle Werktage zwischen zwei Daten
-function diffWeekdays(start, end) {
-  let count = 0;
-  let current = new Date(start);
-  while (current <= end) {
-    const day = current.getDay();
-    if (day !== 0 && day !== 6) count++;
-    current.setDate(current.getDate() + 1);
-  }
-  return count;
-}
-
-// Liefert ein Datum, das N Werktage nach einem Startdatum liegt
-function onlyWeekdaysBetween(startDate, tage) {
-  let count = 0;
-  let current = new Date(startDate);
-  while (count < tage) {
-    current.setDate(current.getDate() + 1);
-    if (current.getDay() !== 0 && current.getDay() !== 6) count++;
-  }
-  return current;
-}
-
 // ====== Export der Komponente ======
 export default LagerTool;
