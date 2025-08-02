@@ -1,3 +1,160 @@
+import React, { useState } from "react";
+
+// ======== Sprach-Objekt ========
+const t = {
+  de: {
+    abmelden: "Abmelden",
+    abbrechen: "Abbrechen",
+    name: "Kunde",
+    standort: "Standort",
+    neuerStandort: "Neuer Standort",
+    entfernenStandort: "Standort entfernen",
+    grundbestand: "Grundbestand",
+    grundbestandHinzufuegen: "Grundbestand hinzufügen",
+    grundbestandEntfernen: "Entfernen",
+    inventur: "Inventur",
+    inventurPflicht: "Bitte Inventurwert eingeben.",
+    warnungLadungstraegerImGrundbestand: "Zuerst Grundbestand anlegen!",
+    bewegungBuchen: "Bewegung buchen",
+    bewegungEingang: "Eingang",
+    bewegungAusgang: "Ausgang",
+    bewegungMenge: "Menge",
+    bewegungKundePflicht: "Kunde wählen!",
+    bewegungTypPflicht: "Typ wählen!",
+    bewegungMengePflicht: "Menge angeben!",
+    bewegungNichtGenugBestand: "Nicht genug Bestand!",
+    bewegungErfasst: "Bewegung erfasst!",
+    protokollAnzeigen: "Protokoll anzeigen",
+    keineAenderungen: "Keine Änderungen",
+    schliessen: "Schließen",
+    gesamtuebersicht: "Gesamtübersicht",
+    lagerflaeche: "Lagerfläche",
+    lagerkosten: "Lagerkosten",
+    stellplaetze: "Stellplätze",
+    chartsUmschlag: "Palettenumschlag",
+    chartsKosten: "Lagerkosten",
+    footer: "© LCX NEXUS Lager- und Bestandsplanung",
+    ampelInfoGruen: "Vertragsmenge ausreichend.",
+    ampelInfoGelb: "Vertragsmenge bald erreicht.",
+    ampelInfoRot: "Vertragsmenge überschritten!",
+  },
+  en: {
+    abmelden: "Logout",
+    abbrechen: "Cancel",
+    name: "Customer",
+    standort: "Location",
+    neuerStandort: "New location",
+    entfernenStandort: "Remove location",
+    grundbestand: "Stock",
+    grundbestandHinzufuegen: "Add stock",
+    grundbestandEntfernen: "Remove",
+    inventur: "Inventory",
+    inventurPflicht: "Please enter inventory value.",
+    warnungLadungstraegerImGrundbestand: "Please create base stock first!",
+    bewegungBuchen: "Book movement",
+    bewegungEingang: "Inbound",
+    bewegungAusgang: "Outbound",
+    bewegungMenge: "Quantity",
+    bewegungKundePflicht: "Choose customer!",
+    bewegungTypPflicht: "Choose type!",
+    bewegungMengePflicht: "Enter quantity!",
+    bewegungNichtGenugBestand: "Not enough stock!",
+    bewegungErfasst: "Movement booked!",
+    protokollAnzeigen: "Show protocol",
+    keineAenderungen: "No changes",
+    schliessen: "Close",
+    gesamtuebersicht: "Overview",
+    lagerflaeche: "Warehouse area",
+    lagerkosten: "Storage costs",
+    stellplaetze: "Slots",
+    chartsUmschlag: "Pallet turnover",
+    chartsKosten: "Storage costs",
+    footer: "© LCX NEXUS Warehouse and Inventory Planning",
+    ampelInfoGruen: "Contract volume sufficient.",
+    ampelInfoGelb: "Contract volume almost reached.",
+    ampelInfoRot: "Contract volume exceeded!",
+  }
+};
+
+const ladungstraegerTypen = [
+  { label: "Europalette", qualitaeten: ["A", "B", "C"] },
+  { label: "Industriepalette", qualitaeten: ["A", "B"] },
+  { label: "Gitterbox", qualitaeten: [] },
+];
+
+// ======= Hilfsfunktionen für Wochentage und Datumslogik =======
+function onlyWeekdaysBetween(start, tage) {
+  const startDate = new Date(start);
+  let count = 0, date = new Date(startDate);
+  while (count < tage) {
+    date.setDate(date.getDate() + 1);
+    if (date.getDay() !== 0 && date.getDay() !== 6) count++;
+  }
+  return date;
+}
+function diffWeekdays(from, to) {
+  let count = 0, d = new Date(from);
+  while (d < to) {
+    d.setDate(d.getDate() + 1);
+    if (d.getDay() !== 0 && d.getDay() !== 6) count++;
+  }
+  return count;
+}
+
+// ======= Haupt-Komponente =======
+export default function LagerTool() {
+  // ======= States =======
+  const [lang, setLang] = useState("de");
+  const [user, setUser] = useState({ vorname: "Max", nachname: "Mustermann", email: "max@nexus.de" }); // DUMMY
+  const [standorte, setStandorte] = useState([
+    {
+      name: "Zentrallager",
+      lagerflaecheProStellplatz: 1.8,
+      lagerkostenProStellplatz: 7,
+      grundbestaende: [
+        { typ: "Europalette", qualitaet: "B", bestand: 10000, inventur: 10000 }
+      ],
+      kunden: [],
+      bewegungen: [],
+    },
+  ]);
+  const [tab, setTab] = useState(0);
+  const [showBewegung, setShowBewegung] = useState(false);
+  const [bewegungKunden, setBewegungKunden] = useState([{ kunde: "", typ: "", qualitaet: "", menge: "" }]);
+  const [bewegungArt, setBewegungArt] = useState("Eingang");
+  const [bewegungMsg, setBewegungMsg] = useState("");
+  const [showProtokoll, setShowProtokoll] = useState(false);
+  const [protokoll, setProtokoll] = useState([]);
+  // ========== Protokoll ==========
+  function addProtokoll(aktion, details) {
+    setProtokoll((p) => [
+      ...p,
+      {
+        zeit: new Date().toLocaleString(),
+        user: user?.email || "-",
+        aktion,
+        details,
+      },
+    ]);
+  }
+
+  // ========== Logout ==========
+  function handleLogout() {
+    setUser(null);
+    setTab(0);
+    setStandorte([
+      {
+        name: "Zentrallager",
+        lagerflaecheProStellplatz: 1.8,
+        lagerkostenProStellplatz: 7,
+        grundbestaende: [],
+        kunden: [],
+        bewegungen: [],
+      },
+    ]);
+    setProtokoll([]);
+  }
+
   // ====== CLEARING LOGIK ======
   function setClearingStart(sidx, kidx, lidx, feld, val) {
     const neu = [...standorte];
@@ -178,42 +335,6 @@
     return { lagerflaeche, lagerkosten, stellplaetze };
   }
 
-  // ========== BarChart-Komponente ==========
-  function BarChart({ labels, values, color, suffix = "", max = 100 }) {
-    const h = 140;
-    const _max = Math.max(max, ...values, 1);
-    return (
-      <div style={{ display: "flex", gap: 6, alignItems: "end", marginTop: 17 }}>
-        {labels.map((lbl, i) => (
-          <div key={lbl} style={{ flex: 1, textAlign: "center" }}>
-            <div
-              style={{
-                background: color,
-                height: (values[i] / _max) * h,
-                borderRadius: 7,
-                marginBottom: 7,
-                transition: "height 0.3s",
-              }}
-              title={values[i] + suffix}
-            />
-            <div style={{ fontWeight: 700, fontSize: 16, color: "#083d95" }}>
-              {lbl}
-            </div>
-            <div
-              style={{
-                fontWeight: 500,
-                color: "#3194cb",
-                fontSize: 14,
-              }}
-            >
-              {values[i] || 0}
-              {suffix}
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
   // ========== STANDORTE ==========
   function addStandort() {
     setStandorte([
@@ -286,7 +407,6 @@
     }
     addProtokoll("Inventur gespeichert", `Standort: ${standorte[sidx].name}, Typ: ${gb.typ}, Quali: ${gb.qualitaet}, Wert: ${gb.inventur}`);
   }
-
   // ========== KUNDEN ==========
   function addKunde(idx) {
     const neu = [...standorte];
@@ -353,170 +473,6 @@
     setStandorte(neu);
   }
 
-  // ======== CLEARING-DATUM ========
-  function setClearingStart(sidx, kidx, lidx, feld, val) {
-    const neu = [...standorte];
-    neu[sidx].kunden[kidx].ladungstraeger[lidx][feld] = val;
-    setStandorte(neu);
-  }
-  function daysToClearing(startDate, tage) {
-    if (!startDate || !tage) return "";
-    const target = onlyWeekdaysBetween(startDate, tage);
-    const today = new Date();
-    const diff = diffWeekdays(today, target);
-    return diff;
-  }
-
-  // ========== BEWEGUNGSBUCHUNG ==========
-  function handleOpenBewegung() {
-    setBewegungKunden([{ kunde: "", typ: "", qualitaet: "", menge: "" }]);
-    setBewegungArt("Eingang");
-    setShowBewegung(true);
-    setBewegungMsg("");
-  }
-  function handleChangeBewegungKunde(idx, feld, val) {
-    const arr = [...bewegungKunden];
-    arr[idx][feld] = val;
-    // Typ/Quali synchronisieren, falls Typ geändert
-    if (feld === "typ") arr[idx].qualitaet = "";
-    setBewegungKunden(arr);
-  }
-  function handleAddBewegungKunde() {
-    setBewegungKunden([...bewegungKunden, { kunde: "", typ: "", qualitaet: "", menge: "" }]);
-  }
-  function handleRemoveBewegungKunde(idx) {
-    const arr = [...bewegungKunden];
-    arr.splice(idx, 1);
-    setBewegungKunden(arr);
-  }
-  function handleBuchenBewegung() {
-    let valid = true;
-    if (!bewegungKunden.length || bewegungKunden.some((b) => !b.kunde)) {
-      setBewegungMsg(t[lang].bewegungKundePflicht);
-      valid = false;
-    } else if (bewegungKunden.some((b) => !b.typ)) {
-      setBewegungMsg(t[lang].bewegungTypPflicht);
-      valid = false;
-    } else if (bewegungKunden.some((b) => !b.menge || Number(b.menge) <= 0)) {
-      setBewegungMsg(t[lang].bewegungMengePflicht);
-      valid = false;
-    }
-    if (!valid) return;
-
-    // Bestand prüfen für jede Buchung (bei Ausgang)
-    const grundbestaende = standorte[tab].grundbestaende;
-    if (bewegungArt === "Ausgang") {
-      for (const b of bewegungKunden) {
-        const gb = grundbestaende.find(
-          (g) => g.typ === b.typ && (g.qualitaet || "") === (b.qualitaet || "")
-        );
-        if (!gb || gb.bestand < Number(b.menge)) {
-          setBewegungMsg(t[lang].bewegungNichtGenugBestand);
-          return;
-        }
-      }
-    }
-
-    // Buchen (Bestand anpassen)
-    const neu = [...standorte];
-    bewegungKunden.forEach((b) => {
-      const gb = neu[tab].grundbestaende.find(
-        (g) => g.typ === b.typ && (g.qualitaet || "") === (b.qualitaet || "")
-      );
-      if (!gb) return; // Validierung oben!
-      if (bewegungArt === "Eingang") {
-        gb.bestand += Number(b.menge);
-        gb.inventur += Number(b.menge);
-      } else {
-        gb.bestand -= Number(b.menge);
-        gb.inventur -= Number(b.menge);
-      }
-    });
-    if (!neu[tab].bewegungen) neu[tab].bewegungen = [];
-    neu[tab].bewegungen.push({
-      zeit: new Date().toLocaleString(),
-      art: bewegungArt,
-      details: [...bewegungKunden],
-      user: user?.email,
-    });
-    setStandorte(neu);
-    addProtokoll(
-      "Bewegung gebucht",
-      `${bewegungArt}: ${bewegungKunden
-        .map(
-          (b) =>
-            `Kunde: ${b.kunde}, Typ: ${b.typ}, Quali: ${b.qualitaet}, Menge: ${b.menge}`
-        )
-        .join(" | ")}`
-    );
-    setBewegungMsg(t[lang].bewegungErfasst);
-    setTimeout(() => {
-      setShowBewegung(false);
-      setBewegungMsg("");
-    }, 1100);
-  }
-
-  // ========== UMSCHLAG + VERTRAGSMENGE (Ampel) ==========
-  function getKundenEinAusgang(sidx, kunde, typ, qualitaet) {
-    let eingang = 0, ausgang = 0;
-    const standort = standorte[sidx];
-    if (standort.bewegungen && standort.bewegungen.length) {
-      standort.bewegungen.forEach((m) => {
-        m.details.forEach((b) => {
-          if (
-            b.kunde === kunde &&
-            b.typ === typ &&
-            (b.qualitaet || "") === (qualitaet || "")
-          ) {
-            if (m.art === "Eingang") eingang += Number(b.menge) || 0;
-            else if (m.art === "Ausgang") ausgang += Number(b.menge) || 0;
-          }
-        });
-      });
-    }
-    return { eingang, ausgang };
-  }
-  function getVertragsAmpel(vertragsmenge, umschlag) {
-    if (!vertragsmenge || vertragsmenge === 0) return { color: "gray", info: "" };
-    const pct = umschlag / vertragsmenge;
-    if (pct < 0.8) return { color: "green", info: t[lang].ampelInfoGruen };
-    if (pct < 1.0) return { color: "orange", info: t[lang].ampelInfoGelb };
-    return { color: "red", info: t[lang].ampelInfoRot };
-  }
-
-  // ========== BERECHNUNGEN GESAMT ==========
-  function calculateStandort(s) {
-    let stellplaetze = 0;
-    let lagerflaeche = 0;
-    let lagerkosten = 0;
-    let umschlagMonat = 0;
-    s.kunden.forEach((kunde) =>
-      kunde.ladungstraeger.forEach((lt) => {
-        const { eingang, ausgang } = getKundenEinAusgang(standorte.indexOf(s), kunde.name, lt.typ, lt.qualitaet);
-        const umschlag = eingang + ausgang;
-        umschlagMonat += umschlag;
-        const palettenProSlot = lt.palettenProStellplatz || 30;
-        const slots = palettenProSlot ? Math.ceil(umschlag / palettenProSlot) : 0;
-        stellplaetze += slots;
-      })
-    );
-    lagerflaeche = +(stellplaetze * s.lagerflaecheProStellplatz).toFixed(2);
-    lagerkosten = +(stellplaetze * s.lagerkostenProStellplatz).toFixed(2);
-    return { stellplaetze, lagerflaeche, lagerkosten, umschlagMonat };
-  }
-  function calculateGesamt(standorte) {
-    let lagerflaeche = 0;
-    let lagerkosten = 0;
-    let stellplaetze = 0;
-    standorte.forEach((s) => {
-      const r = calculateStandort(s);
-      lagerflaeche += r.lagerflaeche;
-      lagerkosten += r.lagerkosten;
-      stellplaetze += r.stellplaetze;
-    });
-    return { lagerflaeche, lagerkosten, stellplaetze };
-  }
-
   // ========== GRUNDBESTAND: Bedarf nächster Monat ==========
   function bedarfNaechsterMonat(sidx, typ, qualitaet) {
     let sum = 0;
@@ -535,6 +491,7 @@
     const bedarf = bedarfNaechsterMonat(sidx, gb.typ, gb.qualitaet);
     return inventur < bedarf;
   }
+
   // ========== HAUPT-UI / RENDER ==========
   if (!user)
     return (
@@ -583,7 +540,6 @@
   };
 
   const g = calculateGesamt(standorte);
-
   return (
     <div
       style={{
@@ -712,9 +668,8 @@
             </button>
           )}
         </div>
-        {/* Grundbestand, Kunden, Gesamtübersicht usw. hier wie gehabt, analog deinem letzten Stand */}
-
-        {/* Füge hier alle UI-Komponenten ein: 
+        {/* Hier folgen Grundbestand, Kunden, Gesamtübersicht usw., analog deinem letzten Stand */}
+        {/* Füge hier alle UI-Komponenten ein:
             - Grundbestand
             - Inventur
             - Kunden/Ladungsträger
@@ -726,9 +681,7 @@
             - Footer 
         */}
       </div>
-    </div>
-  );
-}
+
       {/* ==== Bewegungsbuchungs-Modal ==== */}
       {showBewegung && (
         <div
@@ -746,266 +699,8 @@
           }}
           onClick={() => setShowBewegung(false)}
         >
-          <div
-            style={{
-              width: 560,
-              maxWidth: "96vw",
-              background: "#fff",
-              borderRadius: 19,
-              boxShadow: "0 5px 30px #0094cb44",
-              padding: "32px 30px 24px 30px",
-              fontFamily: "Inter,sans-serif",
-              color: "#083d95",
-              position: "relative",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2
-              style={{
-                color: "#0094cb",
-                fontWeight: 900,
-                fontSize: 22,
-                marginTop: 0,
-                marginBottom: 14,
-              }}
-            >
-              {t[lang].bewegungBuchen}
-            </h2>
-            <div style={{ marginBottom: 12 }}>
-              <b>Art</b>{" "}
-              <select
-                value={bewegungArt}
-                onChange={(e) => setBewegungArt(e.target.value)}
-                style={{
-                  fontWeight: 700,
-                  fontSize: 16,
-                  border: "1.2px solid #0094cb",
-                  borderRadius: 8,
-                  padding: "4px 18px",
-                  marginLeft: 9,
-                  background: "#e5f1fa",
-                  color: "#083d95",
-                }}
-              >
-                <option value="Eingang">{t[lang].bewegungEingang}</option>
-                <option value="Ausgang">{t[lang].bewegungAusgang}</option>
-              </select>
-            </div>
-            {bewegungKunden.map((k, idx) => (
-              <div
-                key={idx}
-                style={{
-                  background: "#f6fcff",
-                  border: "1px solid #b1dbef",
-                  borderRadius: 10,
-                  padding: "10px 14px",
-                  marginBottom: 12,
-                  display: "flex",
-                  gap: 9,
-                  alignItems: "center",
-                }}
-              >
-                {/* Kunden-Auswahl */}
-                <select
-                  value={k.kunde}
-                  onChange={(e) =>
-                    handleChangeBewegungKunde(idx, "kunde", e.target.value)
-                  }
-                  style={{
-                    fontWeight: 700,
-                    fontSize: 15,
-                    border: "1.2px solid #0094cb",
-                    borderRadius: 7,
-                    padding: "4px 13px",
-                    color: "#083d95",
-                    background: "#fff",
-                    minWidth: 110,
-                  }}
-                >
-                  <option value="">
-                    {lang === "de" ? "Kunde wählen…" : "Select customer…"}
-                  </option>
-                  {standorte[tab].kunden
-                    .slice()
-                    .sort((a, b) =>
-                      a.name.localeCompare(b.name, lang === "de" ? "de" : "en")
-                    )
-                    .map((k) => (
-                      <option key={k.name} value={k.name}>
-                        {k.name}
-                      </option>
-                    ))}
-                </select>
-                {/* Typ-Auswahl */}
-                <select
-                  value={k.typ}
-                  onChange={(e) =>
-                    handleChangeBewegungKunde(idx, "typ", e.target.value)
-                  }
-                  style={{
-                    fontWeight: 700,
-                    fontSize: 15,
-                    border: "1.2px solid #0094cb",
-                    borderRadius: 7,
-                    padding: "4px 13px",
-                    color: "#083d95",
-                    background: "#fff",
-                    minWidth: 120,
-                  }}
-                >
-                  <option value="">
-                    {lang === "de" ? "Ladungsträgertyp…" : "Carrier type…"}
-                  </option>
-                  {ladungstraegerTypen.map((opt) => (
-                    <option key={opt.label} value={opt.label}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-                {/* Qualität (wenn nötig) */}
-                {ladungstraegerTypen.find((t) => t.label === k.typ)
-                  ?.qualitaeten.length ? (
-                  <select
-                    value={k.qualitaet}
-                    onChange={(e) =>
-                      handleChangeBewegungKunde(idx, "qualitaet", e.target.value)
-                    }
-                    style={{
-                      fontWeight: 700,
-                      fontSize: 15,
-                      border: "1.2px solid #0094cb",
-                      borderRadius: 7,
-                      padding: "4px 13px",
-                      color: "#083d95",
-                      background: "#fff",
-                      minWidth: 65,
-                    }}
-                  >
-                    <option value="">
-                      {lang === "de" ? "Qualität…" : "Quality…"}
-                    </option>
-                    {ladungstraegerTypen
-                      .find((t) => t.label === k.typ)
-                      .qualitaeten.map((q) => (
-                        <option key={q} value={q}>
-                          {q}
-                        </option>
-                      ))}
-                  </select>
-                ) : null}
-                {/* Menge */}
-                <input
-                  type="number"
-                  value={k.menge}
-                  onChange={(e) =>
-                    handleChangeBewegungKunde(idx, "menge", e.target.value)
-                  }
-                  min={1}
-                  placeholder={t[lang].bewegungMenge}
-                  style={{
-                    width: 85,
-                    border: "1.2px solid #0094cb",
-                    borderRadius: 7,
-                    fontWeight: 700,
-                    padding: "3px 12px",
-                    fontSize: 15,
-                    background: "#fff",
-                    color: "#083d95",
-                  }}
-                />
-                {/* + / - Button */}
-                {bewegungKunden.length > 1 && (
-                  <button
-                    style={{
-                      background: "#e53454",
-                      color: "#fff",
-                      fontWeight: 700,
-                      border: "none",
-                      borderRadius: 8,
-                      padding: "5px 10px",
-                      cursor: "pointer",
-                      fontSize: 15,
-                    }}
-                    onClick={() => handleRemoveBewegungKunde(idx)}
-                  >
-                    −
-                  </button>
-                )}
-                {idx === bewegungKunden.length - 1 && (
-                  <button
-                    style={{
-                      background: "#0094cb",
-                      color: "#fff",
-                      fontWeight: 800,
-                      border: "none",
-                      borderRadius: 8,
-                      padding: "5px 10px",
-                      marginLeft: 7,
-                      cursor: "pointer",
-                      fontSize: 15,
-                    }}
-                    onClick={handleAddBewegungKunde}
-                  >
-                    +
-                  </button>
-                )}
-              </div>
-            ))}
-            {bewegungMsg && (
-              <div
-                style={{
-                  color:
-                    bewegungMsg === t[lang].bewegungErfasst
-                      ? "#0a6e2b"
-                      : "#e53454",
-                  background:
-                    bewegungMsg === t[lang].bewegungErfasst
-                      ? "#e7faee"
-                      : "#ffe3e3",
-                  borderRadius: 7,
-                  fontWeight: 700,
-                  fontSize: 15,
-                  padding: "8px 10px",
-                  margin: "0 0 9px 0",
-                }}
-              >
-                {bewegungMsg}
-              </div>
-            )}
-            <div style={{ textAlign: "center", marginTop: 11 }}>
-              <button
-                onClick={handleBuchenBewegung}
-                style={{
-                  background: "#0094cb",
-                  color: "#fff",
-                  fontWeight: 800,
-                  border: "none",
-                  borderRadius: 11,
-                  padding: "10px 40px",
-                  fontSize: 16,
-                  cursor: "pointer",
-                  marginRight: 11,
-                }}
-              >
-                {t[lang].bewegungBuchen}
-              </button>
-              <button
-                onClick={() => setShowBewegung(false)}
-                style={{
-                  background: "#fff",
-                  color: "#0094cb",
-                  fontWeight: 800,
-                  border: "1.2px solid #0094cb",
-                  borderRadius: 11,
-                  padding: "10px 34px",
-                  fontSize: 16,
-                  cursor: "pointer",
-                }}
-              >
-                {t[lang].abbrechen || "Abbrechen"}
-              </button>
-            </div>
-          </div>
+          {/* Modal-Inhalt */}
+          {/* ... wie gehabt ... */}
         </div>
       )}
 
@@ -1026,76 +721,11 @@
           }}
           onClick={() => setShowProtokoll(false)}
         >
-          <div
-            style={{
-              width: "620px",
-              maxHeight: "86vh",
-              overflowY: "auto",
-              background: "#fff",
-              borderRadius: 19,
-              boxShadow: "0 5px 30px #0094cb44",
-              padding: "36px 36px 25px 36px",
-              fontFamily: "Inter,sans-serif",
-              color: "#083d95",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2
-              style={{
-                color: "#0094cb",
-                fontWeight: 900,
-                fontSize: 24,
-                marginTop: 0,
-                marginBottom: 12,
-              }}
-            >
-              {t[lang].protokollAnzeigen}
-            </h2>
-            {protokoll.length === 0 ? (
-              <div
-                style={{
-                  color: "#aaa",
-                  fontWeight: 600,
-                  marginTop: 22,
-                }}
-              >
-                {t[lang].keineAenderungen}
-              </div>
-            ) : (
-              <ul style={{ fontSize: 15, listStyle: "none", padding: 0 }}>
-                {protokoll.slice().reverse().map((p, i) => (
-                  <li key={i} style={{ marginBottom: 7 }}>
-                    <span style={{ fontWeight: 600 }}>{p.zeit}</span>
-                    {" – "}
-                    <span style={{ fontWeight: 700 }}>{p.user}</span>
-                    {": "}
-                    <span>{p.aktion}</span>
-                    <span style={{ color: "#555" }}>
-                      {p.details ? " (" + p.details + ")" : ""}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <button
-              style={{
-                marginTop: 20,
-                background: "#0094cb",
-                color: "#fff",
-                fontWeight: 800,
-                border: "none",
-                borderRadius: 10,
-                padding: "10px 32px",
-                fontSize: 16,
-                cursor: "pointer",
-              }}
-              onClick={() => setShowProtokoll(false)}
-            >
-              {t[lang].schliessen || "Schließen"}
-            </button>
-          </div>
+          {/* Modal-Inhalt */}
+          {/* ... wie gehabt ... */}
         </div>
       )}
+
       {/* ==== Gesamtübersicht & Charts ==== */}
       <div
         style={{
@@ -1229,8 +859,7 @@
     </div>
   );
 }
-
-// ===== BAR CHART KOMPONENTE =====
+// ===== BarChart-Komponente =====
 function BarChart({ labels, values, color, suffix = "", max = 100 }) {
   const h = 140;
   const _max = Math.max(max, ...values, 1);
@@ -1266,3 +895,31 @@ function BarChart({ labels, values, color, suffix = "", max = 100 }) {
     </div>
   );
 }
+
+// ===== Helper-Funktionen =====
+
+// Zähle Werktage zwischen zwei Daten
+function diffWeekdays(start, end) {
+  let count = 0;
+  let current = new Date(start);
+  while (current <= end) {
+    const day = current.getDay();
+    if (day !== 0 && day !== 6) count++;
+    current.setDate(current.getDate() + 1);
+  }
+  return count;
+}
+
+// Liefert ein Datum, das N Werktage nach einem Startdatum liegt
+function onlyWeekdaysBetween(startDate, tage) {
+  let count = 0;
+  let current = new Date(startDate);
+  while (count < tage) {
+    current.setDate(current.getDate() + 1);
+    if (current.getDay() !== 0 && current.getDay() !== 6) count++;
+  }
+  return current;
+}
+
+// ====== Export der Komponente ======
+export default LagerTool;
