@@ -1,8 +1,22 @@
 import React, { useState, useEffect } from "react";
 
-/* =========================
-    LADUNGSTRÄGER KONFIG
-========================= */
+/* ====== KONSTANTEN UND HILFSFUNKTIONEN ====== */
+// Helper: Werktage zwischen 2 Daten berechnen
+function getWerktage(start, ende) {
+  let count = 0;
+  let cur = new Date(start);
+  const end = new Date(ende);
+  while (cur <= end) {
+    const day = cur.getDay();
+    if (day !== 0 && day !== 6) count++;
+    cur.setDate(cur.getDate() + 1);
+  }
+  return count;
+}
+// Alphabetisch sortieren
+const alphaSort = (arr) => arr.slice().sort((a, b) => (a.name > b.name ? 1 : -1));
+
+/* ====== LADUNGSTRÄGER-TYPEN ====== */
 const ladungstraegerTypen = [
   { label: "EPAL 1 Europalette", qualitaeten: ["A", "B", "C"] },
   { label: "EPAL 6 Halbpalette", qualitaeten: [] },
@@ -11,13 +25,10 @@ const ladungstraegerTypen = [
   { label: "EPAL Europalette QR", qualitaeten: ["A", "B", "C"] },
 ];
 
-/* =========================
-    ÜBERSETZUNGEN (DE/EN)
-========================= */
+/* ====== ÜBERSETZUNGEN (DE/EN) ====== */
 const t = {
   de: {
     standort: "Standort",
-    standortEdit: "Standortnamen bearbeiten",
     lagerflaecheProStellplatz: "Lagerfläche pro Stellplatz (m²)",
     lagerkostenProStellplatz: "Lagerkosten pro Stellplatz (€)",
     kunden: "Kunden",
@@ -26,36 +37,25 @@ const t = {
     ladungstraegertyp: "Ladungsträgertyp",
     qualitaet: "Qualität",
     vertragsmenge: "Vertragsmenge (Monat)",
-    istmenge: "Umschlag (Monat)",
-    ladungstraegerHinzufuegen: "Ladungsträger hinzufügen",
-    notizen: "Notizen",
+    istmenge: "Umschlag gesamt (Monat)",
+    clearingTageL: "Clearing Ladestelle (Werktage)",
+    clearingTageE: "Clearing Entladestelle (Werktage)",
+    clearingStart: "Startdatum",
+    clearingCountdown: "Tage bis Clearing",
+    clearingStartBtn: "Countdown starten",
+    hinweis: "Hinweis",
     entfernen: "Entfernen",
     gesamtuebersicht: "Gesamtübersicht",
     lagerflaeche: "Lagerfläche (m²)",
     stellplaetze: "Benötigte Stellplätze",
     lagerkosten: "Monatliche Lagerkosten (€)",
-    chartsUmschlag: "Umschlag je Standort (Paletten/Monat)",
+    chartsUmschlag: "Umschlag je Standort (Monat)",
     chartsKosten: "Lagerkosten je Standort (€)",
     neuerStandort: "Standort hinzufügen",
     grundbestand: "Grundbestand",
-    inventur: "Inventur-Bestand",
+    inventur: "Inventur",
     abweichung: "Abweichung",
-    warnung: "Warnung: Bestand reicht nicht!",
-    inventurSpeichern: "Inventur speichern",
-    beschaffung: "Beschaffung",
-    protokollAnzeigen: "Protokoll anzeigen",
-    abmelden: "Abmelden",
-    login: "Login",
-    pinEingeben: "Bitte PIN eingeben",
-    anmelden: "Anmelden",
-    falsch: "Falsche PIN",
-    userLabel: "Angemeldet als:",
-    grundbestandHinzufuegen: "Grundbestand hinzufügen",
-    keineAenderungen: "Noch keine Änderungen erfasst.",
-    entfernenStandort: "Standort entfernen",
-    keinKunde: "Noch kein Kunde angelegt.",
-    keinLadungstraeger: "Noch kein Ladungsträger angelegt.",
-    keineBewegung: "Keine Bewegungen vorhanden.",
+    warnungLadungstraegerImGrundbestand: "Für diesen Ladungsträger/Qualität existiert kein Grundbestand am Standort. Bitte zuerst Grundbestand anlegen.",
     bewegungBuchen: "Bewegung buchen",
     bewegungEingang: "Eingang",
     bewegungAusgang: "Ausgang",
@@ -70,13 +70,23 @@ const t = {
     bewegungKundePflicht: "Mindestens ein Kunde muss ausgewählt werden.",
     bewegungTypPflicht: "Typ und Qualität müssen gewählt sein.",
     bewegungMengePflicht: "Menge muss > 0 sein.",
-    einAusgangHistorie: "Ein-/Ausgang (kumuliert)",
     ampelInfoGruen: "Vertragsmenge im grünen Bereich.",
     ampelInfoGelb: "Achtung: Vertragsmenge bald überschritten.",
     ampelInfoRot: "Warnung: Vertragsmenge überschritten!",
-    warnungLadungstraegerImGrundbestand:
-      "Es gibt für diesen Ladungsträger keinen Grundbestand/Inventur an diesem Standort. Bitte zuerst Grundbestand anlegen.",
-    inventurPflicht: "Bitte Inventur-Bestand eintragen und speichern!",
+    keinKunde: "Noch kein Kunde angelegt.",
+    keinLadungstraeger: "Noch kein Ladungsträger angelegt.",
+    keineBewegung: "Keine Bewegungen vorhanden.",
+    protokollAnzeigen: "Protokoll anzeigen",
+    abmelden: "Abmelden",
+    login: "Login",
+    pinEingeben: "Bitte PIN eingeben",
+    anmelden: "Anmelden",
+    falsch: "Falsche PIN",
+    userLabel: "Angemeldet als:",
+    grundbestandHinzufuegen: "Grundbestand hinzufügen",
+    summe: "Summe",
+    entfernenStandort: "Standort entfernen",
+    footer: "LCX NEXUS © 2025  –  Lager- & Bestandsplanungstool",
     protokollLogin: "Login",
     protokollLogout: "Logout",
     protokollStandortHinzu: "Standort hinzugefügt",
@@ -88,21 +98,16 @@ const t = {
     protokollLadungsträgerHinzu: "Ladungsträger hinzugefügt",
     protokollLadungsträgerEntf: "Ladungsträger entfernt",
     protokollBewegung: "Bewegung gebucht",
-    clearingLadestelle: "Clearing Ladestelle (WT)",
-    clearingEntladestelle: "Clearing Entladestelle (WT)",
-    clearingStart: "Countdown starten",
-    clearingCountdownZiel: "Ziel:",
-    clearingNoch: "Noch",
-    clearingWerktage: "WT",
-    clearingKeinDatum: "Nicht gestartet",
-    startdatum: "Startdatum",
-    abbruch: "Abbrechen",
+    keineAenderungen: "Noch keine Änderungen erfasst.",
     schliessen: "Schließen",
-    footer: "LCX NEXUS © 2025  –  Lager- & Bestandsplanungstool",
+    clearingHinweis: "Clearing spätestens am",
+    heute: "heute",
+    tage: "Tage",
+    clearingCountdownAktiv: "Clearing-Countdown läuft:",
+    clearingFaellig: "Clearing fällig!",
   },
   en: {
     standort: "Location",
-    standortEdit: "Edit location name",
     lagerflaecheProStellplatz: "Storage area per slot (m²)",
     lagerkostenProStellplatz: "Storage cost per slot (€)",
     kunden: "Customers",
@@ -111,36 +116,25 @@ const t = {
     ladungstraegertyp: "Load carrier type",
     qualitaet: "Quality",
     vertragsmenge: "Contract volume (month)",
-    istmenge: "Turnover (month)",
-    ladungstraegerHinzufuegen: "Add load carrier",
-    notizen: "Notes",
+    istmenge: "Total turnover (month)",
+    clearingTageL: "Clearing loading site (workdays)",
+    clearingTageE: "Clearing unloading site (workdays)",
+    clearingStart: "Start date",
+    clearingCountdown: "Days until clearing",
+    clearingStartBtn: "Start countdown",
+    hinweis: "Note",
     entfernen: "Remove",
     gesamtuebersicht: "Total overview",
     lagerflaeche: "Storage area (m²)",
     stellplaetze: "Required slots",
     lagerkosten: "Monthly storage cost (€)",
-    chartsUmschlag: "Turnover per location (pallets/month)",
+    chartsUmschlag: "Turnover per location (month)",
     chartsKosten: "Storage cost per location (€)",
     neuerStandort: "Add location",
     grundbestand: "Initial stock",
-    inventur: "Inventory stock",
+    inventur: "Inventory",
     abweichung: "Deviation",
-    warnung: "Warning: Inventory not sufficient!",
-    inventurSpeichern: "Save inventory",
-    beschaffung: "Procurement",
-    protokollAnzeigen: "Show audit log",
-    abmelden: "Logout",
-    login: "Login",
-    pinEingeben: "Please enter PIN",
-    anmelden: "Sign in",
-    falsch: "Wrong PIN",
-    userLabel: "Logged in as:",
-    grundbestandHinzufuegen: "Add initial stock",
-    keineAenderungen: "No changes yet.",
-    entfernenStandort: "Remove location",
-    keinKunde: "No customer added yet.",
-    keinLadungstraeger: "No load carrier added yet.",
-    keineBewegung: "No movements recorded.",
+    warnungLadungstraegerImGrundbestand: "No initial stock for this carrier/quality at this location. Please add initial stock first.",
     bewegungBuchen: "Book movement",
     bewegungEingang: "Inbound",
     bewegungAusgang: "Outbound",
@@ -155,13 +149,23 @@ const t = {
     bewegungKundePflicht: "At least one customer must be selected.",
     bewegungTypPflicht: "Type and quality must be selected.",
     bewegungMengePflicht: "Quantity must be > 0.",
-    einAusgangHistorie: "In-/Outbound (cumulated)",
     ampelInfoGruen: "Contract volume OK.",
     ampelInfoGelb: "Attention: Contract volume nearly reached.",
     ampelInfoRot: "Warning: Contract volume exceeded!",
-    warnungLadungstraegerImGrundbestand:
-      "There is no initial/inventory stock for this load carrier at this location. Please create initial stock first.",
-    inventurPflicht: "Please enter and save inventory stock!",
+    keinKunde: "No customer added yet.",
+    keinLadungstraeger: "No load carrier added yet.",
+    keineBewegung: "No movements recorded.",
+    protokollAnzeigen: "Show audit log",
+    abmelden: "Logout",
+    login: "Login",
+    pinEingeben: "Please enter PIN",
+    anmelden: "Sign in",
+    falsch: "Wrong PIN",
+    userLabel: "Logged in as:",
+    grundbestandHinzufuegen: "Add initial stock",
+    summe: "Sum",
+    entfernenStandort: "Remove location",
+    footer: "LCX NEXUS © 2025  –  Warehouse & Inventory Planning Tool",
     protokollLogin: "Login",
     protokollLogout: "Logout",
     protokollStandortHinzu: "Location added",
@@ -173,22 +177,17 @@ const t = {
     protokollLadungsträgerHinzu: "Load carrier added",
     protokollLadungsträgerEntf: "Load carrier removed",
     protokollBewegung: "Movement booked",
-    clearingLadestelle: "Clearing loading point (WD)",
-    clearingEntladestelle: "Clearing unloading point (WD)",
-    clearingStart: "Start countdown",
-    clearingCountdownZiel: "Target:",
-    clearingNoch: "Remaining",
-    clearingWerktage: "WD",
-    clearingKeinDatum: "Not started",
-    startdatum: "Start date",
-    abbruch: "Cancel",
+    keineAenderungen: "No changes yet.",
     schliessen: "Close",
-    footer: "LCX NEXUS © 2025  –  Warehouse & Inventory Planning Tool",
+    clearingHinweis: "Clearing due by",
+    heute: "today",
+    tage: "days",
+    clearingCountdownAktiv: "Clearing countdown active:",
+    clearingFaellig: "Clearing due!",
   },
 };
-/* =========================
-    INITIALSTANDORTE
-========================= */
+
+/* ====== INITIAL-STANDORTE ====== */
 const initialStandorte = [
   {
     name: "Mettmann",
@@ -200,9 +199,7 @@ const initialStandorte = [
   },
 ];
 
-/* =========================
-    PIN-USER-KONFIG
-========================= */
+/* ====== PIN-USER-KONFIG ====== */
 const pinMap = {
   "1111": "Oliver",
   "2222": "Thomas",
@@ -210,7 +207,7 @@ const pinMap = {
   "4444": "Sebastian",
 };
 
-// =================== HAUPTKOMPONENTE ===================
+/* ===== HAUPTKOMPONENTE ===== */
 export default function Home() {
   // === State
   const [lang, setLang] = useState("de");
@@ -220,7 +217,7 @@ export default function Home() {
   const [showProtokoll, setShowProtokoll] = useState(false);
   const [standorte, setStandorte] = useState(() => {
     if (typeof window !== "undefined") {
-      const s = localStorage.getItem("lager_standorte_v2");
+      const s = localStorage.getItem("lager_standorte_v3");
       if (s) return JSON.parse(s);
     }
     return initialStandorte;
@@ -233,21 +230,28 @@ export default function Home() {
   const [bewegungArt, setBewegungArt] = useState("Eingang");
   const [bewegungMsg, setBewegungMsg] = useState("");
 
+  // Pro Ladungsträger/Clearing Countdown
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const i = setInterval(() => setNow(Date.now()), 1000 * 60 * 15); // Alle 15 Min aktualisieren
+    return () => clearInterval(i);
+  }, []);
+
   // ==== Protokoll laden/speichern
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const p = localStorage.getItem("lager_protokoll_v2");
+      const p = localStorage.getItem("lager_protokoll_v3");
       if (p) setProtokoll(JSON.parse(p));
     }
   }, []);
   useEffect(() => {
     if (typeof window !== "undefined") {
-      localStorage.setItem("lager_standorte_v2", JSON.stringify(standorte));
+      localStorage.setItem("lager_standorte_v3", JSON.stringify(standorte));
     }
   }, [standorte]);
   useEffect(() => {
     if (typeof window !== "undefined") {
-      localStorage.setItem("lager_protokoll_v2", JSON.stringify(protokoll));
+      localStorage.setItem("lager_protokoll_v3", JSON.stringify(protokoll));
     }
   }, [protokoll]);
 
@@ -345,7 +349,7 @@ export default function Home() {
       typ: ladungstraegerTypen[0].label,
       qualitaet: "",
       bestand: 0,
-      inventur: "",
+      inventur: 0,
     });
     setStandorte(neu);
     addProtokoll(t[lang].protokollGrundbestand, `Standort: ${standorte[sidx].name}`);
@@ -366,266 +370,228 @@ export default function Home() {
     setStandorte(neu);
     addProtokoll(t[lang].protokollGrundbestand, `Standort: ${standorte[sidx].name}`);
   }
-  function saveInventur(sidx, gidx) {
-    // Inventur-Bestand MUSS Pflichtfeld sein
-    const gb = standorte[sidx].grundbestaende[gidx];
-    if (!gb.inventur || gb.inventur === "") {
-      alert(t[lang].inventurPflicht);
+
+  // ==== Ladungsträgerfunktionen (strikte Grundbestand-Validierung)
+  function addLadungstraeger(sidx, kidx) {
+    const grundbestaende = standorte[sidx].grundbestaende;
+    if (!grundbestaende.length) {
+      alert(t[lang].warnungLadungstraegerImGrundbestand);
       return;
     }
-    addProtokoll(
-      t[lang].protokollInventur,
-      `Standort: ${standorte[sidx].name}, Typ: ${gb.typ}, Qualität: ${gb.qualitaet}, Wert: ${gb.inventur}`
-    );
+    // Standard: Erster vorhandener Grundbestand
+    const gb = grundbestaende[0];
+    const neu = [...standorte];
+    neu[sidx].kunden[kidx].ladungstraeger.push({
+      typ: gb.typ,
+      qualitaet: gb.qualitaet,
+      vertragsmenge: "",
+      startdatumL: "",
+      startdatumE: "",
+      clearingTageL: "",
+      clearingTageE: "",
+      hinweisL: "",
+      hinweisE: "",
+    });
+    setStandorte(neu);
+    addProtokoll(t[lang].protokollLadungsträgerHinzu, `Kunde: ${standorte[sidx].kunden[kidx].name}`);
+  }
+  function removeLadungstraeger(sidx, kidx, lidx) {
+    const neu = [...standorte];
+    neu[sidx].kunden[kidx].ladungstraeger.splice(lidx, 1);
+    setStandorte(neu);
+    addProtokoll(t[lang].protokollLadungsträgerEntf, `Kunde: ${standorte[sidx].kunden[kidx].name}`);
+  }
+  function updateLadungstraeger(sidx, kidx, lidx, feld, val) {
+    const neu = [...standorte];
+    neu[sidx].kunden[kidx].ladungstraeger[lidx][feld] = val;
+    setStandorte(neu);
   }
 
-  // ==== Hilfsfunktionen für Monitoring & Vertragsmenge
+  // ==== Vertragsmenge-Monitoring (Ampel-Logik & IST-Menge)
   function getKundenEinAusgang(sidx, kName, typ, qualitaet) {
-    // Alle Bewegungen dieses Standorts und Kunden, Typ, Qualität aufsummieren
+    // Alle Bewegungen dieses Standorts und Kunden, Typ, Qualität aufsummieren (nur aktueller Monat)
     const standort = standorte[sidx];
-    let eingang = 0,
-      ausgang = 0;
+    let eingang = 0, ausgang = 0;
+    const nowD = new Date();
+    const monat = nowD.getMonth();
+    const jahr = nowD.getFullYear();
     if (standort.bewegungen && standort.bewegungen.length) {
       standort.bewegungen.forEach((m) => {
+        const md = new Date(m.zeit);
+        if (md.getMonth() !== monat || md.getFullYear() !== jahr) return;
         m.details.forEach((b) => {
-          if (
-            b.kunde === kName &&
-            b.typ === typ &&
-            (b.qualitaet || "") === (qualitaet || "")
-          ) {
+          if (b.kunde === kName && b.typ === typ && (b.qualitaet || "") === (qualitaet || "")) {
             if (m.art === "Eingang") eingang += Number(b.menge) || 0;
             if (m.art === "Ausgang") ausgang += Number(b.menge) || 0;
           }
         });
       });
     }
-    return { eingang, ausgang };
+    return { eingang, ausgang, istmenge: eingang + ausgang };
   }
   function getVertragsAmpel(vertragsmenge, istmenge) {
     if (!vertragsmenge || vertragsmenge === 0) return { color: "gray", info: "" };
     const pct = istmenge / vertragsmenge;
-    if (pct < 0.9) return { color: "green", info: t[lang].ampelInfoGruen };
+    if (pct < 0.8) return { color: "green", info: t[lang].ampelInfoGruen };
     if (pct < 1.0) return { color: "orange", info: t[lang].ampelInfoGelb };
     return { color: "red", info: t[lang].ampelInfoRot };
   }
-  // ==== Ladungsträgerfunktionen
-  function addLadungstraeger(sidx, kidx) {
-    // Nur erlauben, wenn im Grundbestand die Kombi Typ+Qualität vorhanden ist!
-    const gbArr = standorte[sidx].grundbestaende;
-    if (gbArr.length === 0) {
-      alert(t[lang].warnungLadungstraegerImGrundbestand);
-      return;
-    }
-    // Default auf ersten Eintrag
-    const typ = gbArr[0]?.typ || "";
-    const qualitaet = gbArr[0]?.qualitaet || "";
-    const already = standorte[sidx].kunden[kidx].ladungstraeger.find(
-      (lt) => lt.typ === typ && lt.qualitaet === qualitaet
-    );
-    if (already) {
-      alert(
-        lang === "de"
-          ? "Dieser Ladungsträger/Qualität ist schon angelegt."
-          : "This carrier/quality is already added."
-      );
-      return;
-    }
-    // Startdatum, Clearingtage, Hinweis
-    setStandorte((alt) => {
-      const kopie = [...alt];
-      kopie[sidx].kunden[kidx].ladungstraeger.push({
-        typ,
-        qualitaet,
-        vertragsmenge: "",
-        einAusgaenge: [],
-        clearingTageLadestelle: "",
-        clearingTageEntladestelle: "",
-        startdatum: "",
-        clearingHinweis: "",
-      });
-      return kopie;
-    });
-    addProtokoll(t[lang].protokollLadungsträgerHinzu, `Kunde: ${standorte[sidx].kunden[kidx].name}`);
-  }
 
-  function removeLadungstraeger(sidx, kidx, lidx) {
-    setStandorte((alt) => {
-      const kopie = [...alt];
-      kopie[sidx].kunden[kidx].ladungstraeger.splice(lidx, 1);
-      return kopie;
-    });
-    addProtokoll(t[lang].protokollLadungsträgerEntf, `Kunde: ${standorte[sidx].kunden[kidx].name}`);
-  }
-
-  function updateLadungstraeger(sidx, kidx, lidx, feld, val) {
-    setStandorte((alt) => {
-      const kopie = [...alt];
-      if (
-        feld === "vertragsmenge" ||
-        feld === "clearingTageLadestelle" ||
-        feld === "clearingTageEntladestelle"
-      ) {
-        kopie[sidx].kunden[kidx].ladungstraeger[lidx][feld] = Number(val);
-      } else {
-        kopie[sidx].kunden[kidx].ladungstraeger[lidx][feld] = val;
-      }
-      return kopie;
-    });
-  }
-
-  // ==== Ein-/Ausgangsbuchung
+  // ==== Bewegungsbuchung (Eingang/Ausgang)
   function handleOpenBewegung() {
-    setBewegungKunden([
-      { kunde: "", typ: "", qualitaet: "", menge: "", art: "Eingang" },
-    ]);
+    setBewegungKunden([{ kunde: "", typ: "", qualitaet: "", menge: "" }]);
+    setBewegungArt("Eingang");
     setShowBewegung(true);
     setBewegungMsg("");
   }
-
   function handleChangeBewegungKunde(idx, feld, val) {
-    setBewegungKunden((arr) => {
-      const k = [...arr];
-      k[idx][feld] = val;
-      if (feld === "typ") k[idx].qualitaet = ""; // Reset Quali bei Typwechsel
-      return k;
-    });
+    const arr = [...bewegungKunden];
+    arr[idx][feld] = val;
+    if (feld === "typ") arr[idx].qualitaet = "";
+    setBewegungKunden(arr);
   }
   function handleAddBewegungKunde() {
-    setBewegungKunden((arr) => [
-      ...arr,
-      { kunde: "", typ: "", qualitaet: "", menge: "", art: bewegungArt },
-    ]);
+    setBewegungKunden([...bewegungKunden, { kunde: "", typ: "", qualitaet: "", menge: "" }]);
   }
   function handleRemoveBewegungKunde(idx) {
-    setBewegungKunden((arr) => {
-      const a = [...arr];
-      a.splice(idx, 1);
-      return a;
-    });
+    const arr = [...bewegungKunden];
+    arr.splice(idx, 1);
+    setBewegungKunden(arr);
   }
-
   function handleBuchenBewegung() {
-    // Check: Kunde, Typ, Qualität, Menge alles Pflicht und >0
     let valid = true;
-    if (
-      !bewegungKunden.length ||
-      bewegungKunden.some((b) => !b.kunde || !b.typ || !b.menge || Number(b.menge) <= 0)
-    ) {
+    if (!bewegungKunden.length || bewegungKunden.some((b) => !b.kunde)) {
       setBewegungMsg(t[lang].bewegungKundePflicht);
+      valid = false;
+    } else if (bewegungKunden.some((b) => !b.typ)) {
+      setBewegungMsg(t[lang].bewegungTypPflicht);
+      valid = false;
+    } else if (bewegungKunden.some((b) => !b.menge || Number(b.menge) <= 0)) {
+      setBewegungMsg(t[lang].bewegungMengePflicht);
       valid = false;
     }
     if (!valid) return;
 
-    // Für Ausgang: Prüfe Bestand (im Grundbestand!)
-    const gbArr = standorte[tab].grundbestaende;
-    for (const b of bewegungKunden) {
-      const gb = gbArr.find(
-        (g) => g.typ === b.typ && (g.qualitaet || "") === (b.qualitaet || "")
-      );
-      if (!gb) {
-        setBewegungMsg(t[lang].warnungLadungstraegerImGrundbestand);
-        return;
-      }
-      if (b.art === "Ausgang" && gb.bestand < Number(b.menge)) {
-        setBewegungMsg(t[lang].bewegungNichtGenugBestand);
-        return;
-      }
-    }
-
-    // Buchung vornehmen
-    setStandorte((standorteAlt) => {
-      const s = JSON.parse(JSON.stringify(standorteAlt)); // Deep Clone!
-      bewegungKunden.forEach((b) => {
-        const gb = s[tab].grundbestaende.find(
+    // Bestand prüfen für jede Buchung (bei Ausgang)
+    const grundbestaende = standorte[tab].grundbestaende;
+    if (bewegungArt === "Ausgang") {
+      for (const b of bewegungKunden) {
+        const gb = grundbestaende.find(
           (g) => g.typ === b.typ && (g.qualitaet || "") === (b.qualitaet || "")
         );
-        if (!gb) return;
-        if (b.art === "Eingang") {
-          gb.bestand += Number(b.menge);
-          gb.inventur += Number(b.menge);
-        } else {
-          gb.bestand -= Number(b.menge);
-          gb.inventur -= Number(b.menge);
+        if (!gb || gb.bestand < Number(b.menge)) {
+          setBewegungMsg(t[lang].bewegungNichtGenugBestand);
+          return;
         }
-
-        // Kunde & Typ finden, in Ladungsträger die Bewegung buchen
-        const k = s[tab].kunden.find((k) => k.name === b.kunde);
-        if (k) {
-          const lt = k.ladungstraeger.find(
-            (l) => l.typ === b.typ && (l.qualitaet || "") === (b.qualitaet || "")
-          );
-          if (lt) {
-            if (!lt.einAusgaenge) lt.einAusgaenge = [];
-            lt.einAusgaenge.push({
-              art: b.art,
-              menge: Number(b.menge),
-              zeit: new Date().toISOString(),
-            });
-          }
-        }
-      });
-      // Bewegungsprotokoll speichern
-      if (!s[tab].bewegungen) s[tab].bewegungen = [];
-      s[tab].bewegungen.push({
-        zeit: new Date().toLocaleString(),
-        details: bewegungKunden.map((b) => ({
-          ...b,
-          user,
-        })),
-      });
-      return s;
+      }
+    }
+    // Buchen (Bestand anpassen)
+    const neu = [...standorte];
+    bewegungKunden.forEach((b) => {
+      const gb = neu[tab].grundbestaende.find(
+        (g) => g.typ === b.typ && (g.qualitaet || "") === (b.qualitaet || "")
+      );
+      if (!gb) return;
+      if (bewegungArt === "Eingang") {
+        gb.bestand += Number(b.menge);
+        gb.inventur += Number(b.menge);
+      } else {
+        gb.bestand -= Number(b.menge);
+        gb.inventur -= Number(b.menge);
+      }
     });
-
+    // Bewegungsdatensatz erfassen (mit Zeit, Art, Details, User)
+    if (!neu[tab].bewegungen) neu[tab].bewegungen = [];
+    neu[tab].bewegungen.push({
+      zeit: new Date().toLocaleString(),
+      art: bewegungArt,
+      details: [...bewegungKunden],
+      user,
+    });
+    setStandorte(neu);
     addProtokoll(
       t[lang].protokollBewegung,
-      bewegungKunden
+      `${bewegungArt}: ${bewegungKunden
         .map(
           (b) =>
-            `Kunde: ${b.kunde}, Typ: ${b.typ}, Quali: ${b.qualitaet}, Menge: ${b.menge}, Art: ${b.art}`
+            `Kunde: ${b.kunde}, Typ: ${b.typ}, Quali: ${b.qualitaet}, Menge: ${b.menge}`
         )
-        .join(" | ")
+        .join(" | ")}`
     );
     setBewegungMsg(t[lang].bewegungErfasst);
     setTimeout(() => {
       setShowBewegung(false);
       setBewegungMsg("");
-    }, 1000);
+    }, 1100);
   }
-  // ==== Clearing-Countdown berechnen (nur Werktage)
-  function calcClearingCountdown(start, tage) {
-    if (!start || !tage) return "";
-    let d = new Date(start);
-    let left = Number(tage);
-    while (left > 0) {
-      d.setDate(d.getDate() + 1);
-      // Werktage: Mo-Fr
-      if (d.getDay() !== 0 && d.getDay() !== 6) left--;
+
+  // ==== Clearing-Countdown: Werktage berechnen
+  function getClearingResttage(startdatum, tage) {
+    if (!startdatum || !tage) return null;
+    const start = new Date(startdatum);
+    let t = 0;
+    let cur = new Date(start);
+    while (t < tage) {
+      cur.setDate(cur.getDate() + 1);
+      if (cur.getDay() !== 0 && cur.getDay() !== 6) t++;
     }
-    return d.toLocaleDateString();
+    const diff = Math.ceil((cur - Date.now()) / (1000 * 60 * 60 * 24));
+    return diff;
   }
 
-  // ==== Vertragsmengen-Monitoring
-  function summeEinAusgaenge(lt) {
-    if (!lt.einAusgaenge) return { ein: 0, aus: 0 };
-    let ein = 0,
-      aus = 0;
-    lt.einAusgaenge.forEach((ea) => {
-      if (ea.art === "Eingang") ein += ea.menge || 0;
-      else if (ea.art === "Ausgang") aus += ea.menge || 0;
-    });
-    return { ein, aus };
-  }
-  function vertragAmpel(lt) {
-    const { ein, aus } = summeEinAusgaenge(lt);
-    const istmenge = ein - aus;
-    if (!lt.vertragsmenge || !istmenge) return { color: "gray", info: "" };
-    const pct = istmenge / lt.vertragsmenge;
-    if (pct < 0.8) return { color: "green", info: t[lang].ampelInfoGruen };
-    if (pct < 1) return { color: "orange", info: t[lang].ampelInfoGelb };
-    return { color: "red", info: t[lang].ampelInfoRot };
-  }
+  // === Login-Modal
+  if (!user)
+    return (
+      <div style={{
+        minHeight: "100vh", background: "#f4fbfd", display: "flex",
+        justifyContent: "center", alignItems: "center", fontFamily: "Inter,sans-serif"
+      }}>
+        <div style={{
+          background: "#fff", borderRadius: 20, boxShadow: "0 4px 22px #0094cb44",
+          padding: "36px 45px", textAlign: "center"
+        }}>
+          <img src="/LOGO_LCX_NEXUS.png" alt="LCX NEXUS" style={{ height: 96, marginBottom: 16 }} />
+          <h2 style={{ color: "#0094cb", fontWeight: 900, marginBottom: 10 }}>
+            {t[lang].login}
+          </h2>
+          <div style={{ fontWeight: 600, color: "#083d95", marginBottom: 16 }}>
+            {t[lang].pinEingeben}
+          </div>
+          <input
+            type="password"
+            value={pin}
+            onChange={(e) => setPin(e.target.value)}
+            style={{
+              fontSize: 19, border: "1.5px solid #0094cb", borderRadius: 10,
+              padding: "8px 28px", marginBottom: 20, width: 180, textAlign: "center"
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleLogin();
+            }}
+          />
+          <br />
+          <button
+            onClick={handleLogin}
+            style={{
+              background: "#0094cb", color: "#fff", fontWeight: 800,
+              border: "none", borderRadius: 10, padding: "10px 42px", fontSize: 18, cursor: "pointer"
+            }}>
+            {t[lang].anmelden}
+          </button>
+        </div>
+      </div>
+    );
 
-  // ==== UI Rendering ====
+  /* ==== UI ==== */
+
+  const g = { lagerflaeche: 0, lagerkosten: 0, stellplaetze: 0 };
+  standorte.forEach((s) => {
+    // Stellplätze und Kosten werden nicht mehr benötigt, Felder aber gelassen für spätere Erweiterung
+    g.lagerflaeche += s.lagerflaecheProStellplatz || 0;
+    g.lagerkosten += s.lagerkostenProStellplatz || 0;
+    g.stellplaetze += 1;
+  });
+
   return (
     <div
       style={{
@@ -636,279 +602,1269 @@ export default function Home() {
         paddingBottom: 80,
       }}
     >
-      {/* ...HEADER UND TABS... */}
+      {/* Header - Logo */}
+      <div
+        style={{
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          padding: "50px 0 20px 0",
+          position: "relative",
+          marginBottom: 6,
+        }}
+      >
+        <img
+          src="/LOGO_LCX_NEXUS.png"
+          alt="LCX NEXUS"
+          style={{
+            height: 140,
+            display: "block",
+            margin: "0 auto 8px auto",
+          }}
+        />
+        {/* Bedien-Buttons rechts oben */}
+        <div
+          style={{
+            position: "absolute",
+            right: 38,
+            top: 54,
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <button
+            onClick={() => setLang(lang === "de" ? "en" : "de")}
+            style={{
+              background: "#fff",
+              border: "1px solid #083d95",
+              color: "#083d95",
+              padding: "6px 16px",
+              fontWeight: 700,
+              borderRadius: 12,
+              marginRight: 8,
+              cursor: "pointer",
+              fontSize: 15,
+            }}
+          >
+            {lang === "de" ? "EN" : "DE"}
+          </button>
+          <span
+            style={{
+              fontWeight: 800,
+              color: "#0094cb",
+              fontSize: 17,
+              marginRight: 12,
+            }}
+          >
+            {user ? `${t[lang].userLabel} ${user}` : ""}
+          </span>
+          <button
+            onClick={handleLogout}
+            style={{
+              background: "#e53454",
+              color: "#fff",
+              fontWeight: 700,
+              border: "none",
+              borderRadius: 8,
+              padding: "6px 17px",
+              fontSize: 15,
+              marginLeft: 8,
+              cursor: "pointer",
+            }}
+          >
+            {t[lang].abmelden}
+          </button>
+        </div>
+      </div>
 
-      {/* Kundenverwaltung (nur relevante Auszüge für Ladungsträger-Liste): */}
-      {/* ... */}
-      {standorte[tab].kunden.map((kunde, kidx) => (
-        <div key={kidx} style={{ marginBottom: 32, background: "#f6fcff", borderRadius: 13, padding: 16 }}>
-          {/* ...Name, Notizen, Entfernen... */}
-          <div style={{ marginLeft: 16, marginTop: 10, marginBottom: 6 }}>
-            <b>{t[lang].ladungstraegerHinzufuegen}</b>
-            <button onClick={() => addLadungstraeger(tab, kidx)} style={{
-              background: "#0094cb", color: "#fff", border: "none", borderRadius: 7, padding: "6px 14px",
-              fontWeight: 800, fontSize: 15, marginLeft: 10, cursor: "pointer"
-            }}>
-              + {t[lang].ladungstraegerHinzufuegen}
+      {/* Standorte-Tabs */}
+      <div style={{ margin: "0 26px 0 26px" }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+          {standorte.map((s, i) => (
+            <div
+              key={i}
+              onClick={() => setTab(i)}
+              style={{
+                background: tab === i ? "#fff" : "#e5f1fa",
+                color: tab === i ? "#083d95" : "#4a6079",
+                fontWeight: tab === i ? 900 : 500,
+                padding: "7px 20px",
+                borderRadius: 13,
+                border: tab === i ? "2px solid #083d95" : "1px solid #b6ccea",
+                boxShadow: tab === i ? "0 2px 12px #0094cb33" : "",
+                cursor: "pointer",
+                fontSize: 16,
+                transition: "all 0.2s",
+              }}
+            >
+              {s.name}
+            </div>
+          ))}
+          <button
+            style={{
+              background: "#0094cb",
+              color: "#fff",
+              fontWeight: 700,
+              border: "none",
+              padding: "7px 17px",
+              borderRadius: 13,
+              marginLeft: 18,
+              cursor: "pointer",
+              fontSize: 16,
+              transition: "all 0.2s",
+            }}
+            onClick={addStandort}
+          >
+            + {t[lang].neuerStandort}
+          </button>
+          {standorte.length > 1 && (
+            <button
+              style={{
+                background: "#e53454",
+                color: "#fff",
+                fontWeight: 700,
+                border: "none",
+                padding: "7px 15px",
+                borderRadius: 13,
+                marginLeft: 8,
+                cursor: "pointer",
+                fontSize: 16,
+              }}
+              onClick={() => removeStandort(tab)}
+            >
+              {t[lang].entfernenStandort}
             </button>
+          )}
+        </div>
+
+        {/* --------- Grundbestand --------- */}
+        <div
+          style={{
+            background: "#f8fafc",
+            borderRadius: 15,
+            padding: "18px 22px",
+            margin: "18px 0 16px 0",
+            boxShadow: "0 1px 8px #b9e6fa22",
+          }}
+        >
+          <div
+            style={{
+              fontWeight: 900,
+              color: "#083d95",
+              fontSize: 18,
+              marginBottom: 7,
+            }}
+          >
+            {t[lang].grundbestand}
           </div>
-          {kunde.ladungstraeger.map((lt, lidx) => {
-            const ampel = vertragAmpel(lt);
-            const { ein, aus } = summeEinAusgaenge(lt);
-            return (
-              <div key={lidx} style={{
-                background: "#eaf7ff", borderRadius: 8, padding: "9px 14px", marginBottom: 9,
-                display: "flex", alignItems: "center", gap: 15
-              }}>
+          <button
+            style={{
+              background: "#0094cb",
+              color: "#fff",
+              fontWeight: 800,
+              border: "none",
+              borderRadius: 7,
+              padding: "6px 15px",
+              fontSize: 15,
+              marginBottom: 7,
+              cursor: "pointer",
+            }}
+            onClick={() => addGrundbestand(tab)}
+          >
+            + {t[lang].grundbestandHinzufuegen}
+          </button>
+          <div>
+            {standorte[tab].grundbestaende.length === 0 && (
+              <div style={{ color: "#aaa", margin: "13px 0 16px 0" }}>
+                {lang === "de"
+                  ? "Noch kein Grundbestand erfasst."
+                  : "No initial stock recorded yet."}
+              </div>
+            )}
+            {standorte[tab].grundbestaende.map((gb, gidx) => (
+              <div
+                key={gidx}
+                style={{
+                  display: "flex",
+                  gap: 11,
+                  alignItems: "center",
+                  marginBottom: 9,
+                  background: "#f3faff",
+                  border: `2.1px solid #b3e6fa`,
+                  borderRadius: 10,
+                  padding: "7px 9px",
+                }}
+              >
                 {/* Typ */}
-                <select value={lt.typ} style={{ fontWeight: 700, fontSize: 15, borderRadius: 7, border: "1.2px solid #0094cb", minWidth: 130 }}
-                  onChange={e => updateLadungstraeger(tab, kidx, lidx, "typ", e.target.value)}>
-                  {ladungstraegerTypen.map(opt =>
-                    <option key={opt.label} value={opt.label}>{opt.label}</option>
-                  )}
+                <select
+                  value={gb.typ}
+                  onChange={(e) =>
+                    updateGrundbestand(tab, gidx, "typ", e.target.value)
+                  }
+                  style={{
+                    fontWeight: 700,
+                    fontSize: 16,
+                    border: "1.2px solid #0094cb",
+                    borderRadius: 6,
+                    padding: "4px 13px",
+                    color: "#083d95",
+                    background: "#fff",
+                  }}
+                >
+                  {ladungstraegerTypen.map((opt) => (
+                    <option key={opt.label} value={opt.label}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                {/* Qualität, falls nötig */}
+                {ladungstraegerTypen.find((t) => t.label === gb.typ)
+                  ?.qualitaeten.length ? (
+                  <select
+                    value={gb.qualitaet}
+                    onChange={(e) =>
+                      updateGrundbestand(tab, gidx, "qualitaet", e.target.value)
+                    }
+                    style={{
+                      fontWeight: 700,
+                      fontSize: 16,
+                      border: "1.2px solid #0094cb",
+                      borderRadius: 6,
+                      padding: "4px 13px",
+                      color: "#083d95",
+                      background: "#fff",
+                      minWidth: 65,
+                    }}
+                  >
+                    <option value="">
+                      {lang === "de" ? "Qualität…" : "Quality…"}
+                    </option>
+                    {ladungstraegerTypen
+                      .find((t) => t.label === gb.typ)
+                      .qualitaeten.map((q) => (
+                        <option key={q} value={q}>
+                          {q}
+                        </option>
+                      ))}
+                  </select>
+                ) : null}
+                {/* Grundbestand */}
+                <label>
+                  {t[lang].grundbestand}
+                  <input
+                    type="number"
+                    value={gb.bestand}
+                    onChange={(e) =>
+                      updateGrundbestand(tab, gidx, "bestand", e.target.value)
+                    }
+                    style={{
+                      width: 80,
+                      marginLeft: 9,
+                      borderRadius: 5,
+                      border: "1.2px solid #0094cb",
+                      background: "#fff",
+                      padding: "2px 7px",
+                      fontWeight: 700,
+                      fontSize: 15,
+                      color: "#083d95",
+                    }}
+                  />
+                </label>
+                {/* Inventur-Bestand */}
+                <label>
+                  {t[lang].inventur}
+                  <input
+                    type="number"
+                    value={gb.inventur}
+                    onChange={(e) =>
+                      updateGrundbestand(tab, gidx, "inventur", e.target.value)
+                    }
+                    style={{
+                      width: 80,
+                      marginLeft: 9,
+                      borderRadius: 5,
+                      border: "1.2px solid #0094cb",
+                      background: "#fff",
+                      padding: "2px 7px",
+                      fontWeight: 700,
+                      fontSize: 15,
+                      color: "#083d95",
+                    }}
+                  />
+                </label>
+                {/* Abweichung */}
+                <div
+                  style={{
+                    fontWeight: 800,
+                    color:
+                      gb.inventur - gb.bestand < 0 ? "#e53454" : "#093",
+                    marginLeft: 12,
+                  }}
+                >
+                  {t[lang].abweichung}: {(gb.inventur || 0) - (gb.bestand || 0)}
+                </div>
+                {/* Entfernen-Button */}
+                <button
+                  style={{
+                    background: "#e53454",
+                    color: "#fff",
+                    fontWeight: 700,
+                    border: "none",
+                    borderRadius: 6,
+                    padding: "5px 13px",
+                    fontSize: 14,
+                    marginLeft: 10,
+                    cursor: "pointer",
+                  }}
+                  onClick={() => removeGrundbestand(tab, gidx)}
+                >
+                  {t[lang].entfernen}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Kundenverwaltung */}
+        <div
+          style={{
+            background: "#fff",
+            borderRadius: 15,
+            padding: "30px 32px",
+            boxShadow: "0 1px 14px #8ed6fb22",
+            marginBottom: 34,
+            marginTop: 6,
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              gap: 30,
+              alignItems: "center",
+              marginBottom: 14,
+            }}
+          >
+            <input
+              value={standorte[tab].name}
+              onChange={(e) => updateStandortName(tab, e.target.value)}
+              style={{
+                fontSize: 23,
+                fontWeight: 800,
+                border: "1.5px solid #0094cb",
+                borderRadius: 8,
+                background: "#f4fbfd",
+                padding: "7px 22px",
+                color: "#083d95",
+                minWidth: 180,
+              }}
+            />
+            <div style={{ flex: 1 }} />
+            <label style={{ fontWeight: 700, fontSize: 16, marginRight: 10 }}>
+              {t[lang].lagerflaecheProStellplatz}
+              <input
+                type="number"
+                min={0.5}
+                step={0.1}
+                value={standorte[tab].lagerflaecheProStellplatz}
+                onChange={(e) =>
+                  updateStandortFeld(tab, "lagerflaecheProStellplatz", e.target.value)
+                }
+                style={{
+                  width: 65,
+                  marginLeft: 11,
+                  borderRadius: 6,
+                  border: "1.2px solid #0094cb",
+                  background: "#e5f1fa",
+                  padding: "3px 8px",
+                  fontWeight: 700,
+                  fontSize: 15,
+                  color: "#083d95",
+                }}
+              />
+            </label>
+            <label style={{ fontWeight: 700, fontSize: 16 }}>
+              {t[lang].lagerkostenProStellplatz}
+              <input
+                type="number"
+                min={0.1}
+                step={0.1}
+                value={standorte[tab].lagerkostenProStellplatz}
+                onChange={(e) =>
+                  updateStandortFeld(tab, "lagerkostenProStellplatz", e.target.value)
+                }
+                style={{
+                  width: 60,
+                  marginLeft: 11,
+                  borderRadius: 6,
+                  border: "1.2px solid #0094cb",
+                  background: "#e5f1fa",
+                  padding: "3px 8px",
+                  fontWeight: 700,
+                  fontSize: 15,
+                  color: "#083d95",
+                }}
+              />
+            </label>
+          </div>
+          {/* Kundenverwaltung */}
+          <div>
+            <h3
+              style={{
+                margin: "15px 0 10px 0",
+                color: "#083d95",
+                fontWeight: 900,
+              }}
+            >
+              {t[lang].kunden}
+            </h3>
+            <button
+              onClick={() => addKunde(tab)}
+              style={{
+                background: "#0094cb",
+                color: "#fff",
+                fontWeight: 800,
+                fontSize: 15,
+                border: "none",
+                borderRadius: 9,
+                padding: "7px 19px",
+                marginBottom: 8,
+                cursor: "pointer",
+                marginRight: 9,
+              }}
+            >
+              + {t[lang].kundeHinzufuegen}
+            </button>
+            <div>
+              {standorte[tab].kunden.length === 0 ? (
+                <div style={{ color: "#aaa", margin: 18 }}>
+                  {t[lang].keinKunde}
+                </div>
+              ) : (
+                alphaSort(standorte[tab].kunden).map((kunde, kidx) => (
+                  <div
+                    key={kidx}
+                    style={{
+                      margin: "18px 0",
+                      border: "1px solid #d5e7fa",
+                      borderRadius: 11,
+                      background: "#f6fcff",
+                      boxShadow: "0 1px 7px #b7d6fa22",
+                      padding: "16px 12px",
+                    }}
+                  >
+                    {/* Name, Button Entfernen */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 18,
+                        marginBottom: 10,
+                      }}
+                    >
+                      <input
+                        value={kunde.name}
+                        onChange={(e) =>
+                          updateKunde(tab, kidx, "name", e.target.value)
+                        }
+                        style={{
+                          fontWeight: 800,
+                          fontSize: 19,
+                          padding: "5px 15px",
+                          background: "#fff",
+                          border: "1px solid #b1dbef",
+                          borderRadius: 7,
+                          color: "#083d95",
+                          marginRight: 15,
+                          minWidth: 120,
+                        }}
+                      />
+                      <button
+                        style={{
+                          background: "#e53454",
+                          color: "#fff",
+                          fontWeight: 800,
+                          border: "none",
+                          borderRadius: 7,
+                          padding: "6px 16px",
+                          fontSize: 15,
+                          cursor: "pointer",
+                        }}
+                        onClick={() => removeKunde(tab, kidx)}
+                      >
+                        {t[lang].entfernen}
+                      </button>
+                    </div>
+                    {/* Ladungsträger-Liste */}
+                    <div>
+                      {kunde.ladungstraeger.length === 0 ? (
+                        <div
+                          style={{
+                            color: "#bbb",
+                            margin: "10px 0 12px 20px",
+                          }}
+                        >
+                          {t[lang].keinLadungstraeger}
+                        </div>
+                      ) : (
+                        kunde.ladungstraeger.map((lt, lidx) => {
+                          // Ampel/Umschlag berechnen
+                          const einAus = getKundenEinAusgang(tab, kunde.name, lt.typ, lt.qualitaet);
+                          const istmenge = einAus.istmenge;
+                          const ampel = getVertragsAmpel(lt.vertragsmenge, istmenge);
+
+                          // Countdown-Logik
+                          const resttageL = getClearingResttage(lt.startdatumL, Number(lt.clearingTageL));
+                          const resttageE = getClearingResttage(lt.startdatumE, Number(lt.clearingTageE));
+                          const clearingFälligL = resttageL !== null && resttageL <= 0;
+                          const clearingFälligE = resttageE !== null && resttageE <= 0;
+
+                          // Prüfen: Grundbestand vorhanden?
+                          const gbExists = standorte[tab].grundbestaende.some(
+                            (gb) => gb.typ === lt.typ && (gb.qualitaet || "") === (lt.qualitaet || "")
+                          );
+
+                          return (
+                            <div
+                              key={lidx}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 14,
+                                marginBottom: 8,
+                                background: "#eaf7ff",
+                                borderRadius: 8,
+                                padding: "7px 8px",
+                              }}
+                            >
+                              {/* Auswahl Ladungsträgertyp */}
+                              <select
+                                value={lt.typ}
+                                style={{
+                                  fontWeight: 700,
+                                  fontSize: 16,
+                                  border: "1px solid #0094cb",
+                                  borderRadius: 6,
+                                  padding: "4px 13px",
+                                  color: "#083d95",
+                                  background: "#fff",
+                                }}
+                                onChange={(e) =>
+                                  updateLadungstraeger(tab, kidx, lidx, "typ", e.target.value)
+                                }
+                              >
+                                {ladungstraegerTypen.map((opt) => (
+                                  <option key={opt.label} value={opt.label}>
+                                    {opt.label}
+                                  </option>
+                                ))}
+                              </select>
+                              {/* Qualität */}
+                              {ladungstraegerTypen.find((t) => t.label === lt.typ)
+                                ?.qualitaeten.length ? (
+                                  <select
+                                    value={lt.qualitaet}
+                                    style={{
+                                      fontWeight: 700,
+                                      fontSize: 16,
+                                      border: "1px solid #0094cb",
+                                      borderRadius: 6,
+                                      padding: "4px 13px",
+                                      color: "#083d95",
+                                      background: "#fff",
+                                      minWidth: 65,
+                                    }}
+                                    onChange={(e) =>
+                                      updateLadungstraeger(tab, kidx, lidx, "qualitaet", e.target.value)
+                                    }
+                                  >
+                                    <option value="">
+                                      {lang === "de"
+                                        ? "Qualität…"
+                                        : "Quality…"}
+                                    </option>
+                                    {ladungstraegerTypen
+                                      .find((t) => t.label === lt.typ)
+                                      .qualitaeten.map((q) => (
+                                        <option key={q} value={q}>
+                                          {q}
+                                        </option>
+                                      ))}
+                                  </select>
+                                ) : null}
+                              {/* Warnung Grundbestand fehlt */}
+                              {!gbExists && (
+                                <span style={{ color: "#e53454", fontWeight: 800, marginLeft: 4, marginRight: 4 }}>
+                                  {t[lang].warnungLadungstraegerImGrundbestand}
+                                </span>
+                              )}
+                              {/* Vertragsmenge */}
+                              <label style={{ fontWeight: 700, marginLeft: 5 }}>
+                                {t[lang].vertragsmenge}
+                                <input
+                                  type="number"
+                                  value={lt.vertragsmenge || ""}
+                                  onChange={(e) =>
+                                    updateLadungstraeger(tab, kidx, lidx, "vertragsmenge", e.target.value)
+                                  }
+                                  style={{
+                                    width: 80,
+                                    marginLeft: 6,
+                                    borderRadius: 5,
+                                    border: "1.2px solid #0094cb",
+                                    background: "#fff",
+                                    padding: "2px 7px",
+                                    fontWeight: 700,
+                                    fontSize: 15,
+                                    color: "#083d95",
+                                  }}
+                                />
+                              </label>
+                              {/* IST-Menge */}
+                              <div style={{ fontWeight: 800, marginLeft: 8 }}>
+                                {t[lang].istmenge}: {istmenge}
+                                {/* Ampel */}
+                                <span
+                                  title={ampel.info}
+                                  style={{
+                                    display: "inline-block",
+                                    marginLeft: 7,
+                                    width: 18,
+                                    height: 18,
+                                    borderRadius: "50%",
+                                    background:
+                                      ampel.color === "green"
+                                        ? "#1ebc38"
+                                        : ampel.color === "orange"
+                                        ? "#ffb902"
+                                        : ampel.color === "red"
+                                        ? "#e53454"
+                                        : "#cfcfcf",
+                                    border: "1.7px solid #aaa",
+                                    boxShadow: "0 1px 3px #0002",
+                                    position: "relative",
+                                    cursor: "pointer",
+                                  }}
+                                />
+                                <span
+                                  style={{
+                                    color:
+                                      ampel.color === "red"
+                                        ? "#e53454"
+                                        : ampel.color === "orange"
+                                        ? "#ffb902"
+                                        : ampel.color === "green"
+                                        ? "#1ebc38"
+                                        : "#aaa",
+                                    fontWeight: 700,
+                                    marginLeft: 5,
+                                    fontSize: 14,
+                                  }}
+                                  title={ampel.info}
+                                >
+                                  {ampel.color === "red"
+                                    ? "!"
+                                    : ampel.color === "orange"
+                                      ? "•"
+                                      : ampel.color === "green"
+                                        ? "✔"
+                                        : ""}
+                                </span>
+                              </div>
+                              {/* Clearing-Tage/Startdatum L */}
+                              <div style={{ marginLeft: 9, fontSize: 14 }}>
+                                <b>{t[lang].clearingTageL}:</b>
+                                <input
+                                  type="number"
+                                  min={1}
+                                  value={lt.clearingTageL || ""}
+                                  onChange={(e) =>
+                                    updateLadungstraeger(tab, kidx, lidx, "clearingTageL", e.target.value)
+                                  }
+                                  style={{
+                                    width: 38,
+                                    marginLeft: 6,
+                                    borderRadius: 5,
+                                    border: "1.2px solid #0094cb",
+                                    background: "#fff",
+                                    padding: "2px 7px",
+                                    fontWeight: 700,
+                                    fontSize: 13,
+                                    color: "#083d95",
+                                  }}
+                                />
+                                <span style={{ marginLeft: 7 }}>
+                                  {t[lang].clearingStart}
+                                </span>
+                                <input
+                                  type="date"
+                                  value={lt.startdatumL || ""}
+                                  onChange={(e) =>
+                                    updateLadungstraeger(tab, kidx, lidx, "startdatumL", e.target.value)
+                                  }
+                                  style={{
+                                    marginLeft: 5,
+                                    borderRadius: 5,
+                                    border: "1.2px solid #0094cb",
+                                    background: "#fff",
+                                    padding: "2px 7px",
+                                    fontWeight: 700,
+                                    fontSize: 13,
+                                    color: "#083d95",
+                                  }}
+                                />
+                                {resttageL !== null && lt.clearingTageL && lt.startdatumL && (
+                                  <span
+                                    style={{
+                                      fontWeight: 700,
+                                      color: clearingFälligL ? "#e53454" : "#093",
+                                      marginLeft: 7,
+                                    }}
+                                  >
+                                    {clearingFälligL
+                                      ? t[lang].clearingFaellig
+                                      : t[lang].clearingCountdown + ": " + resttageL + " " + t[lang].tage}
+                                  </span>
+                                )}
+                              </div>
+                              {/* Clearing-Tage/Startdatum E */}
+                              <div style={{ marginLeft: 9, fontSize: 14 }}>
+                                <b>{t[lang].clearingTageE}:</b>
+                                <input
+                                  type="number"
+                                  min={1}
+                                  value={lt.clearingTageE || ""}
+                                  onChange={(e) =>
+                                    updateLadungstraeger(tab, kidx, lidx, "clearingTageE", e.target.value)
+                                  }
+                                  style={{
+                                    width: 38,
+                                    marginLeft: 6,
+                                    borderRadius: 5,
+                                    border: "1.2px solid #0094cb",
+                                    background: "#fff",
+                                    padding: "2px 7px",
+                                    fontWeight: 700,
+                                    fontSize: 13,
+                                    color: "#083d95",
+                                  }}
+                                />
+                                <span style={{ marginLeft: 7 }}>
+                                  {t[lang].clearingStart}
+                                </span>
+                                <input
+                                  type="date"
+                                  value={lt.startdatumE || ""}
+                                  onChange={(e) =>
+                                    updateLadungstraeger(tab, kidx, lidx, "startdatumE", e.target.value)
+                                  }
+                                  style={{
+                                    marginLeft: 5,
+                                    borderRadius: 5,
+                                    border: "1.2px solid #0094cb",
+                                    background: "#fff",
+                                    padding: "2px 7px",
+                                    fontWeight: 700,
+                                    fontSize: 13,
+                                    color: "#083d95",
+                                  }}
+                                />
+                                {resttageE !== null && lt.clearingTageE && lt.startdatumE && (
+                                  <span
+                                    style={{
+                                      fontWeight: 700,
+                                      color: clearingFälligE ? "#e53454" : "#093",
+                                      marginLeft: 7,
+                                    }}
+                                  >
+                                    {clearingFälligE
+                                      ? t[lang].clearingFaellig
+                                      : t[lang].clearingCountdown + ": " + resttageE + " " + t[lang].tage}
+                                  </span>
+                                )}
+                              </div>
+                              {/* Hinweise */}
+                              <div style={{ marginLeft: 11, maxWidth: 120 }}>
+                                <label>
+                                  <b>{t[lang].hinweis}:</b>
+                                  <input
+                                    value={lt.hinweisL || ""}
+                                    placeholder={t[lang].clearingTageL}
+                                    onChange={(e) =>
+                                      updateLadungstraeger(tab, kidx, lidx, "hinweisL", e.target.value)
+                                    }
+                                    style={{
+                                      width: 55,
+                                      marginLeft: 5,
+                                      borderRadius: 5,
+                                      border: "1.2px solid #0094cb",
+                                      background: "#fff",
+                                      padding: "2px 5px",
+                                      fontWeight: 700,
+                                      fontSize: 12,
+                                      color: "#083d95",
+                                    }}
+                                  />
+                                </label>
+                                <label>
+                                  <input
+                                    value={lt.hinweisE || ""}
+                                    placeholder={t[lang].clearingTageE}
+                                    onChange={(e) =>
+                                      updateLadungstraeger(tab, kidx, lidx, "hinweisE", e.target.value)
+                                    }
+                                    style={{
+                                      width: 55,
+                                      marginLeft: 4,
+                                      borderRadius: 5,
+                                      border: "1.2px solid #0094cb",
+                                      background: "#fff",
+                                      padding: "2px 5px",
+                                      fontWeight: 700,
+                                      fontSize: 12,
+                                      color: "#083d95",
+                                    }}
+                                  />
+                                </label>
+                              </div>
+                              {/* Entfernen-Button */}
+                              <button
+                                style={{
+                                  background: "#e53454",
+                                  color: "#fff",
+                                  fontWeight: 700,
+                                  border: "none",
+                                  borderRadius: 6,
+                                  padding: "5px 11px",
+                                  fontSize: 14,
+                                  marginLeft: 12,
+                                  cursor: "pointer",
+                                }}
+                                onClick={() => removeLadungstraeger(tab, kidx, lidx)}
+                              >
+                                {t[lang].entfernen}
+                              </button>
+                            </div>
+                          );
+                        })
+                      )}
+                      {/* + Ladungsträger hinzufügen */}
+                      <button
+                        style={{
+                          background: "#0094cb",
+                          color: "#fff",
+                          fontWeight: 700,
+                          border: "none",
+                          borderRadius: 7,
+                          padding: "5px 14px",
+                          fontSize: 14,
+                          marginTop: 8,
+                          cursor: "pointer",
+                        }}
+                        onClick={() => addLadungstraeger(tab, kidx)}
+                      >
+                        + {t[lang].ladungstraegertyp} {t[lang].hinzufuegen || "hinzufügen"}
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Bewegungen buchen */}
+        <button
+          style={{
+            background: "#083d95",
+            color: "#fff",
+            fontWeight: 900,
+            border: "none",
+            borderRadius: 9,
+            padding: "10px 25px",
+            fontSize: 18,
+            cursor: "pointer",
+            marginTop: 6,
+            marginBottom: 36,
+            marginLeft: 8,
+            boxShadow: "0 2px 12px #0094cb24",
+          }}
+          onClick={handleOpenBewegung}
+        >
+          {t[lang].bewegungBuchen}
+        </button>
+        {/* Protokoll anzeigen */}
+        <button
+          style={{
+            background: "#fff",
+            color: "#0094cb",
+            fontWeight: 900,
+            border: "1.2px solid #0094cb",
+            borderRadius: 9,
+            padding: "7px 25px",
+            fontSize: 16,
+            cursor: "pointer",
+            marginLeft: 12,
+            marginTop: 7,
+          }}
+          onClick={() => setShowProtokoll(true)}
+        >
+          {t[lang].protokollAnzeigen}
+        </button>
+      </div>
+
+      {/* --------- Bewegungen Modal --------- */}
+      {showBewegung && (
+        <div
+          style={{
+            position: "fixed",
+            zIndex: 99,
+            left: 0,
+            top: 0,
+            width: "100vw",
+            height: "100vh",
+            background: "#00336677",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          onClick={() => setShowBewegung(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "#fff",
+              padding: "38px 38px",
+              borderRadius: 17,
+              minWidth: 410,
+              boxShadow: "0 7px 22px #00336644",
+              fontSize: 18,
+            }}
+          >
+            <h3 style={{ color: "#083d95", fontWeight: 800 }}>
+              {t[lang].bewegungBuchen}
+            </h3>
+            {/* Eingang/Ausgang */}
+            <div style={{ margin: "11px 0 12px 0" }}>
+              <label style={{ marginRight: 23, fontWeight: 700 }}>
+                <input
+                  type="radio"
+                  name="bArt"
+                  value="Eingang"
+                  checked={bewegungArt === "Eingang"}
+                  onChange={() => setBewegungArt("Eingang")}
+                />{" "}
+                {t[lang].bewegungEingang}
+              </label>
+              <label style={{ fontWeight: 700 }}>
+                <input
+                  type="radio"
+                  name="bArt"
+                  value="Ausgang"
+                  checked={bewegungArt === "Ausgang"}
+                  onChange={() => setBewegungArt("Ausgang")}
+                />{" "}
+                {t[lang].bewegungAusgang}
+              </label>
+            </div>
+            {/* Kunden-Eingaben */}
+            {bewegungKunden.map((b, idx) => (
+              <div
+                key={idx}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  margin: "9px 0",
+                  background: "#eaf7ff",
+                  borderRadius: 8,
+                  padding: "7px 7px",
+                }}
+              >
+                {/* Kunde */}
+                <select
+                  value={b.kunde}
+                  onChange={(e) =>
+                    handleChangeBewegungKunde(idx, "kunde", e.target.value)
+                  }
+                  style={{
+                    fontWeight: 700,
+                    fontSize: 16,
+                    border: "1px solid #0094cb",
+                    borderRadius: 6,
+                    padding: "4px 13px",
+                    color: "#083d95",
+                    background: "#fff",
+                  }}
+                >
+                  <option value="">
+                    {lang === "de" ? "Kunde wählen…" : "Select customer…"}
+                  </option>
+                  {alphaSort(standorte[tab].kunden).map((k) => (
+                    <option key={k.name} value={k.name}>
+                      {k.name}
+                    </option>
+                  ))}
+                </select>
+                {/* Typ */}
+                <select
+                  value={b.typ}
+                  onChange={(e) =>
+                    handleChangeBewegungKunde(idx, "typ", e.target.value)
+                  }
+                  style={{
+                    fontWeight: 700,
+                    fontSize: 16,
+                    border: "1px solid #0094cb",
+                    borderRadius: 6,
+                    padding: "4px 13px",
+                    color: "#083d95",
+                    background: "#fff",
+                  }}
+                >
+                  <option value="">
+                    {lang === "de"
+                      ? "Ladungsträgertyp wählen…"
+                      : "Select type…"}
+                  </option>
+                  {ladungstraegerTypen.map((lt) => (
+                    <option key={lt.label} value={lt.label}>
+                      {lt.label}
+                    </option>
+                  ))}
                 </select>
                 {/* Qualität */}
-                {ladungstraegerTypen.find(t => t.label === lt.typ)?.qualitaeten.length ? (
-                  <select value={lt.qualitaet}
-                    style={{ fontWeight: 700, fontSize: 15, borderRadius: 7, border: "1.2px solid #0094cb", minWidth: 60 }}
-                    onChange={e => updateLadungstraeger(tab, kidx, lidx, "qualitaet", e.target.value)}>
-                    <option value="">{lang === "de" ? "Qualität…" : "Quality…"}</option>
-                    {ladungstraegerTypen.find(t => t.label === lt.typ).qualitaeten.map(q =>
-                      <option key={q} value={q}>{q}</option>
-                    )}
-                  </select>
-                ) : null}
-                {/* Vertragsmenge */}
-                <label style={{ fontWeight: 700 }}>
-                  {t[lang].vertragsmenge}
-                  <input type="number" value={lt.vertragsmenge || ""}
-                    onChange={e => updateLadungstraeger(tab, kidx, lidx, "vertragsmenge", e.target.value)}
-                    style={{ width: 90, marginLeft: 7, borderRadius: 5, border: "1.2px solid #0094cb", padding: "2px 8px", fontWeight: 700, fontSize: 15 }} />
-                </label>
-                {/* Ampel-Icon */}
-                <span title={ampel.info} style={{
-                  display: "inline-block", width: 19, height: 19, borderRadius: "50%", marginLeft: 8,
-                  background:
-                    ampel.color === "green"
-                      ? "#1ebc38"
-                      : ampel.color === "orange"
-                        ? "#ffb902"
-                        : ampel.color === "red"
-                          ? "#e53454"
-                          : "#cfcfcf",
-                  border: "1.7px solid #aaa",
-                }} />
-                {/* Summen Ein/Ausgang */}
-                <span style={{ marginLeft: 10 }}>
-                  <b style={{ color: "#3194cb" }}>{t[lang].bewegungEingang}:</b> {ein}{" "}
-                  <b style={{ color: "#e53454", marginLeft: 10 }}>{t[lang].bewegungAusgang}:</b> {aus}
-                </span>
-                {/* Clearingtage, Startdatum, Hinweis */}
-                <input type="number" min={1} placeholder={t[lang].tageClearingLadestelle}
-                  value={lt.clearingTageLadestelle || ""} style={{ width: 45, marginLeft: 13 }}
-                  onChange={e => updateLadungstraeger(tab, kidx, lidx, "clearingTageLadestelle", e.target.value)} />
-                <input type="number" min={1} placeholder={t[lang].tageClearingEntladestelle}
-                  value={lt.clearingTageEntladestelle || ""} style={{ width: 45, marginLeft: 6 }}
-                  onChange={e => updateLadungstraeger(tab, kidx, lidx, "clearingTageEntladestelle", e.target.value)} />
-                <input type="date"
-                  value={lt.startdatum ? lt.startdatum.substr(0, 10) : ""}
-                  style={{ marginLeft: 9, borderRadius: 5, border: "1px solid #bbb" }}
-                  onChange={e => updateLadungstraeger(tab, kidx, lidx, "startdatum", e.target.value)} />
-                <input type="text" placeholder={lang === "de" ? "Hinweis..." : "Note..."}
-                  value={lt.clearingHinweis || ""}
-                  style={{ marginLeft: 9, borderRadius: 5, border: "1px solid #bbb", width: 120 }}
-                  onChange={e => updateLadungstraeger(tab, kidx, lidx, "clearingHinweis", e.target.value)} />
-                {/* Countdown anzeigen */}
-                <span style={{ color: "#0094cb", fontWeight: 700, marginLeft: 10 }}>
-                  {lt.startdatum && lt.clearingTageLadestelle
-                    ? `Ladestelle bis: ${calcClearingCountdown(lt.startdatum, lt.clearingTageLadestelle)}`
-                    : ""}
-                  {lt.startdatum && lt.clearingTageEntladestelle
-                    ? ` | Entladestelle bis: ${calcClearingCountdown(lt.startdatum, lt.clearingTageEntladestelle)}`
-                    : ""}
-                </span>
-                {/* Entfernen */}
-                <button style={{
-                  background: "#e53454", color: "#fff", fontWeight: 700, border: "none",
-                  borderRadius: 6, padding: "5px 13px", marginLeft: 12, cursor: "pointer",
-                }}
-                  onClick={() => removeLadungstraeger(tab, kidx, lidx)}>{t[lang].entfernen}</button>
-              </div>
-            );
-          })}
-        </div>
-      ))}
-
-      {/* Bewegungsbuchung-Modal */}
-      {showBewegung && (
-        <div style={{
-          position: "fixed", left: 0, top: 0, width: "100vw", height: "100vh", background: "#000a",
-          zIndex: 10001, display: "flex", alignItems: "center", justifyContent: "center",
-        }}
-          onClick={() => setShowBewegung(false)}>
-          <div style={{
-            width: 560, maxWidth: "96vw", background: "#fff", borderRadius: 19, boxShadow: "0 5px 30px #0094cb44",
-            padding: "32px 30px 24px 30px", fontFamily: "Inter,sans-serif", color: "#083d95", position: "relative"
-          }}
-            onClick={e => e.stopPropagation()}>
-            <h2 style={{ color: "#0094cb", fontWeight: 900, fontSize: 22, marginTop: 0, marginBottom: 14 }}>
-              {t[lang].bewegungBuchen}
-            </h2>
-            {bewegungKunden.map((k, idx) => (
-              <div key={idx}
-                style={{
-                  background: "#f6fcff", border: "1px solid #b1dbef", borderRadius: 10,
-                  padding: "10px 14px", marginBottom: 12, display: "flex", gap: 9, alignItems: "center",
-                }}>
-                <select value={k.kunde}
-                  onChange={e => handleChangeBewegungKunde(idx, "kunde", e.target.value)}
-                  style={{
-                    fontWeight: 700, fontSize: 15, border: "1.2px solid #0094cb", borderRadius: 7,
-                    padding: "4px 13px", color: "#083d95", background: "#fff", minWidth: 110,
-                  }}>
-                  <option value="">{lang === "de" ? "Kunde wählen…" : "Select customer…"}</option>
-                  {standorte[tab].kunden
-                    .map(k => k.name)
-                    .sort((a, b) => a.localeCompare(b))
-                    .map(name =>
-                      <option key={name} value={name}>{name}</option>
-                    )}
-                </select>
-                <select value={k.typ}
-                  onChange={e => handleChangeBewegungKunde(idx, "typ", e.target.value)}
-                  style={{
-                    fontWeight: 700, fontSize: 15, border: "1.2px solid #0094cb", borderRadius: 7,
-                    padding: "4px 13px", color: "#083d95", background: "#fff", minWidth: 120,
-                  }}>
-                  <option value="">{lang === "de" ? "Ladungsträgertyp…" : "Carrier type…"}</option>
-                  {ladungstraegerTypen.map(opt =>
-                    <option key={opt.label} value={opt.label}>{opt.label}</option>
-                  )}
-                </select>
-                {ladungstraegerTypen.find(t => t.label === k.typ)?.qualitaeten.length ? (
-                  <select value={k.qualitaet}
-                    onChange={e => handleChangeBewegungKunde(idx, "qualitaet", e.target.value)}
+                {ladungstraegerTypen.find((t) => t.label === b.typ)?.qualitaeten.length ? (
+                  <select
+                    value={b.qualitaet}
+                    onChange={(e) =>
+                      handleChangeBewegungKunde(idx, "qualitaet", e.target.value)
+                    }
                     style={{
-                      fontWeight: 700, fontSize: 15, border: "1.2px solid #0094cb", borderRadius: 7,
-                      padding: "4px 13px", color: "#083d95", background: "#fff", minWidth: 65,
-                    }}>
-                    <option value="">{lang === "de" ? "Qualität…" : "Quality…"}</option>
+                      fontWeight: 700,
+                      fontSize: 16,
+                      border: "1px solid #0094cb",
+                      borderRadius: 6,
+                      padding: "4px 13px",
+                      color: "#083d95",
+                      background: "#fff",
+                      minWidth: 65,
+                    }}
+                  >
+                    <option value="">
+                      {lang === "de" ? "Qualität…" : "Quality…"}
+                    </option>
                     {ladungstraegerTypen
-                      .find(t => t.label === k.typ)
-                      .qualitaeten.map(q =>
-                        <option key={q} value={q}>{q}</option>
-                      )}
+                      .find((t) => t.label === b.typ)
+                      .qualitaeten.map((q) => (
+                        <option key={q} value={q}>
+                          {q}
+                        </option>
+                      ))}
                   </select>
                 ) : null}
-                <input type="number" value={k.menge}
-                  onChange={e => handleChangeBewegungKunde(idx, "menge", e.target.value)}
-                  min={1} placeholder={t[lang].bewegungMenge}
+                {/* Menge */}
+                <input
+                  type="number"
+                  value={b.menge}
+                  onChange={(e) =>
+                    handleChangeBewegungKunde(idx, "menge", e.target.value)
+                  }
+                  placeholder={t[lang].bewegungMenge}
                   style={{
-                    width: 85, border: "1.2px solid #0094cb", borderRadius: 7, fontWeight: 700,
-                    padding: "3px 12px", fontSize: 15, background: "#fff", color: "#083d95",
-                  }} />
-                <select value={k.art || "Eingang"}
-                  onChange={e => handleChangeBewegungKunde(idx, "art", e.target.value)}
-                  style={{ fontWeight: 700, fontSize: 15, borderRadius: 7, marginLeft: 7 }}>
-                  <option value="Eingang">{t[lang].bewegungEingang}</option>
-                  <option value="Ausgang">{t[lang].bewegungAusgang}</option>
-                </select>
+                    width: 80,
+                    marginLeft: 4,
+                    borderRadius: 5,
+                    border: "1.2px solid #0094cb",
+                    background: "#fff",
+                    padding: "2px 7px",
+                    fontWeight: 700,
+                    fontSize: 15,
+                    color: "#083d95",
+                  }}
+                />
+                {/* Entfernen-Kunde (außer erster) */}
                 {bewegungKunden.length > 1 && (
                   <button
                     style={{
-                      background: "#e53454", color: "#fff", fontWeight: 700, border: "none",
-                      borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 15,
+                      background: "#e53454",
+                      color: "#fff",
+                      fontWeight: 700,
+                      border: "none",
+                      borderRadius: 6,
+                      padding: "5px 9px",
+                      fontSize: 14,
+                      marginLeft: 6,
+                      cursor: "pointer",
                     }}
                     onClick={() => handleRemoveBewegungKunde(idx)}
-                  >−</button>
-                )}
-                {idx === bewegungKunden.length - 1 && (
-                  <button
-                    style={{
-                      background: "#0094cb", color: "#fff", fontWeight: 800, border: "none",
-                      borderRadius: 8, padding: "5px 10px", marginLeft: 7, cursor: "pointer", fontSize: 15,
-                    }}
-                    onClick={handleAddBewegungKunde}
-                  >+</button>
+                  >
+                    {t[lang].entfernen}
+                  </button>
                 )}
               </div>
             ))}
-            {bewegungMsg && (
-              <div style={{
-                color: bewegungMsg === t[lang].bewegungErfasst ? "#0a6e2b" : "#e53454",
-                background: bewegungMsg === t[lang].bewegungErfasst ? "#e7faee" : "#ffe3e3",
-                borderRadius: 7, fontWeight: 700, fontSize: 15, padding: "8px 10px", margin: "0 0 9px 0",
-              }}>{bewegungMsg}</div>
-            )}
-            <div style={{ textAlign: "center", marginTop: 11 }}>
+            {/* + Kunde */}
+            <button
+              style={{
+                background: "#0094cb",
+                color: "#fff",
+                fontWeight: 700,
+                border: "none",
+                borderRadius: 7,
+                padding: "5px 14px",
+                fontSize: 14,
+                marginTop: 8,
+                cursor: "pointer",
+              }}
+              onClick={handleAddBewegungKunde}
+            >
+              + {t[lang].bewegungMehrKunde}
+            </button>
+            <div style={{ color: "#e53454", marginTop: 7, fontWeight: 800 }}>
+              {bewegungMsg}
+            </div>
+            {/* Buchen-Button */}
+            <div>
               <button
                 onClick={handleBuchenBewegung}
                 style={{
-                  background: "#0094cb", color: "#fff", fontWeight: 800, border: "none", borderRadius: 11,
-                  padding: "10px 40px", fontSize: 16, cursor: "pointer", marginRight: 11,
-                }}>{t[lang].bewegungBuchen}</button>
+                  background: "#083d95",
+                  color: "#fff",
+                  fontWeight: 800,
+                  border: "none",
+                  borderRadius: 8,
+                  padding: "9px 36px",
+                  fontSize: 17,
+                  marginTop: 19,
+                  cursor: "pointer",
+                }}
+              >
+                {t[lang].bewegungBuchenBtn}
+              </button>
               <button
                 onClick={() => setShowBewegung(false)}
                 style={{
-                  background: "#fff", color: "#0094cb", fontWeight: 800, border: "1.2px solid #0094cb",
-                  borderRadius: 11, padding: "10px 34px", fontSize: 16, cursor: "pointer",
-                }}>{t[lang].abbrechen || "Abbrechen"}</button>
+                  background: "#fff",
+                  color: "#0094cb",
+                  fontWeight: 700,
+                  border: "1.2px solid #0094cb",
+                  borderRadius: 8,
+                  padding: "9px 36px",
+                  fontSize: 17,
+                  marginLeft: 18,
+                  marginTop: 19,
+                  cursor: "pointer",
+                }}
+              >
+                {t[lang].schliessen}
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* ==== Protokoll-Modal ==== */}
+      {/* --------- Protokoll Modal --------- */}
       {showProtokoll && (
-        <div style={{
-          position: "fixed", left: 0, top: 0, width: "100vw", height: "100vh", background: "#000a",
-          zIndex: 10001, display: "flex", alignItems: "center", justifyContent: "center",
-        }}
-          onClick={() => setShowProtokoll(false)}>
-          <div style={{
-            width: "620px", maxHeight: "86vh", overflowY: "auto", background: "#fff", borderRadius: 19,
-            boxShadow: "0 5px 30px #0094cb44", padding: "36px 36px 25px 36px", fontFamily: "Inter,sans-serif", color: "#083d95",
+        <div
+          style={{
+            position: "fixed",
+            zIndex: 99,
+            left: 0,
+            top: 0,
+            width: "100vw",
+            height: "100vh",
+            background: "#00336688",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
-            onClick={e => e.stopPropagation()}>
-            <h2 style={{
-              color: "#0094cb", fontWeight: 900, fontSize: 24, marginTop: 0, marginBottom: 12,
-            }}>{t[lang].protokollTitle || "Protokoll"}</h2>
+          onClick={() => setShowProtokoll(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "#fff",
+              padding: "42px 48px",
+              borderRadius: 17,
+              minWidth: 440,
+              boxShadow: "0 7px 22px #00336644",
+              fontSize: 17,
+              maxHeight: "80vh",
+              overflowY: "auto",
+            }}
+          >
+            <h3 style={{ color: "#083d95", fontWeight: 900, fontSize: 21 }}>
+              {t[lang].protokollAnzeigen}
+            </h3>
             {protokoll.length === 0 ? (
-              <div style={{ color: "#aaa", fontWeight: 600, marginTop: 22 }}>
+              <div style={{ color: "#aaa", fontWeight: 800, marginTop: 12 }}>
                 {t[lang].keineAenderungen}
               </div>
             ) : (
-              <ul style={{ fontSize: 15, listStyle: "none", padding: 0 }}>
+              <div style={{ marginTop: 10 }}>
                 {protokoll.slice().reverse().map((p, i) => (
-                  <li key={i} style={{ marginBottom: 7 }}>
-                    <span style={{ fontWeight: 600 }}>{p.zeit}</span>
-                    {" – "}
-                    <span style={{ fontWeight: 700 }}>{p.user}</span>
-                    {": "}
-                    <span>{p.aktion}</span>
-                    <span style={{ color: "#555" }}>
-                      {p.details ? " (" + p.details + ")" : ""}
+                  <div
+                    key={i}
+                    style={{
+                      borderBottom: "1px solid #e9f0fc",
+                      padding: "7px 0",
+                      fontSize: 16,
+                      color: "#0a1b3f",
+                    }}
+                  >
+                    <span style={{ color: "#0a1b3f", fontWeight: 800, marginRight: 11 }}>
+                      {p.zeit}
                     </span>
-                  </li>
+                    <span style={{ color: "#0094cb", fontWeight: 700, marginRight: 9 }}>
+                      {p.user}
+                    </span>
+                    <span style={{ fontWeight: 600 }}>{p.aktion}</span>
+                    <span style={{ color: "#555", marginLeft: 12 }}>
+                      {p.details}
+                    </span>
+                  </div>
                 ))}
-              </ul>
+              </div>
             )}
-            <button
-              style={{
-                marginTop: 20, background: "#0094cb", color: "#fff", fontWeight: 800,
-                border: "none", borderRadius: 10, padding: "10px 32px", fontSize: 16, cursor: "pointer",
-              }}
-              onClick={() => setShowProtokoll(false)}
-            >{t[lang].schliessen || "Schließen"}</button>
+            <div style={{ textAlign: "center", marginTop: 29 }}>
+              <button
+                onClick={() => setShowProtokoll(false)}
+                style={{
+                  background: "#0094cb",
+                  color: "#fff",
+                  fontWeight: 800,
+                  border: "none",
+                  borderRadius: 8,
+                  padding: "10px 39px",
+                  fontSize: 18,
+                  marginTop: 13,
+                  cursor: "pointer",
+                }}
+              >
+                {t[lang].schliessen}
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Footer */}
-      <div style={{
-        width: "100%", textAlign: "center", background: "#0094cb", color: "#fff", fontWeight: 800,
-        padding: "13px 0 10px 0", fontSize: 16, letterSpacing: 1.2, marginTop: 80, position: "fixed", left: 0, bottom: 0,
-      }}>
+      {/* FOOTER */}
+      <div
+        style={{
+          position: "fixed",
+          left: 0,
+          bottom: 0,
+          width: "100vw",
+          padding: "18px 0",
+          background: "#003366",
+          color: "#fff",
+          textAlign: "center",
+          fontWeight: 600,
+          fontSize: 16,
+          letterSpacing: "0.06em",
+        }}
+      >
         {t[lang].footer}
       </div>
     </div>
