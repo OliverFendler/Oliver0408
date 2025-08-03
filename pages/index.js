@@ -895,6 +895,3 @@ function BarChart({ labels, values, color, suffix = "", max = 100 }) {
     </div>
   );
 }
-
-// ====== Export der Komponente ======
-export default LagerTool;
