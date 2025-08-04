@@ -182,6 +182,7 @@ const t = {
     protokollLadungsträgerEntf: "Load carrier removed",
     protokollBewegung: "Movement booked",
 },
+};
 
 /* =========================
     INITIALSTANDORTE
