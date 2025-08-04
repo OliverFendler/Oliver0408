@@ -181,7 +181,7 @@ const t = {
     protokollLadungsträgerHinzu: "Load carrier added",
     protokollLadungsträgerEntf: "Load carrier removed",
     protokollBewegung: "Movement booked",
-};
+},
 
 /* =========================
     INITIALSTANDORTE
