@@ -52,9 +52,8 @@ const t = {
     protokollAnzeigen: "Protokoll anzeigen",
     abmelden: "Abmelden",
     login: "Login",
-    pinEingeben: "Bitte PIN eingeben",
     anmelden: "Anmelden",
-    falsch: "Falsche PIN",
+    falsch: "Falsche Zugangsdaten",
     userLabel: "Angemeldet als:",
     grundbestandHinzufuegen: "Grundbestand hinzufügen",
     keineAenderungen: "Noch keine Änderungen erfasst.",
@@ -96,6 +95,10 @@ const t = {
     protokollLadungsträgerHinzu: "Ladungsträger hinzugefügt",
     protokollLadungsträgerEntf: "Ladungsträger entfernt",
     protokollBewegung: "Bewegung gebucht",
+    schliessen: "Schließen",
+    bewegungArt: "Art",
+    abbrechen: "Abbrechen",
+    protokollTitle: "Protokoll",
   },
   en: {
     standort: "Location",
@@ -178,7 +181,6 @@ const t = {
     protokollLadungsträgerHinzu: "Load carrier added",
     protokollLadungsträgerEntf: "Load carrier removed",
     protokollBewegung: "Movement booked",
-  },
 };
 
 /* =========================
@@ -208,26 +210,28 @@ const initialStandorte = [
         notizen: "",
       },
     ],
-    bewegungen: [], // neu: für Bewegungsbuchung
+    bewegungen: [],
   },
 ];
 
-/* =========================
-    PIN-USER-KONFIG
-========================= */
-const pinMap = {
-  "1111": "Oliver",
-  "2222": "Thomas",
-  "3333": "Martin",
-  "4444": "Sebastian",
-};
-
-// =================== HAUPTKOMPONENTE ===================
 export default function Home() {
-  // === State
-  const [lang, setLang] = useState("de");
+  // Login State
+  const [users, setUsers] = useState([]);
   const [user, setUser] = useState(null);
-  const [pin, setPin] = useState("");
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [registering, setRegistering] = useState(false);
+  const [registerData, setRegisterData] = useState({
+    vorname: "",
+    nachname: "",
+    email: "",
+    pw: "",
+    pw2: "",
+  });
+  const [registerMsg, setRegisterMsg] = useState("");
+
+  // App State wie gehabt
+  const [lang, setLang] = useState("de");
   const [protokoll, setProtokoll] = useState([]);
   const [showProtokoll, setShowProtokoll] = useState(false);
   const [standorte, setStandorte] = useState(() => {
@@ -245,7 +249,18 @@ export default function Home() {
   const [bewegungArt, setBewegungArt] = useState("Eingang");
   const [bewegungMsg, setBewegungMsg] = useState("");
 
-  // ==== Protokoll laden/speichern
+  // LocalStorage für Users und Protokoll laden/speichern
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const u = localStorage.getItem("lager_users_v2");
+      if (u) setUsers(JSON.parse(u));
+    }
+  }, []);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("lager_users_v2", JSON.stringify(users));
+    }
+  }, [users]);
   useEffect(() => {
     if (typeof window !== "undefined") {
       const p = localStorage.getItem("lager_protokoll_v2");
@@ -263,358 +278,88 @@ export default function Home() {
     }
   }, [protokoll]);
 
-  // ==== Protokoll-Eintrag NUR für wichtige Aktionen
   function addProtokoll(aktion, details) {
     setProtokoll((prev) => [
       ...prev,
       {
         zeit: new Date().toLocaleString(),
-        user,
+        user: user ? user.vorname + " " + user.nachname : "",
         aktion,
         details,
       },
     ]);
   }
 
-  // ==== Login-Flow
+  // Registrierung
+  function handleRegister() {
+    if (
+      !registerData.vorname ||
+      !registerData.nachname ||
+      !registerData.email ||
+      !registerData.pw ||
+      !registerData.pw2
+    ) {
+      setRegisterMsg("Bitte alle Felder ausfüllen.");
+      return;
+    }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(registerData.email)) {
+      setRegisterMsg("Bitte eine gültige E-Mail-Adresse eingeben.");
+      return;
+    }
+    if (registerData.pw.length < 5) {
+      setRegisterMsg("Passwort zu kurz (mind. 5 Zeichen).");
+      return;
+    }
+    if (registerData.pw !== registerData.pw2) {
+      setRegisterMsg("Passwörter stimmen nicht überein.");
+      return;
+    }
+    if (users.some((u) => u.email === registerData.email.toLowerCase())) {
+      setRegisterMsg("E-Mail ist bereits registriert.");
+      return;
+    }
+    const newUser = {
+      vorname: registerData.vorname.trim(),
+      nachname: registerData.nachname.trim(),
+      email: registerData.email.toLowerCase(),
+      password: registerData.pw,
+    };
+    setUsers([...users, newUser]);
+    setRegisterMsg("Registrierung erfolgreich! Bitte jetzt einloggen.");
+    setRegisterData({
+      vorname: "",
+      nachname: "",
+      email: "",
+      pw: "",
+      pw2: "",
+    });
+    setTimeout(() => {
+      setRegistering(false);
+      setRegisterMsg("");
+    }, 1700);
+  }
+
+  // Login
   function handleLogin() {
-    if (pinMap[pin]) {
-      setUser(pinMap[pin]);
-      setPin("");
-      addProtokoll(t[lang].protokollLogin, pinMap[pin]);
+    const found = users.find(
+      (u) =>
+        u.email === loginEmail.toLowerCase() && u.password === loginPassword
+    );
+    if (found) {
+      setUser(found);
+      setLoginEmail("");
+      setLoginPassword("");
+      addProtokoll(t[lang].protokollLogin, found.vorname + " " + found.nachname);
     } else {
-      alert(t[lang].falsch);
+      alert("Falsche Zugangsdaten.");
     }
   }
   function handleLogout() {
-    addProtokoll(t[lang].protokollLogout, user);
+    addProtokoll(t[lang].protokollLogout, user ? user.vorname + " " + user.nachname : "");
     setUser(null);
   }
 
-  // ==== Standortfunktionen
-  function updateStandortName(idx, val) {
-    const neu = [...standorte];
-    const altName = neu[idx].name;
-    neu[idx].name = val;
-    setStandorte(neu);
-  }
-  function updateStandortFeld(idx, feld, val) {
-    const neu = [...standorte];
-    neu[idx][feld] = Number(val);
-    setStandorte(neu);
-  }
-  function addStandort() {
-    setStandorte([
-      ...standorte,
-      {
-        name: t[lang].standort + " " + (standorte.length + 1),
-        lagerflaecheProStellplatz: 1.8,
-        lagerkostenProStellplatz: 7,
-        grundbestaende: [],
-        kunden: [],
-        bewegungen: [],
-      },
-    ]);
-    setTab(standorte.length);
-    addProtokoll(t[lang].protokollStandortHinzu, t[lang].standort + " " + (standorte.length + 1));
-  }
-  function removeStandort(idx) {
-    const removed = standorte[idx].name;
-    const neu = [...standorte];
-    neu.splice(idx, 1);
-    setStandorte(neu);
-    setTab(0);
-    addProtokoll(t[lang].protokollStandortEntf, removed);
-  }
-
-  // ==== Kundenfunktionen
-  function addKunde(idx) {
-    const neu = [...standorte];
-    neu[idx].kunden.push({
-      name: t[lang].name + " " + (neu[idx].kunden.length + 1),
-      ladungstraeger: [],
-      notizen: "",
-    });
-    setStandorte(neu);
-    addProtokoll(t[lang].protokollKundeHinzu, `${standorte[idx].name}`);
-  }
-  function removeKunde(sidx, kidx) {
-    const removed = standorte[sidx].kunden[kidx].name;
-    const neu = [...standorte];
-    neu[sidx].kunden.splice(kidx, 1);
-    setStandorte(neu);
-    addProtokoll(t[lang].protokollKundeEntf, `${removed} @${standorte[sidx].name}`);
-  }
-  function updateKunde(sidx, kidx, feld, val) {
-    const neu = [...standorte];
-    neu[sidx].kunden[kidx][feld] = val;
-    setStandorte(neu);
-  }
-
-  // ==== Ladungsträgerfunktionen
-  function addLadungstraeger(sidx, kidx) {
-    // Prüfen, ob Typ im Grundbestand/Inventur vorhanden ist (mind. einmal)
-    const grundbestaende = standorte[sidx].grundbestaende;
-    if (
-      grundbestaende.length === 0
-    ) {
-      alert(t[lang].warnungLadungstraegerImGrundbestand);
-      return;
-    }
-    const neu = [...standorte];
-    neu[sidx].kunden[kidx].ladungstraeger.push({
-      typ: ladungstraegerTypen[0].label,
-      qualitaet: "",
-      mengeTag: 0,
-      arbeitstage: 20,
-      tageClearingLadestelle: 10,
-      tageClearingEntladestelle: 5,
-      palettenProStellplatz: 30,
-      vertragsmenge: "",
-    });
-    setStandorte(neu);
-    addProtokoll(t[lang].protokollLadungsträgerHinzu, `Kunde: ${standorte[sidx].kunden[kidx].name}`);
-  }
-  function removeLadungstraeger(sidx, kidx, lidx) {
-    const neu = [...standorte];
-    neu[sidx].kunden[kidx].ladungstraeger.splice(lidx, 1);
-    setStandorte(neu);
-    addProtokoll(t[lang].protokollLadungsträgerEntf, `Kunde: ${standorte[sidx].kunden[kidx].name}`);
-  }
-  function updateLadungstraeger(sidx, kidx, lidx, feld, val) {
-    const neu = [...standorte];
-    if (
-      feld === "mengeTag" ||
-      feld === "arbeitstage" ||
-      feld === "tageClearingLadestelle" ||
-      feld === "tageClearingEntladestelle" ||
-      feld === "palettenProStellplatz" ||
-      feld === "vertragsmenge"
-    ) {
-      neu[sidx].kunden[kidx].ladungstraeger[lidx][feld] = Number(val);
-    } else {
-      neu[sidx].kunden[kidx].ladungstraeger[lidx][feld] = val;
-    }
-    setStandorte(neu);
-  }
-
-  // ==== Grundbestand / Inventur
-  function addGrundbestand(sidx) {
-    const neu = [...standorte];
-    neu[sidx].grundbestaende.push({
-      typ: ladungstraegerTypen[0].label,
-      qualitaet: "",
-      bestand: 0,
-      inventur: "",
-    });
-    setStandorte(neu);
-    addProtokoll(t[lang].protokollGrundbestand, `Standort: ${standorte[sidx].name}`);
-  }
-  function removeGrundbestand(sidx, gidx) {
-    const neu = [...standorte];
-    neu[sidx].grundbestaende.splice(gidx, 1);
-    setStandorte(neu);
-    addProtokoll(t[lang].protokollGrundbestand, `Standort: ${standorte[sidx].name}`);
-  }
-  function updateGrundbestand(sidx, gidx, feld, val) {
-    const neu = [...standorte];
-    if (feld === "bestand" || feld === "inventur") {
-      neu[sidx].grundbestaende[gidx][feld] = Number(val);
-    } else {
-      neu[sidx].grundbestaende[gidx][feld] = val;
-    }
-    setStandorte(neu);
-    addProtokoll(t[lang].protokollGrundbestand, `Standort: ${standorte[sidx].name}`);
-  }
-  function saveInventur(sidx, gidx) {
-    // Inventur-Bestand MUSS Pflichtfeld sein
-    const gb = standorte[sidx].grundbestaende[gidx];
-    if (!gb.inventur || gb.inventur === "") {
-      alert(t[lang].inventurPflicht);
-      return;
-    }
-    addProtokoll(
-      t[lang].protokollInventur,
-      `Standort: ${standorte[sidx].name}, Typ: ${gb.typ}, Qualität: ${gb.qualitaet}, Wert: ${gb.inventur}`
-    );
-  }
-
-  // ==== Hilfsfunktionen für Berechnungen und Monitoring
-  function getUmschlagMonatProTypQuali(sidx, typ, qualitaet) {
-    let sum = 0;
-    standorte[sidx].kunden.forEach((kunde) =>
-      kunde.ladungstraeger.forEach((lt) => {
-        if (lt.typ === typ && (lt.qualitaet || "") === (qualitaet || "")) {
-          sum += (lt.mengeTag || 0) * (lt.arbeitstage || 0);
-        }
-      })
-    );
-    return sum;
-  }
-  function nextMonthBedarf(sidx, typ, qualitaet) {
-    return getUmschlagMonatProTypQuali(sidx, typ, qualitaet);
-  }
-  function warnungBestandZuNiedrig(sidx, gidx) {
-    const gb = standorte[sidx].grundbestaende[gidx];
-    const inventur = Number(gb.inventur) || 0;
-    const bedarf = nextMonthBedarf(sidx, gb.typ, gb.qualitaet);
-    return inventur < bedarf;
-  }
-
-  // ==== Vertragsmengen-Monitoring (Ampel-Logik)
-  function getVertragsAmpel(vertragsmenge, istmenge) {
-    if (!vertragsmenge || vertragsmenge === 0) return { color: "gray", info: "" };
-    const pct = istmenge / vertragsmenge;
-    if (pct < 0.8) return { color: "green", info: t[lang].ampelInfoGruen };
-    if (pct < 1.0) return { color: "orange", info: t[lang].ampelInfoGelb };
-    return { color: "red", info: t[lang].ampelInfoRot };
-  }
-
-  // ==== Bewegungsbuchung (Eingang/Ausgang)
-  function handleOpenBewegung() {
-    setBewegungKunden([{ kunde: "", typ: "", qualitaet: "", menge: "" }]);
-    setBewegungArt("Eingang");
-    setShowBewegung(true);
-    setBewegungMsg("");
-  }
-  function handleChangeBewegungKunde(idx, feld, val) {
-    const arr = [...bewegungKunden];
-    arr[idx][feld] = val;
-    // Typ/Quali synchronisieren, falls Typ geändert
-    if (feld === "typ") arr[idx].qualitaet = "";
-    setBewegungKunden(arr);
-  }
-  function handleAddBewegungKunde() {
-    setBewegungKunden([...bewegungKunden, { kunde: "", typ: "", qualitaet: "", menge: "" }]);
-  }
-  function handleRemoveBewegungKunde(idx) {
-    const arr = [...bewegungKunden];
-    arr.splice(idx, 1);
-    setBewegungKunden(arr);
-  }
-  function handleBuchenBewegung() {
-    let valid = true;
-    if (!bewegungKunden.length || bewegungKunden.some((b) => !b.kunde)) {
-      setBewegungMsg(t[lang].bewegungKundePflicht);
-      valid = false;
-    } else if (bewegungKunden.some((b) => !b.typ)) {
-      setBewegungMsg(t[lang].bewegungTypPflicht);
-      valid = false;
-    } else if (bewegungKunden.some((b) => !b.menge || Number(b.menge) <= 0)) {
-      setBewegungMsg(t[lang].bewegungMengePflicht);
-      valid = false;
-    }
-    if (!valid) return;
-
-    // Bestand prüfen für jede Buchung (bei Ausgang)
-    const grundbestaende = standorte[tab].grundbestaende;
-    if (bewegungArt === "Ausgang") {
-      for (const b of bewegungKunden) {
-        const gb = grundbestaende.find(
-          (g) => g.typ === b.typ && (g.qualitaet || "") === (b.qualitaet || "")
-        );
-        if (!gb || gb.bestand < Number(b.menge)) {
-          setBewegungMsg(t[lang].bewegungNichtGenugBestand);
-          return;
-        }
-      }
-    }
-
-    // Buchen (Bestand anpassen)
-    const neu = [...standorte];
-    bewegungKunden.forEach((b) => {
-      const gb = neu[tab].grundbestaende.find(
-        (g) => g.typ === b.typ && (g.qualitaet || "") === (b.qualitaet || "")
-      );
-      if (!gb) return; // sollte eigentlich nie passieren, Validierung vorher
-      if (bewegungArt === "Eingang") {
-        gb.bestand += Number(b.menge);
-        gb.inventur += Number(b.menge);
-      } else {
-        gb.bestand -= Number(b.menge);
-        gb.inventur -= Number(b.menge);
-      }
-    });
-    // Bewegungsdatensatz erfassen (mit Zeit, Art, Details, User)
-    if (!neu[tab].bewegungen) neu[tab].bewegungen = [];
-    neu[tab].bewegungen.push({
-      zeit: new Date().toLocaleString(),
-      art: bewegungArt,
-      details: [...bewegungKunden],
-      user,
-    });
-    setStandorte(neu);
-    addProtokoll(
-      t[lang].protokollBewegung,
-      `${bewegungArt}: ${bewegungKunden
-        .map(
-          (b) =>
-            `Kunde: ${b.kunde}, Typ: ${b.typ}, Quali: ${b.qualitaet}, Menge: ${b.menge}`
-        )
-        .join(" | ")}`
-    );
-    setBewegungMsg(t[lang].bewegungErfasst);
-    setTimeout(() => {
-      setShowBewegung(false);
-      setBewegungMsg("");
-    }, 1100);
-  }
-
-  // ==== Ein-/Ausgang-Kumulierung für Kunden/Ladungsträgertyp/Qualität
-  function getKundenEinAusgang(sidx, kName, typ, qualitaet) {
-    // Alle Bewegungen dieses Standorts und Kunden, Typ, Qualität aufsummieren
-    const standort = standorte[sidx];
-    let eingang = 0,
-      ausgang = 0;
-    if (standort.bewegungen && standort.bewegungen.length) {
-      standort.bewegungen.forEach((m) => {
-        m.details.forEach((b) => {
-          if (
-            b.kunde === kName &&
-            b.typ === typ &&
-            (b.qualitaet || "") === (qualitaet || "")
-          ) {
-            if (m.art === "Eingang") eingang += Number(b.menge) || 0;
-            if (m.art === "Ausgang") ausgang += Number(b.menge) || 0;
-          }
-        });
-      });
-    }
-    return { eingang, ausgang };
-  }
-
-  // ==== Übersicht-Berechnung
-  function calculateStandort(standort) {
-    let stellplaetze = 0;
-    let lagerflaeche = 0;
-    let lagerkosten = 0;
-    let umschlagMonat = 0;
-    standort.kunden.forEach((kunde) =>
-      kunde.ladungstraeger.forEach((lt) => {
-        const palettenMonat = lt.mengeTag * lt.arbeitstage;
-        umschlagMonat += palettenMonat;
-        const slots = Math.ceil(palettenMonat / lt.palettenProStellplatz);
-        stellplaetze += slots;
-      })
-    );
-    lagerflaeche = +(stellplaetze * standort.lagerflaecheProStellplatz).toFixed(2);
-    lagerkosten = +(stellplaetze * standort.lagerkostenProStellplatz).toFixed(2);
-    return { stellplaetze, lagerflaeche, lagerkosten, umschlagMonat };
-  }
-  function calculateGesamt(standorte) {
-    let lagerflaeche = 0;
-    let lagerkosten = 0;
-    let stellplaetze = 0;
-    standorte.forEach((s) => {
-      const r = calculateStandort(s);
-      lagerflaeche += r.lagerflaeche;
-      lagerkosten += r.lagerkosten;
-      stellplaetze += r.stellplaetze;
-    });
-    return { lagerflaeche, lagerkosten, stellplaetze };
-  }
-
-  // === Login-Modal (wie gehabt)
+  // === Login/Register-Modal
   if (!user)
     return (
       <div
@@ -634,53 +379,263 @@ export default function Home() {
             boxShadow: "0 4px 22px #0094cb44",
             padding: "36px 45px",
             textAlign: "center",
+            width: 360,
           }}
         >
           <img src="/LOGO_LCX_NEXUS.png" alt="LCX NEXUS" style={{ height: 96, marginBottom: 16 }} />
-          <h2 style={{ color: "#0094cb", fontWeight: 900, marginBottom: 10 }}>
-            {t[lang].login}
-          </h2>
-          <div style={{ fontWeight: 600, color: "#083d95", marginBottom: 16 }}>
-            {t[lang].pinEingeben}
-          </div>
-          <input
-            type="password"
-            value={pin}
-            onChange={(e) => setPin(e.target.value)}
-            style={{
-              fontSize: 19,
-              border: "1.5px solid #0094cb",
-              borderRadius: 10,
-              padding: "8px 28px",
-              marginBottom: 20,
-              width: 180,
-              textAlign: "center",
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleLogin();
-            }}
-          />
-          <br />
-          <button
-            onClick={handleLogin}
-            style={{
-              background: "#0094cb",
-              color: "#fff",
-              fontWeight: 800,
-              border: "none",
-              borderRadius: 10,
-              padding: "10px 42px",
-              fontSize: 18,
-              cursor: "pointer",
-            }}
-          >
-            {t[lang].anmelden}
-          </button>
+          {!registering ? (
+            <>
+              <h2 style={{ color: "#0094cb", fontWeight: 900, marginBottom: 10 }}>
+                Login
+              </h2>
+              <div style={{ fontWeight: 600, color: "#083d95", marginBottom: 16 }}>
+                Bitte E-Mail und Passwort eingeben
+              </div>
+              <input
+                type="email"
+                placeholder="E-Mail"
+                value={loginEmail}
+                onChange={e => setLoginEmail(e.target.value)}
+                style={{
+                  fontSize: 19,
+                  border: "1.5px solid #0094cb",
+                  borderRadius: 10,
+                  padding: "8px 28px",
+                  marginBottom: 16,
+                  width: 220,
+                  textAlign: "center",
+                  outline: "none",
+                }}
+                onKeyDown={e => {
+                  if (e.key === "Enter") handleLogin();
+                }}
+              />
+              <br />
+              <input
+                type="password"
+                placeholder="Passwort"
+                value={loginPassword}
+                onChange={e => setLoginPassword(e.target.value)}
+                style={{
+                  fontSize: 19,
+                  border: "1.5px solid #0094cb",
+                  borderRadius: 10,
+                  padding: "8px 28px",
+                  marginBottom: 20,
+                  width: 220,
+                  textAlign: "center",
+                  outline: "none",
+                }}
+                onKeyDown={e => {
+                  if (e.key === "Enter") handleLogin();
+                }}
+              />
+              <br />
+              <button
+                onClick={handleLogin}
+                style={{
+                  background: "#0094cb",
+                  color: "#fff",
+                  fontWeight: 800,
+                  border: "none",
+                  borderRadius: 10,
+                  padding: "10px 42px",
+                  fontSize: 18,
+                  cursor: "pointer",
+                }}
+              >
+                Login
+              </button>
+              <br />
+              <button
+                onClick={() => setRegistering(true)}
+                style={{
+                  background: "#083d95",
+                  color: "#fff",
+                  fontWeight: 600,
+                  border: "none",
+                  borderRadius: 8,
+                  padding: "7px 24px",
+                  fontSize: 15,
+                  cursor: "pointer",
+                  marginTop: 16,
+                }}
+              >
+                Noch kein Account? Jetzt registrieren
+              </button>
+            </>
+          ) : (
+            <>
+              <h2 style={{ color: "#0094cb", fontWeight: 900, marginBottom: 10 }}>
+                Jetzt registrieren
+              </h2>
+              <div style={{ fontWeight: 600, color: "#083d95", marginBottom: 15 }}>
+                Zugang anlegen
+              </div>
+              <input
+                type="text"
+                placeholder="Vorname"
+                value={registerData.vorname}
+                onChange={e =>
+                  setRegisterData({ ...registerData, vorname: e.target.value })
+                }
+                style={{
+                  fontSize: 18,
+                  border: "1.3px solid #0094cb",
+                  borderRadius: 9,
+                  padding: "8px 21px",
+                  marginBottom: 12,
+                  width: 220,
+                  textAlign: "center",
+                  outline: "none",
+                }}
+              />
+              <br />
+              <input
+                type="text"
+                placeholder="Nachname"
+                value={registerData.nachname}
+                onChange={e =>
+                  setRegisterData({ ...registerData, nachname: e.target.value })
+                }
+                style={{
+                  fontSize: 18,
+                  border: "1.3px solid #0094cb",
+                  borderRadius: 9,
+                  padding: "8px 21px",
+                  marginBottom: 12,
+                  width: 220,
+                  textAlign: "center",
+                  outline: "none",
+                }}
+              />
+              <br />
+              <input
+                type="email"
+                placeholder="E-Mail"
+                value={registerData.email}
+                onChange={e =>
+                  setRegisterData({ ...registerData, email: e.target.value })
+                }
+                style={{
+                  fontSize: 18,
+                  border: "1.3px solid #0094cb",
+                  borderRadius: 9,
+                  padding: "8px 21px",
+                  marginBottom: 12,
+                  width: 220,
+                  textAlign: "center",
+                  outline: "none",
+                }}
+              />
+              <br />
+              <input
+                type="password"
+                placeholder="Passwort"
+                value={registerData.pw}
+                onChange={e =>
+                  setRegisterData({ ...registerData, pw: e.target.value })
+                }
+                style={{
+                  fontSize: 18,
+                  border: "1.3px solid #0094cb",
+                  borderRadius: 9,
+                  padding: "8px 21px",
+                  marginBottom: 12,
+                  width: 220,
+                  textAlign: "center",
+                  outline: "none",
+                }}
+              />
+              <br />
+              <input
+                type="password"
+                placeholder="Passwort wiederholen"
+                value={registerData.pw2}
+                onChange={e =>
+                  setRegisterData({ ...registerData, pw2: e.target.value })
+                }
+                style={{
+                  fontSize: 18,
+                  border: "1.3px solid #0094cb",
+                  borderRadius: 9,
+                  padding: "8px 21px",
+                  marginBottom: 12,
+                  width: 220,
+                  textAlign: "center",
+                  outline: "none",
+                }}
+              />
+              <br />
+              <button
+                onClick={handleRegister}
+                style={{
+                  background: "#0094cb",
+                  color: "#fff",
+                  fontWeight: 800,
+                  border: "none",
+                  borderRadius: 10,
+                  padding: "10px 42px",
+                  fontSize: 17,
+                  cursor: "pointer",
+                  marginBottom: 6,
+                  marginTop: 6,
+                }}
+              >
+                Jetzt registrieren
+              </button>
+              <br />
+              <button
+                onClick={() => {
+                  setRegistering(false);
+                  setRegisterMsg("");
+                  setRegisterData({
+                    vorname: "",
+                    nachname: "",
+                    email: "",
+                    pw: "",
+                    pw2: "",
+                  });
+                }}
+                style={{
+                  background: "#fff",
+                  color: "#0094cb",
+                  fontWeight: 800,
+                  border: "1.2px solid #0094cb",
+                  borderRadius: 10,
+                  padding: "8px 32px",
+                  fontSize: 15,
+                  cursor: "pointer",
+                  marginTop: 4,
+                }}
+              >
+                Abbrechen
+              </button>
+              {registerMsg && (
+                <div
+                  style={{
+                    marginTop: 16,
+                    color: registerMsg.startsWith("Registrierung")
+                      ? "#0a6e2b"
+                      : "#e53454",
+                    fontWeight: 700,
+                    background: registerMsg.startsWith("Registrierung")
+                      ? "#e7faee"
+                      : "#ffe3e3",
+                    padding: "10px",
+                    borderRadius: 8,
+                  }}
+                >
+                  {registerMsg}
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
     );
 
-  // ==== UI ================
+   // ==== UI ================
 
   const g = calculateGesamt(standorte);
 
@@ -749,7 +704,7 @@ export default function Home() {
               marginRight: 12,
             }}
           >
-            {user ? `${t[lang].userLabel} ${user}` : ""}
+            {user ? ${t[lang].userLabel} ${user} : ""}
           </span>
           <button
             onClick={handleLogout}
@@ -886,7 +841,7 @@ export default function Home() {
                     alignItems: "center",
                     marginBottom: 9,
                     background: inventurWarnung ? "#fdd" : "#f3faff",
-                    border: `2.1px solid ${inventurWarnung ? "#e53454" : "#b3e6fa"}`,
+                    border: 2.1px solid ${inventurWarnung ? "#e53454" : "#b3e6fa"},
                     borderRadius: 10,
                     padding: "7px 9px",
                   }}
