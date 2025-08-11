@@ -354,7 +354,6 @@ export default function Home() {
   // Auth UI
   const [authMode, setAuthMode] = useState("login"); // "login" | "register"
   const [loginEmail, setLoginEmail] = useState("");
-  theconst = 0;
   const [loginPw, setLoginPw] = useState("");
   const [reg, setReg] = useState({
     firstName: "",
@@ -423,7 +422,7 @@ export default function Home() {
     if (!u) return false;
     const users = loadUsers();
     return (users.length > 0 && users[0].email === u.email) || u.email.toLowerCase().startsWith("admin");
-  }
+    }
 
   // Protokoll
   function addProtokoll(aktion, details) {
@@ -554,8 +553,8 @@ export default function Home() {
     if (idx >= 0) {
       users[idx].password = fpNewPw;
       saveUsers(users);
-      addProtokoll(t[lang].prot
-okollPwReset, fpUser.email);
+      // FIX: korrekter Key ohne Zeilenumbruch
+      addProtokoll(t[lang].protokollPwReset, fpUser.email);
       setFpMsg(t[lang].resetErfolg);
       setTimeout(() => {
         setShowForgot(false);
@@ -1806,7 +1805,7 @@ okollPwReset, fpUser.email);
                         <button onClick={() => addLadungstraeger(tab, kidx)} style={smallBtn("#083d95")}>
                           + {t[lang].ladungstraegerHinzufuegen}
                         </button>
-                        {/* NEU: Bewegung buchen direkt daneben */}
+                        {/* „Bewegung buchen“ direkt daneben */}
                         <button
                           onClick={() => handleOpenBewegung(standorte[tab].kunden[kidx].name)}
                           style={{
@@ -2145,6 +2144,7 @@ function Modal({ children, onClose }) {
           position: "relative",
         }}
         onClick={(e) => e.stopPropagation()}
+
       >
         {children}
         <div style={{ textAlign: "right", marginTop: 12 }}>
