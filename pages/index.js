@@ -16,6 +16,54 @@ const ladungstraegerTypen = [
 ========================= */
 const t = {
   de: {
+    // Auth
+    login: "Login",
+    register: "Registrieren",
+    haveAccount: "Schon einen Account?",
+    noAccount: "Noch keinen Account?",
+    switchToLogin: "Zum Login",
+    switchToRegister: "Jetzt registrieren",
+    nowRegister: "Jetzt registrieren",
+    vorname: "Vorname",
+    nachname: "Nachname",
+    email: "E‑Mail",
+    passwort: "Passwort",
+    passwortWdh: "Passwort wiederholen",
+    anmelden: "Anmelden",
+    abmelden: "Abmelden",
+    userLabel: "Angemeldet als:",
+    regSuccess: "Registrierung erfolgreich. Bitte jetzt einloggen.",
+    regExists: "Diese E‑Mail ist bereits registriert.",
+    regInvalid: "Bitte alle Felder korrekt ausfüllen (Passwort min. 4 Zeichen).",
+    regPwMismatch: "Passwörter stimmen nicht überein.",
+    loginInvalid: "E‑Mail oder Passwort falsch.",
+    passwortVergessen: "Passwort vergessen?",
+    sicherheitsfrage: "Sicherheitsfrage",
+    sicherheitsfrageWahl: "Bitte Frage wählen…",
+    sicherheitsantwort: "Sicherheitsantwort",
+    frage1: "Wie lautet der Geburtsort Ihrer Mutter?",
+    frage2: "Wie hieß Ihr erstes Haustier?",
+    frage3: "In welcher Stadt haben Sie Abitur gemacht?",
+    resetStart: "Passwort zurücksetzen",
+    resetWeiter: "Weiter",
+    resetPruefen: "Antwort prüfen",
+    neuesPasswort: "Neues Passwort",
+    neuesPasswortWdh: "Neues Passwort wiederholen",
+    resetSpeichern: "Passwort speichern",
+    resetMailNichtGefunden: "E‑Mail nicht gefunden.",
+    resetAntwortFalsch: "Sicherheitsantwort ist falsch.",
+    resetPwKurz: "Neues Passwort zu kurz (min. 4 Zeichen).",
+    resetPwMismatch: "Neue Passwörter stimmen nicht überein.",
+    resetErfolg: "Passwort wurde aktualisiert. Bitte einloggen.",
+    // Admin
+    adminListeBtn: "Admin: Benutzerliste",
+    adminTitle: "Registrierte Benutzer",
+    registriertAm: "Registriert am",
+    admin: "Admin",
+    loeschen: "Löschen",
+    wirklichLoeschen: "Benutzer wirklich löschen?",
+    nichtSelbstLoeschen: "Eigenes Konto kann hier nicht gelöscht werden.",
+    // App UI/Daten
     standort: "Standort",
     standortEdit: "Standortnamen bearbeiten",
     lagerflaecheProStellplatz: "Lagerfläche pro Stellplatz (m²)",
@@ -50,12 +98,7 @@ const t = {
     inventurSpeichern: "Inventur speichern",
     beschaffung: "Beschaffung",
     protokollAnzeigen: "Protokoll anzeigen",
-    abmelden: "Abmelden",
-    login: "Login",
-    pinEingeben: "Bitte PIN eingeben",
-    anmelden: "Anmelden",
-    falsch: "Falsche PIN",
-    userLabel: "Angemeldet als:",
+    falsch: "Falsche Eingabe",
     grundbestandHinzufuegen: "Grundbestand hinzufügen",
     keineAenderungen: "Noch keine Änderungen erfasst.",
     summe: "Summe",
@@ -98,13 +141,60 @@ const t = {
     protokollLadungsträgerHinzu: "Ladungsträger hinzugefügt",
     protokollLadungsträgerEntf: "Ladungsträger entfernt",
     protokollBewegung: "Bewegung gebucht",
-    // Ergänzte Keys:
     bewegungArt: "Art der Bewegung",
     protokollTitle: "Protokoll",
     schliessen: "Schließen",
     abbrechen: "Abbrechen",
+    protokollPwReset: "Passwort zurückgesetzt",
+    protokollUserGeloescht: "Benutzer gelöscht",
   },
   en: {
+    // (EN strings mirrored from DE for bilingual UI)
+    login: "Login",
+    register: "Register",
+    haveAccount: "Already have an account?",
+    noAccount: "No account yet?",
+    switchToLogin: "Go to login",
+    switchToRegister: "Register now",
+    nowRegister: "Register now",
+    vorname: "First name",
+    nachname: "Last name",
+    email: "Email",
+    passwort: "Password",
+    passwortWdh: "Repeat password",
+    anmelden: "Sign in",
+    abmelden: "Logout",
+    userLabel: "Logged in as:",
+    regSuccess: "Registration successful. Please log in.",
+    regExists: "This email is already registered.",
+    regInvalid: "Please fill all fields correctly (password min. 4 chars).",
+    regPwMismatch: "Passwords do not match.",
+    loginInvalid: "Invalid email or password.",
+    passwortVergessen: "Forgot password?",
+    sicherheitsfrage: "Security question",
+    sicherheitsfrageWahl: "Pick a question…",
+    sicherheitsantwort: "Security answer",
+    frage1: "What is your mother's birthplace?",
+    frage2: "What was the name of your first pet?",
+    frage3: "In which city did you graduate high school?",
+    resetStart: "Reset password",
+    resetWeiter: "Next",
+    resetPruefen: "Check answer",
+    neuesPasswort: "New password",
+    neuesPasswortWdh: "Repeat new password",
+    resetSpeichern: "Save password",
+    resetMailNichtGefunden: "Email not found.",
+    resetAntwortFalsch: "Security answer is incorrect.",
+    resetPwKurz: "New password too short (min. 4 chars).",
+    resetPwMismatch: "New passwords do not match.",
+    resetErfolg: "Password updated. Please log in.",
+    adminListeBtn: "Admin: Users",
+    adminTitle: "Registered users",
+    registriertAm: "Registered at",
+    admin: "Admin",
+    loeschen: "Delete",
+    wirklichLoeschen: "Delete user?",
+    nichtSelbstLoeschen: "You cannot delete your own account here.",
     standort: "Location",
     standortEdit: "Edit location name",
     lagerflaecheProStellplatz: "Storage area per slot (m²)",
@@ -139,12 +229,7 @@ const t = {
     inventurSpeichern: "Save inventory",
     beschaffung: "Procurement",
     protokollAnzeigen: "Show audit log",
-    abmelden: "Logout",
-    login: "Login",
-    pinEingeben: "Please enter PIN",
-    anmelden: "Sign in",
-    falsch: "Wrong PIN",
-    userLabel: "Logged in as:",
+    falsch: "Wrong input",
     grundbestandHinzufuegen: "Add initial stock",
     keineAenderungen: "No changes yet.",
     summe: "Sum",
@@ -187,11 +272,12 @@ const t = {
     protokollLadungsträgerHinzu: "Load carrier added",
     protokollLadungsträgerEntf: "Load carrier removed",
     protokollBewegung: "Movement booked",
-    // Added keys:
     bewegungArt: "Movement type",
     protokollTitle: "Audit Log",
     schliessen: "Close",
     abbrechen: "Cancel",
+    protokollPwReset: "Password reset",
+    protokollUserGeloescht: "User deleted",
   },
 };
 
@@ -227,30 +313,54 @@ const initialStandorte = [
 ];
 
 /* =========================
-    PIN-USER-KONFIG
+    LocalStorage Keys
 ========================= */
-const pinMap = {
-  "1111": "Oliver",
-  "2222": "Thomas",
-  "3333": "Martin",
-  "4444": "Sebastian",
-};
+const LS_USERS = "lager_users_v1";
+const LS_STANDORTE = "lager_standorte_v2";
+const LS_PROTOKOLL = "lager_protokoll_v2";
 
 // =================== HAUPTKOMPONENTE ===================
 export default function Home() {
-  // === State
+  // State
   const [lang, setLang] = useState("de");
-  const [user, setUser] = useState(null);
-  const [pin, setPin] = useState("");
+  const [user, setUser] = useState(null); // {firstName,lastName,email}
   const [protokoll, setProtokoll] = useState([]);
   const [showProtokoll, setShowProtokoll] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
   const [standorte, setStandorte] = useState(() => {
     if (typeof window !== "undefined") {
-      const s = localStorage.getItem("lager_standorte_v2");
+      const s = localStorage.getItem(LS_STANDORTE);
       if (s) return JSON.parse(s);
     }
     return initialStandorte;
   });
+
+  // Auth UI
+  const [authMode, setAuthMode] = useState("login"); // "login" | "register"
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPw, setLoginPw] = useState("");
+  const [reg, setReg] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    pw: "",
+    pw2: "",
+    q: "",
+    a: "",
+  });
+  const [authMsg, setAuthMsg] = useState("");
+
+  // Forgot Password Modal
+  const [showForgot, setShowForgot] = useState(false);
+  const [fpStep, setFpStep] = useState(1);
+  const [fpEmail, setFpEmail] = useState("");
+  const [fpUser, setFpUser] = useState(null);
+  const [fpAnswer, setFpAnswer] = useState("");
+  const [fpNewPw, setFpNewPw] = useState("");
+  const [fpNewPw2, setFpNewPw2] = useState("");
+  const [fpMsg, setFpMsg] = useState("");
+
+  // Bewegungen
   const [tab, setTab] = useState(0);
   const [showBewegung, setShowBewegung] = useState(false);
   const [bewegungKunden, setBewegungKunden] = useState([
@@ -259,53 +369,173 @@ export default function Home() {
   const [bewegungArt, setBewegungArt] = useState("Eingang");
   const [bewegungMsg, setBewegungMsg] = useState("");
 
-  // ==== Protokoll laden/speichern
+  // Laden/Speichern
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const p = localStorage.getItem("lager_protokoll_v2");
+      const p = localStorage.getItem(LS_PROTOKOLL);
       if (p) setProtokoll(JSON.parse(p));
     }
   }, []);
   useEffect(() => {
     if (typeof window !== "undefined") {
-      localStorage.setItem("lager_standorte_v2", JSON.stringify(standorte));
+      localStorage.setItem(LS_STANDORTE, JSON.stringify(standorte));
     }
   }, [standorte]);
   useEffect(() => {
     if (typeof window !== "undefined") {
-      localStorage.setItem("lager_protokoll_v2", JSON.stringify(protokoll));
+      localStorage.setItem(LS_PROTOKOLL, JSON.stringify(protokoll));
     }
   }, [protokoll]);
 
-  // ==== Protokoll-Eintrag NUR für wichtige Aktionen
+  // Users laden/speichern
+  function loadUsers() {
+    const raw = localStorage.getItem(LS_USERS);
+    return raw ? JSON.parse(raw) : [];
+  }
+  function saveUsers(users) {
+    localStorage.setItem(LS_USERS, JSON.stringify(users));
+  }
+
+  // Admin Logik (einfach): admin, wenn erster registrierter User ODER Email beginnt mit "admin"
+  function isAdmin(u) {
+    if (!u) return false;
+    const users = loadUsers();
+    return (
+      users.length > 0 && users[0].email === u.email
+    ) || u.email.toLowerCase().startsWith("admin");
+  }
+
+  // Protokoll
   function addProtokoll(aktion, details) {
     setProtokoll((prev) => [
       ...prev,
       {
         zeit: new Date().toLocaleString(),
-        user,
+        user: user ? `${user.firstName} ${user.lastName} <${user.email}>` : "",
         aktion,
         details,
       },
     ]);
   }
 
-  // ==== Login-Flow
-  function handleLogin() {
-    if (pinMap[pin]) {
-      setUser(pinMap[pin]);
-      setPin("");
-      addProtokoll(t[lang].protokollLogin, pinMap[pin]);
-    } else {
-      alert(t[lang].falsch);
+  // Registration / Login
+  function handleRegister() {
+    setAuthMsg("");
+    const fn = reg.firstName.trim();
+    const ln = reg.lastName.trim();
+    const em = reg.email.trim().toLowerCase();
+    const pw = reg.pw;
+    const pw2 = reg.pw2;
+    const q = reg.q;
+    const a = (reg.a || "").trim().toLowerCase();
+    if (!fn || !ln || !em || pw.length < 4 || !q || !a) {
+      setAuthMsg(t[lang].regInvalid);
+      return;
     }
+    if (pw !== pw2) {
+      setAuthMsg(t[lang].regPwMismatch);
+      return;
+    }
+    const users = loadUsers();
+    if (users.some((u) => u.email === em)) {
+      setAuthMsg(t[lang].regExists);
+      return;
+    }
+    users.push({
+      firstName: fn,
+      lastName: ln,
+      email: em,
+      password: pw,
+      question: q,
+      answer: a,
+      createdAt: new Date().toISOString(),
+    });
+    saveUsers(users);
+    setAuthMsg(t[lang].regSuccess);
+    setAuthMode("login");
+    setLoginEmail(em);
+    setLoginPw("");
+    setReg({ firstName: "", lastName: "", email: "", pw: "", pw2: "", q: "", a: "" });
   }
+
+  function handleLogin() {
+    setAuthMsg("");
+    const em = (loginEmail || "").trim().toLowerCase();
+    const pw = loginPw;
+    const users = loadUsers();
+    const found = users.find((u) => u.email === em && u.password === pw);
+    if (!found) {
+      setAuthMsg(t[lang].loginInvalid);
+      return;
+    }
+    setUser({ firstName: found.firstName, lastName: found.lastName, email: found.email });
+    addProtokoll(t[lang].protokollLogin, found.email);
+    setLoginPw("");
+  }
+
   function handleLogout() {
-    addProtokoll(t[lang].protokollLogout, user);
+    addProtokoll(t[lang].protokollLogout, user ? user.email : "");
     setUser(null);
   }
 
-  // ==== Standortfunktionen
+  // Passwort vergessen – Steps
+  function startForgot() {
+    setFpStep(1);
+    setFpEmail("");
+    setFpUser(null);
+    setFpAnswer("");
+    setFpNewPw("");
+    setFpNewPw2("");
+    setFpMsg("");
+    setShowForgot(true);
+  }
+  function fpNext() {
+    setFpMsg("");
+    const users = loadUsers();
+    const em = (fpEmail || "").trim().toLowerCase();
+    const u = users.find((x) => x.email === em);
+    if (!u) {
+      setFpMsg(t[lang].resetMailNichtGefunden);
+      return;
+    }
+    setFpUser(u);
+    setFpStep(2);
+  }
+  function fpCheckAnswer() {
+    setFpMsg("");
+    const ans = (fpAnswer || "").trim().toLowerCase();
+    if (!fpUser || ans !== (fpUser.answer || "")) {
+      setFpMsg(t[lang].resetAntwortFalsch);
+      return;
+    }
+    setFpStep(3);
+  }
+  function fpSaveNew() {
+    setFpMsg("");
+    if (fpNewPw.length < 4) {
+      setFpMsg(t[lang].resetPwKurz);
+      return;
+    }
+    if (fpNewPw !== fpNewPw2) {
+      setFpMsg(t[lang].resetPwMismatch);
+      return;
+    }
+    const users = loadUsers();
+    const idx = users.findIndex((x) => x.email === fpUser.email);
+    if (idx >= 0) {
+      users[idx].password = fpNewPw;
+      saveUsers(users);
+      addProtokoll(t[lang].protokollPwReset, fpUser.email);
+      setFpMsg(t[lang].resetErfolg);
+      setTimeout(() => {
+        setShowForgot(false);
+        setAuthMode("login");
+        setLoginEmail(fpUser.email);
+      }, 900);
+    }
+  }
+
+  // Standortfunktionen
   function updateStandortName(idx, val) {
     const neu = [...standorte];
     neu[idx].name = val;
@@ -341,38 +571,26 @@ export default function Home() {
     addProtokoll(t[lang].protokollStandortEntf, removed);
   }
 
-  // ==== Kundenfunktionen
+  // Kunden/Ladungsträger/Grundbestand
   function addKunde(idx) {
     const neu = [...standorte];
     const neuerName = `${t[lang].name} ${neu[idx].kunden.length + 1}`;
-    neu[idx].kunden.push({
-      name: neuerName,
-      ladungstraeger: [],
-      notizen: "",
-    });
+    neu[idx].kunden.push({ name: neuerName, ladungstraeger: [], notizen: "" });
     setStandorte(neu);
-    addProtokoll(
-      t[lang].protokollKundeHinzu,
-      `${neuerName} @${standorte[idx].name}`
-    );
+    addProtokoll(t[lang].protokollKundeHinzu, `${neuerName} @${standorte[idx].name}`);
   }
   function removeKunde(sidx, kidx) {
     const removed = standorte[sidx].kunden[kidx].name;
     const neu = [...standorte];
     neu[sidx].kunden.splice(kidx, 1);
     setStandorte(neu);
-    addProtokoll(
-      t[lang].protokollKundeEntf,
-      `${removed} @${standorte[sidx].name}`
-    );
+    addProtokoll(t[lang].protokollKundeEntf, `${removed} @${standorte[sidx].name}`);
   }
   function updateKunde(sidx, kidx, feld, val) {
     const neu = [...standorte];
     neu[sidx].kunden[kidx][feld] = val;
     setStandorte(neu);
   }
-
-  // ==== Ladungsträgerfunktionen
   function addLadungstraeger(sidx, kidx) {
     const grundbestaende = standorte[sidx].grundbestaende;
     if (grundbestaende.length === 0) {
@@ -391,10 +609,7 @@ export default function Home() {
       vertragsmenge: "",
     });
     setStandorte(neu);
-    addProtokoll(
-      t[lang].protokollLadungsträgerHinzu,
-      `Kunde: ${standorte[sidx].kunden[kidx].name}`
-    );
+    addProtokoll(t[lang].protokollLadungsträgerHinzu, `Kunde: ${standorte[sidx].kunden[kidx].name}`);
   }
   function removeLadungstraeger(sidx, kidx, lidx) {
     const neu = [...standorte];
@@ -419,8 +634,6 @@ export default function Home() {
     }
     setStandorte(neu);
   }
-
-  // ==== Grundbestand / Inventur
   function addGrundbestand(sidx) {
     const neu = [...standorte];
     neu[sidx].grundbestaende.push({
@@ -460,7 +673,7 @@ export default function Home() {
     );
   }
 
-  // ==== Hilfsfunktionen für Berechnungen und Monitoring
+  // Berechnungen
   function getUmschlagMonatProTypQuali(sidx, typ, qualitaet) {
     let sum = 0;
     standorte[sidx].kunden.forEach((kunde) =>
@@ -481,8 +694,6 @@ export default function Home() {
     const bedarf = nextMonthBedarf(sidx, gb.typ, gb.qualitaet);
     return inventur < bedarf;
   }
-
-  // ==== Vertragsmengen-Monitoring (Ampel-Logik)
   function getVertragsAmpel(vertragsmenge, istmenge) {
     if (!vertragsmenge || vertragsmenge === 0) return { color: "gray", info: "" };
     const pct = istmenge / vertragsmenge;
@@ -491,7 +702,7 @@ export default function Home() {
     return { color: "red", info: t[lang].ampelInfoRot };
   }
 
-  // ==== Bewegungsbuchung (Eingang/Ausgang)
+  // Bewegungen
   function handleOpenBewegung() {
     setBewegungKunden([{ kunde: "", typ: "", qualitaet: "", menge: "" }]);
     setBewegungArt("Eingang");
@@ -558,15 +769,13 @@ export default function Home() {
       zeit: new Date().toLocaleString(),
       art: bewegungArt,
       details: [...bewegungKunden],
-      user,
+      user: user ? `${user.firstName} ${user.lastName} <${user.email}>` : "",
     });
     setStandorte(neu);
     addProtokoll(
       t[lang].protokollBewegung,
       `${bewegungArt}: ${bewegungKunden
-        .map(
-          (b) => `Kunde: ${b.kunde}, Typ: ${b.typ}, Quali: ${b.qualitaet}, Menge: ${b.menge}`
-        )
+        .map((b) => `Kunde: ${b.kunde}, Typ: ${b.typ}, Quali: ${b.qualitaet}, Menge: ${b.menge}`)
         .join(" | ")}`
     );
     setBewegungMsg(t[lang].bewegungErfasst);
@@ -575,20 +784,13 @@ export default function Home() {
       setBewegungMsg("");
     }, 1100);
   }
-
-  // ==== Ein-/Ausgang-Kumulierung für Kunden/Ladungsträgertyp/Qualität
   function getKundenEinAusgang(sidx, kName, typ, qualitaet) {
     const standort = standorte[sidx];
-    let eingang = 0,
-      ausgang = 0;
+    let eingang = 0, ausgang = 0;
     if (standort.bewegungen && standort.bewegungen.length) {
       standort.bewegungen.forEach((m) => {
         m.details.forEach((b) => {
-          if (
-            b.kunde === kName &&
-            b.typ === typ &&
-            (b.qualitaet || "") === (qualitaet || "")
-          ) {
+          if (b.kunde === kName && b.typ === typ && (b.qualitaet || "") === (qualitaet || "")) {
             if (m.art === "Eingang") eingang += Number(b.menge) || 0;
             if (m.art === "Ausgang") ausgang += Number(b.menge) || 0;
           }
@@ -598,17 +800,15 @@ export default function Home() {
     return { eingang, ausgang };
   }
 
-  // ==== Übersicht-Berechnung
+  // Übersicht
   function calculateStandort(standort) {
-    let stellplaetze = 0;
-    let lagerflaeche = 0;
-    let lagerkosten = 0;
-    let umschlagMonat = 0;
+    let stellplaetze = 0, lagerflaeche = 0, lagerkosten = 0, umschlagMonat = 0;
     standort.kunden.forEach((kunde) =>
       kunde.ladungstraeger.forEach((lt) => {
         const palettenMonat = (lt.mengeTag || 0) * (lt.arbeitstage || 0);
         umschlagMonat += palettenMonat;
-        const slots = Math.ceil((lt.palettenProStellplatz || 1) ? palettenMonat / (lt.palettenProStellplatz || 1) : palettenMonat);
+        const divisor = lt.palettenProStellplatz || 1;
+        const slots = Math.ceil(palettenMonat / divisor);
         stellplaetze += slots;
       })
     );
@@ -617,9 +817,7 @@ export default function Home() {
     return { stellplaetze, lagerflaeche, lagerkosten, umschlagMonat };
   }
   function calculateGesamt(standorteArr) {
-    let lagerflaeche = 0;
-    let lagerkosten = 0;
-    let stellplaetze = 0;
+    let lagerflaeche = 0, lagerkosten = 0, stellplaetze = 0;
     standorteArr.forEach((s) => {
       const r = calculateStandort(s);
       lagerflaeche += r.lagerflaeche;
@@ -629,7 +827,7 @@ export default function Home() {
     return { lagerflaeche, lagerkosten, stellplaetze };
   }
 
-  // === Login-Modal
+  // === Login/Registration (mit Forgot)
   if (!user)
     return (
       <div
@@ -640,6 +838,7 @@ export default function Home() {
           justifyContent: "center",
           alignItems: "center",
           fontFamily: "Inter,sans-serif",
+          padding: 20,
         }}
       >
         <div
@@ -647,55 +846,245 @@ export default function Home() {
             background: "#fff",
             borderRadius: 20,
             boxShadow: "0 4px 22px #0094cb44",
-            padding: "36px 45px",
+            padding: "30px 28px 24px 28px",
             textAlign: "center",
+            width: 520,
+            maxWidth: "96vw",
           }}
         >
-          <img src="/LOGO_LCX_NEXUS.png" alt="LCX NEXUS" style={{ height: 96, marginBottom: 16 }} />
-          <h2 style={{ color: "#0094cb", fontWeight: 900, marginBottom: 10 }}>
-            {t[lang].login}
-          </h2>
-          <div style={{ fontWeight: 600, color: "#083d95", marginBottom: 16 }}>
-            {t[lang].pinEingeben}
+          <img src="/LOGO_LCX_NEXUS.png" alt="LCX NEXUS" style={{ height: 96, marginBottom: 10 }} />
+          {/* Toggle */}
+          <div style={{ display: "flex", gap: 8, justifyContent: "center", margin: "8px 0 16px 0" }}>
+            <button
+              onClick={() => { setAuthMode("login"); setAuthMsg(""); }}
+              style={{
+                background: authMode === "login" ? "#0094cb" : "#fff",
+                color: authMode === "login" ? "#fff" : "#083d95",
+                border: "1.5px solid #0094cb",
+                fontWeight: 800,
+                borderRadius: 10,
+                padding: "8px 16px",
+                fontSize: 15,
+                cursor: "pointer",
+                width: 160,
+              }}
+            >
+              {t[lang].login}
+            </button>
+            <button
+              onClick={() => { setAuthMode("register"); setAuthMsg(""); }}
+              style={{
+                background: authMode === "register" ? "#083d95" : "#fff",
+                color: authMode === "register" ? "#fff" : "#083d95",
+                border: "1.5px solid #083d95",
+                fontWeight: 800,
+                borderRadius: 10,
+                padding: "8px 16px",
+                fontSize: 15,
+                cursor: "pointer",
+                width: 160,
+              }}
+            >
+              {t[lang].register}
+            </button>
           </div>
-          <input
-            type="password"
-            value={pin}
-            onChange={(e) => setPin(e.target.value)}
-            style={{
-              fontSize: 19,
-              border: "1.5px solid #0094cb",
-              borderRadius: 10,
-              padding: "8px 28px",
-              marginBottom: 20,
-              width: 180,
-              textAlign: "center",
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleLogin();
-            }}
-          />
-          <br />
-          <button
-            onClick={handleLogin}
-            style={{
-              background: "#0094cb",
-              color: "#fff",
-              fontWeight: 800,
-              border: "none",
-              borderRadius: 10,
-              padding: "10px 42px",
-              fontSize: 18,
-              cursor: "pointer",
-            }}
-          >
-            {t[lang].anmelden}
-          </button>
+
+          {authMode === "login" ? (
+            <>
+              <h2 style={{ color: "#0094cb", fontWeight: 900, margin: "0 0 10px 0" }}>
+                {t[lang].login}
+              </h2>
+              <div style={{ display: "grid", gap: 10, marginBottom: 8 }}>
+                <input
+                  type="email"
+                  placeholder={t[lang].email}
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  style={inputStyle()}
+                />
+                <input
+                  type="password"
+                  placeholder={t[lang].passwort}
+                  value={loginPw}
+                  onChange={(e) => setLoginPw(e.target.value)}
+                  style={inputStyle()}
+                  onKeyDown={(e) => { if (e.key === "Enter") handleLogin(); }}
+                />
+              </div>
+              <div style={{ textAlign: "right", marginBottom: 12 }}>
+                <a
+                  href="#"
+                  onClick={(e) => { e.preventDefault(); startForgot(); }}
+                  style={{ color: "#0094cb", fontWeight: 700, fontSize: 14 }}
+                >
+                  {t[lang].passwortVergessen}
+                </a>
+              </div>
+              {authMsg && <Msg text={authMsg} ok={authMsg === t[lang].regSuccess} />}
+              <button onClick={handleLogin} style={primaryBtn()}>
+                {t[lang].anmelden}
+              </button>
+              <div style={{ marginTop: 12, color: "#4a6079" }}>
+                {t[lang].noAccount}{" "}
+                <a
+                  href="#"
+                  onClick={(e) => { e.preventDefault(); setAuthMode("register"); setAuthMsg(""); }}
+                  style={{ color: "#0094cb", fontWeight: 800 }}
+                >
+                  {t[lang].switchToRegister}
+                </a>
+              </div>
+            </>
+          ) : (
+            <>
+              <h2 style={{ color: "#083d95", fontWeight: 900, margin: "0 0 10px 0" }}>
+                {t[lang].register}
+              </h2>
+              <div style={{ display: "grid", gap: 10, marginBottom: 14 }}>
+                <input
+                  type="text"
+                  placeholder={t[lang].vorname}
+                  value={reg.firstName}
+                  onChange={(e) => setReg({ ...reg, firstName: e.target.value })}
+                  style={inputStyle()}
+                />
+                <input
+                  type="text"
+                  placeholder={t[lang].nachname}
+                  value={reg.lastName}
+                  onChange={(e) => setReg({ ...reg, lastName: e.target.value })}
+                  style={inputStyle()}
+                />
+                <input
+                  type="email"
+                  placeholder={t[lang].email}
+                  value={reg.email}
+                  onChange={(e) => setReg({ ...reg, email: e.target.value })}
+                  style={inputStyle()}
+                />
+                <select
+                  value={reg.q}
+                  onChange={(e) => setReg({ ...reg, q: e.target.value })}
+                  style={{ ...inputStyle(), background: "#fff" }}
+                >
+                  <option value="">{t[lang].sicherheitsfrageWahl}</option>
+                  <option value="q1">{t[lang].frage1}</option>
+                  <option value="q2">{t[lang].frage2}</option>
+                  <option value="q3">{t[lang].frage3}</option>
+                </select>
+                <input
+                  type="text"
+                  placeholder={t[lang].sicherheitsantwort}
+                  value={reg.a}
+                  onChange={(e) => setReg({ ...reg, a: e.target.value })}
+                  style={inputStyle()}
+                />
+                <input
+                  type="password"
+                  placeholder={t[lang].passwort}
+                  value={reg.pw}
+                  onChange={(e) => setReg({ ...reg, pw: e.target.value })}
+                  style={inputStyle()}
+                />
+                <input
+                  type="password"
+                  placeholder={t[lang].passwortWdh}
+                  value={reg.pw2}
+                  onChange={(e) => setReg({ ...reg, pw2: e.target.value })}
+                  style={inputStyle()}
+                />
+              </div>
+              {authMsg && <Msg text={authMsg} ok={authMsg === t[lang].regSuccess} />}
+              <button onClick={handleRegister} style={secondaryBtn()}>
+                {t[lang].nowRegister}
+              </button>
+              <div style={{ marginTop: 12, color: "#4a6079" }}>
+                {t[lang].haveAccount}{" "}
+                <a
+                  href="#"
+                  onClick={(e) => { e.preventDefault(); setAuthMode("login"); setAuthMsg(""); }}
+                  style={{ color: "#0094cb", fontWeight: 800 }}
+                >
+                  {t[lang].switchToLogin}
+                </a>
+              </div>
+            </>
+          )}
         </div>
+
+        {/* ===== Forgot-Password Modal ===== */}
+        {showForgot && (
+          <Modal onClose={() => setShowForgot(false)}>
+            <h2 style={{ color: "#0094cb", fontWeight: 900, marginTop: 0 }}>
+              {t[lang].resetStart}
+            </h2>
+
+            {fpStep === 1 && (
+              <>
+                <input
+                  type="email"
+                  placeholder={t[lang].email}
+                  value={fpEmail}
+                  onChange={(e) => setFpEmail(e.target.value)}
+                  style={{ ...inputStyle(), width: "100%", margin: "6px 0 10px" }}
+                />
+                {fpMsg && <Msg text={fpMsg} ok={false} />}
+                <div style={{ textAlign: "right" }}>
+                  <button onClick={fpNext} style={primaryBtn()}>{t[lang].resetWeiter}</button>
+                </div>
+              </>
+            )}
+
+            {fpStep === 2 && fpUser && (
+              <>
+                <div style={{ fontWeight: 700, color: "#083d95", marginBottom: 6 }}>
+                  {t[lang].sicherheitsfrage}
+                </div>
+                <div style={{ background: "#f6fcff", border: "1px solid #b1dbef", padding: "8px 10px", borderRadius: 8, marginBottom: 10 }}>
+                  {fpUser.question === "q1" ? t[lang].frage1 : fpUser.question === "q2" ? t[lang].frage2 : t[lang].frage3}
+                </div>
+                <input
+                  type="text"
+                  placeholder={t[lang].sicherheitsantwort}
+                  value={fpAnswer}
+                  onChange={(e) => setFpAnswer(e.target.value)}
+                  style={{ ...inputStyle(), width: "100%", marginBottom: 10 }}
+                />
+                {fpMsg && <Msg text={fpMsg} ok={false} />}
+                <div style={{ textAlign: "right" }}>
+                  <button onClick={fpCheckAnswer} style={primaryBtn()}>{t[lang].resetPruefen}</button>
+                </div>
+              </>
+            )}
+
+            {fpStep === 3 && (
+              <>
+                <input
+                  type="password"
+                  placeholder={t[lang].neuesPasswort}
+                  value={fpNewPw}
+                  onChange={(e) => setFpNewPw(e.target.value)}
+                  style={{ ...inputStyle(), width: "100%", marginBottom: 8 }}
+                />
+                <input
+                  type="password"
+                  placeholder={t[lang].neuesPasswortWdh}
+                  value={fpNewPw2}
+                  onChange={(e) => setFpNewPw2(e.target.value)}
+                  style={{ ...inputStyle(), width: "100%", marginBottom: 8 }}
+                />
+                {fpMsg && <Msg text={fpMsg} ok={fpMsg === t[lang].resetErfolg} />}
+                <div style={{ textAlign: "right" }}>
+                  <button onClick={fpSaveNew} style={primaryBtn()}>{t[lang].resetSpeichern}</button>
+                </div>
+              </>
+            )}
+          </Modal>
+        )}
       </div>
     );
 
-  // ==== UI ================
+  // ==== App UI (unverändertes Grunddesign) ====
   const g = calculateGesamt(standorte);
 
   return (
@@ -723,13 +1112,8 @@ export default function Home() {
         <img
           src="/LOGO_LCX_NEXUS.png"
           alt="LCX NEXUS"
-          style={{
-            height: 140,
-            display: "block",
-            margin: "0 auto 8px auto",
-          }}
+          style={{ height: 140, display: "block", margin: "0 auto 8px auto" }}
         />
-        {/* Bedien-Buttons rechts oben */}
         <div
           style={{
             position: "absolute",
@@ -737,6 +1121,7 @@ export default function Home() {
             top: 54,
             display: "flex",
             alignItems: "center",
+            gap: 8,
           }}
         >
           <button
@@ -748,22 +1133,35 @@ export default function Home() {
               padding: "6px 16px",
               fontWeight: 700,
               borderRadius: 12,
-              marginRight: 8,
               cursor: "pointer",
               fontSize: 15,
             }}
           >
             {lang === "de" ? "EN" : "DE"}
           </button>
-          <span
-            style={{
-              fontWeight: 800,
-              color: "#0094cb",
-              fontSize: 17,
-              marginRight: 12,
-            }}
-          >
-            {user ? `${t[lang].userLabel} ${user}` : ""}
+
+          {/* Admin Button (nur für Admins) */}
+          {isAdmin(user) && (
+            <button
+              onClick={() => setShowAdmin(true)}
+              style={{
+                background: "#fff",
+                border: "1px solid #083d95",
+                color: "#083d95",
+                padding: "6px 16px",
+                fontWeight: 700,
+                borderRadius: 12,
+                cursor: "pointer",
+                fontSize: 15,
+              }}
+              title={t[lang].adminTitle}
+            >
+              {t[lang].adminListeBtn}
+            </button>
+          )}
+
+          <span style={{ fontWeight: 800, color: "#0094cb", fontSize: 17, marginLeft: 4 }}>
+            {user ? `${t[lang].userLabel} ${user.firstName} ${user.lastName}` : ""}
           </span>
           <button
             onClick={handleLogout}
@@ -784,8 +1182,9 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Standorte-Tabs */}
+      {/* Standorte-Tabs + Rest deiner App (unverändert) */}
       <div style={{ margin: "0 26px 0 26px" }}>
+        {/* Tabs */}
         <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
           {standorte.map((s, i) => (
             <div
@@ -844,7 +1243,7 @@ export default function Home() {
           )}
         </div>
 
-        {/* --------- Grundbestand/Inventur --------- */}
+        {/* Grundbestand/Inventur */}
         <div
           style={{
             background: "#f8fafc",
@@ -854,14 +1253,7 @@ export default function Home() {
             boxShadow: "0 1px 8px #b9e6fa22",
           }}
         >
-          <div
-            style={{
-              fontWeight: 900,
-              color: "#083d95",
-              fontSize: 18,
-              marginBottom: 7,
-            }}
-          >
+          <div style={{ fontWeight: 900, color: "#083d95", fontSize: 18, marginBottom: 7 }}>
             {t[lang].grundbestand} / {t[lang].inventur} {t[lang].standort}
           </div>
           <button
@@ -883,9 +1275,7 @@ export default function Home() {
           <div>
             {standorte[tab].grundbestaende.length === 0 && (
               <div style={{ color: "#aaa", margin: "13px 0 16px 0" }}>
-                {lang === "de"
-                  ? "Noch kein Grundbestand erfasst."
-                  : "No initial stock recorded yet."}
+                {lang === "de" ? "Noch kein Grundbestand erfasst." : "No initial stock recorded yet."}
               </div>
             )}
             {standorte[tab].grundbestaende.map((gb, gidx) => {
@@ -905,21 +1295,10 @@ export default function Home() {
                     padding: "7px 9px",
                   }}
                 >
-                  {/* Typ */}
                   <select
                     value={gb.typ}
-                    onChange={(e) =>
-                      updateGrundbestand(tab, gidx, "typ", e.target.value)
-                    }
-                    style={{
-                      fontWeight: 700,
-                      fontSize: 16,
-                      border: "1.2px solid #0094cb",
-                      borderRadius: 6,
-                      padding: "4px 13px",
-                      color: "#083d95",
-                      background: "#fff",
-                    }}
+                    onChange={(e) => updateGrundbestand(tab, gidx, "typ", e.target.value)}
+                    style={selectStyle()}
                   >
                     {ladungstraegerTypen.map((opt) => (
                       <option key={opt.label} value={opt.label}>
@@ -927,28 +1306,13 @@ export default function Home() {
                       </option>
                     ))}
                   </select>
-                  {/* Qualität, falls nötig */}
-                  {ladungstraegerTypen.find((t0) => t0.label === gb.typ)
-                    ?.qualitaeten.length ? (
+                  {ladungstraegerTypen.find((t0) => t0.label === gb.typ)?.qualitaeten.length ? (
                     <select
                       value={gb.qualitaet}
-                      onChange={(e) =>
-                        updateGrundbestand(tab, gidx, "qualitaet", e.target.value)
-                      }
-                      style={{
-                        fontWeight: 700,
-                        fontSize: 16,
-                        border: "1.2px solid #0094cb",
-                        borderRadius: 6,
-                        padding: "4px 13px",
-                        color: "#083d95",
-                        background: "#fff",
-                        minWidth: 65,
-                      }}
+                      onChange={(e) => updateGrundbestand(tab, gidx, "qualitaet", e.target.value)}
+                      style={{ ...selectStyle(), minWidth: 65 }}
                     >
-                      <option value="">
-                        {lang === "de" ? "Qualität…" : "Quality…"}
-                      </option>
+                      <option value="">{lang === "de" ? "Qualität…" : "Quality…"}</option>
                       {ladungstraegerTypen
                         .find((t0) => t0.label === gb.typ)
                         .qualitaeten.map((q) => (
@@ -958,67 +1322,27 @@ export default function Home() {
                         ))}
                     </select>
                   ) : null}
-                  {/* Grundbestand */}
                   <label>
                     {t[lang].grundbestand}
                     <input
                       type="number"
                       value={gb.bestand}
-                      onChange={(e) =>
-                        updateGrundbestand(tab, gidx, "bestand", e.target.value)
-                      }
-                      style={{
-                        width: 80,
-                        marginLeft: 9,
-                        borderRadius: 5,
-                        border: "1.2px solid #0094cb",
-                        background: "#fff",
-                        padding: "2px 7px",
-                        fontWeight: 700,
-                        fontSize: 15,
-                        color: "#083d95",
-                      }}
+                      onChange={(e) => updateGrundbestand(tab, gidx, "bestand", e.target.value)}
+                      style={numberInput()}
                     />
                   </label>
-                  {/* Inventur-Bestand */}
                   <label>
                     {t[lang].inventur}
                     <input
                       type="number"
                       value={gb.inventur}
-                      onChange={(e) =>
-                        updateGrundbestand(tab, gidx, "inventur", e.target.value)
-                      }
-                      style={{
-                        width: 80,
-                        marginLeft: 9,
-                        borderRadius: 5,
-                        border: "1.2px solid #0094cb",
-                        background: "#fff",
-                        padding: "2px 7px",
-                        fontWeight: 700,
-                        fontSize: 15,
-                        color: "#083d95",
-                      }}
+                      onChange={(e) => updateGrundbestand(tab, gidx, "inventur", e.target.value)}
+                      style={numberInput()}
                     />
-                    <button
-                      style={{
-                        background: "#3194cb",
-                        color: "#fff",
-                        fontWeight: 700,
-                        border: "none",
-                        borderRadius: 6,
-                        padding: "4px 12px",
-                        fontSize: 15,
-                        marginLeft: 8,
-                        cursor: "pointer",
-                      }}
-                      onClick={() => saveInventur(tab, gidx)}
-                    >
+                    <button style={smallBtn("#3194cb")} onClick={() => saveInventur(tab, gidx)}>
                       {t[lang].inventurSpeichern}
                     </button>
                   </label>
-                  {/* Abweichung */}
                   <div
                     style={{
                       fontWeight: 800,
@@ -1028,18 +1352,9 @@ export default function Home() {
                   >
                     {t[lang].abweichung}: {(gb.inventur || 0) - (gb.bestand || 0)}
                   </div>
-                  {/* Bedarf */}
-                  <div
-                    style={{
-                      marginLeft: 18,
-                      color: "#0094cb",
-                      fontWeight: 700,
-                      fontSize: 16,
-                    }}
-                  >
+                  <div style={{ marginLeft: 18, color: "#0094cb", fontWeight: 700, fontSize: 16 }}>
                     {t[lang].bedarfNextMonth}: {bedarfNextMonth}
                   </div>
-                  {/* Warnung */}
                   {inventurWarnung && (
                     <div
                       style={{
@@ -1054,21 +1369,7 @@ export default function Home() {
                       {t[lang].warnungBestand}
                     </div>
                   )}
-                  {/* Entfernen-Button */}
-                  <button
-                    style={{
-                      background: "#e53454",
-                      color: "#fff",
-                      fontWeight: 700,
-                      border: "none",
-                      borderRadius: 6,
-                      padding: "5px 13px",
-                      fontSize: 14,
-                      marginLeft: 10,
-                      cursor: "pointer",
-                    }}
-                    onClick={() => removeGrundbestand(tab, gidx)}
-                  >
+                  <button style={smallBtn("#e53454")} onClick={() => removeGrundbestand(tab, gidx)}>
                     {t[lang].entfernen}
                   </button>
                 </div>
@@ -1088,14 +1389,7 @@ export default function Home() {
             marginTop: 6,
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              gap: 30,
-              alignItems: "center",
-              marginBottom: 14,
-            }}
-          >
+          <div style={{ display: "flex", gap: 30, alignItems: "center", marginBottom: 14 }}>
             <input
               value={standorte[tab].name}
               onChange={(e) => updateStandortName(tab, e.target.value)}
@@ -1121,20 +1415,8 @@ export default function Home() {
                 min={0.5}
                 step={0.1}
                 value={standorte[tab].lagerflaecheProStellplatz}
-                onChange={(e) =>
-                  updateStandortFeld(tab, "lagerflaecheProStellplatz", e.target.value)
-                }
-                style={{
-                  width: 65,
-                  marginLeft: 11,
-                  borderRadius: 6,
-                  border: "1.2px solid #0094cb",
-                  background: "#e5f1fa",
-                  padding: "3px 8px",
-                  fontWeight: 700,
-                  fontSize: 15,
-                  color: "#083d95",
-                }}
+                onChange={(e) => updateStandortFeld(tab, "lagerflaecheProStellplatz", e.target.value)}
+                style={topNumber()}
               />
             </label>
             <label style={{ fontWeight: 700, fontSize: 16 }}>
@@ -1144,56 +1426,22 @@ export default function Home() {
                 min={0.1}
                 step={0.1}
                 value={standorte[tab].lagerkostenProStellplatz}
-                onChange={(e) =>
-                  updateStandortFeld(tab, "lagerkostenProStellplatz", e.target.value)
-                }
-                style={{
-                  width: 60,
-                  marginLeft: 11,
-                  borderRadius: 6,
-                  border: "1.2px solid #0094cb",
-                  background: "#e5f1fa",
-                  padding: "3px 8px",
-                  fontWeight: 700,
-                  fontSize: 15,
-                  color: "#083d95",
-                }}
+                onChange={(e) => updateStandortFeld(tab, "lagerkostenProStellplatz", e.target.value)}
+                style={{ ...topNumber(), width: 60 }}
               />
             </label>
           </div>
 
           <div>
-            <h3
-              style={{
-                margin: "15px 0 10px 0",
-                color: "#083d95",
-                fontWeight: 900,
-              }}
-            >
+            <h3 style={{ margin: "15px 0 10px 0", color: "#083d95", fontWeight: 900 }}>
               {t[lang].kunden}
             </h3>
-            <button
-              onClick={() => addKunde(tab)}
-              style={{
-                background: "#0094cb",
-                color: "#fff",
-                fontWeight: 800,
-                fontSize: 15,
-                border: "none",
-                borderRadius: 9,
-                padding: "7px 19px",
-                marginBottom: 8,
-                cursor: "pointer",
-                marginRight: 9,
-              }}
-            >
+            <button onClick={() => addKunde(tab)} style={addBtn()}>
               + {t[lang].kundeHinzufuegen}
             </button>
             <div>
               {standorte[tab].kunden.length === 0 ? (
-                <div style={{ color: "#aaa", margin: 18 }}>
-                  {t[lang].keinKunde}
-                </div>
+                <div style={{ color: "#aaa", margin: 18 }}>{t[lang].keinKunde}</div>
               ) : (
                 standorte[tab].kunden.map((kunde, kidx) => (
                   <div
@@ -1207,20 +1455,10 @@ export default function Home() {
                       padding: "16px 12px",
                     }}
                   >
-                    {/* Name, Button Entfernen */}
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 18,
-                        marginBottom: 10,
-                      }}
-                    >
+                    <div style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 10 }}>
                       <input
                         value={kunde.name}
-                        onChange={(e) =>
-                          updateKunde(tab, kidx, "name", e.target.value)
-                        }
+                        onChange={(e) => updateKunde(tab, kidx, "name", e.target.value)}
                         style={{
                           fontWeight: 800,
                           fontSize: 19,
@@ -1233,48 +1471,21 @@ export default function Home() {
                           minWidth: 120,
                         }}
                       />
-                      <button
-                        style={{
-                          background: "#e53454",
-                          color: "#fff",
-                          fontWeight: 800,
-                          border: "none",
-                          borderRadius: 7,
-                          padding: "6px 16px",
-                          fontSize: 15,
-                          cursor: "pointer",
-                        }}
-                        onClick={() => removeKunde(tab, kidx)}
-                      >
+                      <button style={smallBtn("#e53454")} onClick={() => removeKunde(tab, kidx)}>
                         {t[lang].entfernen}
                       </button>
                     </div>
 
-                    {/* Ladungsträger-Liste */}
                     <div>
                       {kunde.ladungstraeger.length === 0 ? (
-                        <div
-                          style={{
-                            color: "#bbb",
-                            margin: "10px 0 12px 20px",
-                          }}
-                        >
+                        <div style={{ color: "#bbb", margin: "10px 0 12px 20px" }}>
                           {t[lang].keinLadungstraeger}
                         </div>
                       ) : (
                         kunde.ladungstraeger.map((lt, lidx) => {
-                          const istmenge =
-                            (lt.mengeTag || 0) * (lt.arbeitstage || 0);
-                          const ampel = getVertragsAmpel(
-                            lt.vertragsmenge,
-                            istmenge
-                          );
-                          const einAus = getKundenEinAusgang(
-                            tab,
-                            kunde.name,
-                            lt.typ,
-                            lt.qualitaet
-                          );
+                          const istmenge = (lt.mengeTag || 0) * (lt.arbeitstage || 0);
+                          const ampel = getVertragsAmpel(lt.vertragsmenge, istmenge);
+                          const einAus = getKundenEinAusgang(tab, kunde.name, lt.typ, lt.qualitaet);
                           return (
                             <div
                               key={lidx}
@@ -1288,27 +1499,10 @@ export default function Home() {
                                 padding: "7px 8px",
                               }}
                             >
-                              {/* Auswahl Ladungsträgertyp */}
                               <select
                                 value={lt.typ}
-                                style={{
-                                  fontWeight: 700,
-                                  fontSize: 16,
-                                  border: "1px solid #0094cb",
-                                  borderRadius: 6,
-                                  padding: "4px 13px",
-                                  color: "#083d95",
-                                  background: "#fff",
-                                }}
-                                onChange={(e) =>
-                                  updateLadungstraeger(
-                                    tab,
-                                    kidx,
-                                    lidx,
-                                    "typ",
-                                    e.target.value
-                                  )
-                                }
+                                style={selectStyle()}
+                                onChange={(e) => updateLadungstraeger(tab, kidx, lidx, "typ", e.target.value)}
                               >
                                 {ladungstraegerTypen.map((opt) => (
                                   <option key={opt.label} value={opt.label}>
@@ -1316,35 +1510,13 @@ export default function Home() {
                                   </option>
                                 ))}
                               </select>
-                              {/* Qualität */}
-                              {ladungstraegerTypen.find(
-                                (t0) => t0.label === lt.typ
-                              )?.qualitaeten.length ? (
+                              {ladungstraegerTypen.find((t0) => t0.label === lt.typ)?.qualitaeten.length ? (
                                 <select
                                   value={lt.qualitaet}
-                                  style={{
-                                    fontWeight: 700,
-                                    fontSize: 16,
-                                    border: "1px solid #0094cb",
-                                    borderRadius: 6,
-                                    padding: "4px 13px",
-                                    color: "#083d95",
-                                    background: "#fff",
-                                    minWidth: 65,
-                                  }}
-                                  onChange={(e) =>
-                                    updateLadungstraeger(
-                                      tab,
-                                      kidx,
-                                      lidx,
-                                      "qualitaet",
-                                      e.target.value
-                                    )
-                                  }
+                                  style={{ ...selectStyle(), minWidth: 65 }}
+                                  onChange={(e) => updateLadungstraeger(tab, kidx, lidx, "qualitaet", e.target.value)}
                                 >
-                                  <option value="">
-                                    {lang === "de" ? "Qualität…" : "Quality…"}
-                                  </option>
+                                  <option value="">{lang === "de" ? "Qualität…" : "Quality…"}</option>
                                   {ladungstraegerTypen
                                     .find((t0) => t0.label === lt.typ)
                                     .qualitaeten.map((q) => (
@@ -1354,184 +1526,67 @@ export default function Home() {
                                     ))}
                                 </select>
                               ) : null}
-                              {/* Menge pro Tag */}
                               <label>
                                 {t[lang].mengeTag}
                                 <input
                                   type="number"
                                   value={lt.mengeTag}
-                                  onChange={(e) =>
-                                    updateLadungstraeger(
-                                      tab,
-                                      kidx,
-                                      lidx,
-                                      "mengeTag",
-                                      e.target.value
-                                    )
-                                  }
-                                  style={{
-                                    width: 80,
-                                    marginLeft: 9,
-                                    borderRadius: 5,
-                                    border: "1.2px solid #0094cb",
-                                    background: "#fff",
-                                    padding: "2px 7px",
-                                    fontWeight: 700,
-                                    fontSize: 15,
-                                    color: "#083d95",
-                                  }}
+                                  onChange={(e) => updateLadungstraeger(tab, kidx, lidx, "mengeTag", e.target.value)}
+                                  style={numberInput()}
                                 />
                               </label>
-                              {/* Arbeitstage */}
                               <label>
                                 {t[lang].arbeitstage}
                                 <input
                                   type="number"
                                   value={lt.arbeitstage}
-                                  onChange={(e) =>
-                                    updateLadungstraeger(
-                                      tab,
-                                      kidx,
-                                      lidx,
-                                      "arbeitstage",
-                                      e.target.value
-                                    )
-                                  }
-                                  style={{
-                                    width: 58,
-                                    marginLeft: 9,
-                                    borderRadius: 5,
-                                    border: "1.2px solid #0094cb",
-                                    background: "#fff",
-                                    padding: "2px 7px",
-                                    fontWeight: 700,
-                                    fontSize: 15,
-                                    color: "#083d95",
-                                  }}
+                                  onChange={(e) => updateLadungstraeger(tab, kidx, lidx, "arbeitstage", e.target.value)}
+                                  style={{ ...numberInput(), width: 58 }}
                                 />
                               </label>
-                              {/* Tage Clearing Ladestelle */}
                               <label>
                                 {t[lang].tageClearingLadestelle}
                                 <input
                                   type="number"
                                   value={lt.tageClearingLadestelle}
                                   onChange={(e) =>
-                                    updateLadungstraeger(
-                                      tab,
-                                      kidx,
-                                      lidx,
-                                      "tageClearingLadestelle",
-                                      e.target.value
-                                    )
+                                    updateLadungstraeger(tab, kidx, lidx, "tageClearingLadestelle", e.target.value)
                                   }
-                                  style={{
-                                    width: 65,
-                                    marginLeft: 9,
-                                    borderRadius: 5,
-                                    border: "1.2px solid #0094cb",
-                                    background: "#fff",
-                                    padding: "2px 7px",
-                                    fontWeight: 700,
-                                    fontSize: 15,
-                                    color: "#083d95",
-                                  }}
+                                  style={{ ...numberInput(), width: 65 }}
                                 />
                               </label>
-                              {/* Tage Clearing Entladestelle */}
                               <label>
                                 {t[lang].tageClearingEntladestelle}
                                 <input
                                   type="number"
                                   value={lt.tageClearingEntladestelle}
                                   onChange={(e) =>
-                                    updateLadungstraeger(
-                                      tab,
-                                      kidx,
-                                      lidx,
-                                      "tageClearingEntladestelle",
-                                      e.target.value
-                                    )
+                                    updateLadungstraeger(tab, kidx, lidx, "tageClearingEntladestelle", e.target.value)
                                   }
-                                  style={{
-                                    width: 65,
-                                    marginLeft: 9,
-                                    borderRadius: 5,
-                                    border: "1.2px solid #0094cb",
-                                    background: "#fff",
-                                    padding: "2px 7px",
-                                    fontWeight: 700,
-                                    fontSize: 15,
-                                    color: "#083d95",
-                                  }}
+                                  style={{ ...numberInput(), width: 65 }}
                                 />
                               </label>
-                              {/* Paletten pro Stellplatz */}
                               <label>
                                 {t[lang].palettenProStellplatz}
                                 <input
                                   type="number"
                                   value={lt.palettenProStellplatz}
                                   onChange={(e) =>
-                                    updateLadungstraeger(
-                                      tab,
-                                      kidx,
-                                      lidx,
-                                      "palettenProStellplatz",
-                                      e.target.value
-                                    )
+                                    updateLadungstraeger(tab, kidx, lidx, "palettenProStellplatz", e.target.value)
                                   }
-                                  style={{
-                                    width: 65,
-                                    marginLeft: 9,
-                                    borderRadius: 5,
-                                    border: "1.2px solid #0094cb",
-                                    background: "#fff",
-                                    padding: "2px 7px",
-                                    fontWeight: 700,
-                                    fontSize: 15,
-                                    color: "#083d95",
-                                  }}
+                                  style={{ ...numberInput(), width: 65 }}
                                 />
                               </label>
-                              {/* Vertragsmenge */}
                               <label>
                                 {t[lang].vertragsmenge}
                                 <input
                                   type="number"
                                   value={lt.vertragsmenge || ""}
-                                  onChange={(e) =>
-                                    updateLadungstraeger(
-                                      tab,
-                                      kidx,
-                                      lidx,
-                                      "vertragsmenge",
-                                      e.target.value
-                                    )
-                                  }
-                                  style={{
-                                    width: 95,
-                                    marginLeft: 9,
-                                    borderRadius: 5,
-                                    border: "1.2px solid #0094cb",
-                                    background: "#fff",
-                                    padding: "2px 7px",
-                                    fontWeight: 700,
-                                    fontSize: 15,
-                                    color: "#083d95",
-                                  }}
+                                  onChange={(e) => updateLadungstraeger(tab, kidx, lidx, "vertragsmenge", e.target.value)}
+                                  style={{ ...numberInput(), width: 95 }}
                                 />
                               </label>
-                              {/* Istmenge/Umschlag */}
-                              <div
-                                style={{
-                                  marginLeft: 14,
-                                  fontWeight: 800,
-                                  fontSize: 15,
-                                  display: "flex",
-                                  alignItems: "center",
-                                }}
-                              >
+                              <div style={{ marginLeft: 14, fontWeight: 800, fontSize: 15, display: "flex", alignItems: "center" }}>
                                 {t[lang].istmenge}: {istmenge}
                                 <span
                                   title={ampel.info}
@@ -1542,45 +1597,26 @@ export default function Home() {
                                     height: 18,
                                     borderRadius: "50%",
                                     background:
-                                      ampel.color === "green"
-                                        ? "#1ebc38"
-                                        : ampel.color === "orange"
-                                        ? "#ffb902"
-                                        : ampel.color === "red"
-                                        ? "#e53454"
-                                        : "#cfcfcf",
+                                      ampel.color === "green" ? "#1ebc38" :
+                                      ampel.color === "orange" ? "#ffb902" :
+                                      ampel.color === "red" ? "#e53454" : "#cfcfcf",
                                     border: "1.7px solid #aaa",
                                     boxShadow: "0 1px 3px #0002",
-                                    position: "relative",
-                                    cursor: "pointer",
                                   }}
                                 />
                                 <span
                                   style={{
                                     color:
-                                      ampel.color === "red"
-                                        ? "#e53454"
-                                        : ampel.color === "orange"
-                                        ? "#ffb902"
-                                        : ampel.color === "green"
-                                        ? "#1ebc38"
-                                        : "#aaa",
-                                    fontWeight: 700,
-                                    marginLeft: 5,
-                                    fontSize: 14,
+                                      ampel.color === "red" ? "#e53454" :
+                                      ampel.color === "orange" ? "#ffb902" :
+                                      ampel.color === "green" ? "#1ebc38" : "#aaa",
+                                    fontWeight: 700, marginLeft: 5, fontSize: 14,
                                   }}
                                   title={ampel.info}
                                 >
-                                  {ampel.color === "red"
-                                    ? "!"
-                                    : ampel.color === "orange"
-                                    ? "•"
-                                    : ampel.color === "green"
-                                    ? "✔"
-                                    : ""}
+                                  {ampel.color === "red" ? "!" : ampel.color === "orange" ? "•" : ampel.color === "green" ? "✔" : ""}
                                 </span>
                               </div>
-                              {/* Ein-/Ausgang kumuliert */}
                               <div style={{ marginLeft: 13, fontSize: 13 }}>
                                 <b>{t[lang].einAusgangHistorie}:</b>{" "}
                                 <span style={{ color: "#3194cb" }}>
@@ -1591,57 +1627,23 @@ export default function Home() {
                                   {t[lang].bewegungAusgang}: {einAus.ausgang}
                                 </span>
                               </div>
-                              {/* Entfernen-Button */}
-                              <button
-                                style={{
-                                  background: "#e53454",
-                                  color: "#fff",
-                                  fontWeight: 700,
-                                  border: "none",
-                                  borderRadius: 6,
-                                  padding: "5px 15px",
-                                  fontSize: 14,
-                                  marginLeft: 8,
-                                  cursor: "pointer",
-                                }}
-                                onClick={() =>
-                                  removeLadungstraeger(tab, kidx, lidx)
-                                }
-                              >
+                              <button style={smallBtn("#e53454")} onClick={() => removeLadungstraeger(tab, kidx, lidx)}>
                                 {t[lang].entfernen}
                               </button>
                             </div>
                           );
                         })
                       )}
-                      <button
-                        onClick={() => addLadungstraeger(tab, kidx)}
-                        style={{
-                          background: "#083d95",
-                          color: "#fff",
-                          fontWeight: 700,
-                          border: "none",
-                          borderRadius: 7,
-                          padding: "6px 14px",
-                          fontSize: 15,
-                          marginTop: 7,
-                          cursor: "pointer",
-                        }}
-                      >
+                      <button onClick={() => addLadungstraeger(tab, kidx)} style={smallBtn("#083d95")}>
                         + {t[lang].ladungstraegerHinzufuegen}
                       </button>
                     </div>
 
-                    {/* Notizen */}
                     <div style={{ marginTop: 10 }}>
-                      <label style={{ fontWeight: 700 }}>
-                        {t[lang].notizen}
-                      </label>
+                      <label style={{ fontWeight: 700 }}>{t[lang].notizen}</label>
                       <textarea
                         value={kunde.notizen}
-                        onChange={(e) =>
-                          updateKunde(tab, kidx, "notizen", e.target.value)
-                        }
+                        onChange={(e) => updateKunde(tab, kidx, "notizen", e.target.value)}
                         style={{
                           width: "96%",
                           minHeight: 40,
@@ -1671,66 +1673,39 @@ export default function Home() {
           padding: "28px 30px 35px 30px",
         }}
       >
-        <h2
-          style={{
-            color: "#0094cb",
-            fontWeight: 900,
-            fontSize: 27,
-            marginBottom: 11,
-          }}
-        >
+        <h2 style={{ color: "#0094cb", fontWeight: 900, fontSize: 27, marginBottom: 11 }}>
           {t[lang].gesamtuebersicht}
         </h2>
         <div style={{ fontSize: 17, marginBottom: 7, marginTop: 7 }}>
-          {t[lang].lagerflaeche}: <b>{g.lagerflaeche} m²</b> | {t[lang].stellplaetze}:{" "}
-          <b>{g.stellplaetze}</b> | {t[lang].lagerkosten}:{" "}
+          {t[lang].lagerflaeche}: <b>{g.lagerflaeche} m²</b> | {t[lang].stellplaetze}: <b>{g.stellplaetze}</b> | {t[lang].lagerkosten}:{" "}
           <b>{g.lagerkosten.toLocaleString("de-DE", { minimumFractionDigits: 2 })} €</b>
         </div>
         <div style={{ display: "flex", gap: 52, marginTop: 22 }}>
-          {/* Umschlag Chart */}
           <div style={{ flex: 1 }}>
-            <b style={{ color: "#0a1b3f", fontSize: 16 }}>
-              {t[lang].chartsUmschlag}
-            </b>
+            <b style={{ color: "#0a1b3f", fontSize: 16 }}>{t[lang].chartsUmschlag}</b>
             <BarChart
               labels={standorte.map((s) => s.name)}
               values={standorte.map((s) => calculateStandort(s).umschlagMonat)}
               color="#0094cb"
               suffix=" Pal."
-              max={Math.max(
-                100,
-                ...standorte.map((s) => calculateStandort(s).umschlagMonat)
-              )}
+              max={Math.max(100, ...standorte.map((s) => calculateStandort(s).umschlagMonat))}
             />
           </div>
-          {/* Kosten Chart */}
           <div style={{ flex: 1 }}>
-            <b style={{ color: "#0a1b3f", fontSize: 16 }}>
-              {t[lang].chartsKosten}
-            </b>
+            <b style={{ color: "#0a1b3f", fontSize: 16 }}>{t[lang].chartsKosten}</b>
             <BarChart
               labels={standorte.map((s) => s.name)}
               values={standorte.map((s) => calculateStandort(s).lagerkosten)}
               color="#083d95"
               suffix=" €"
-              max={Math.max(
-                100,
-                ...standorte.map((s) => calculateStandort(s).lagerkosten)
-              )}
+              max={Math.max(100, ...standorte.map((s) => calculateStandort(s).lagerkosten))}
             />
           </div>
         </div>
       </div>
 
       {/* Bewegungsbuchung-Button */}
-      <div
-        style={{
-          position: "fixed",
-          right: 25,
-          bottom: 92,
-          zIndex: 999,
-        }}
-      >
+      <div style={{ position: "fixed", right: 25, bottom: 92, zIndex: 999 }}>
         <button
           style={{
             background: "#fff",
@@ -1750,7 +1725,7 @@ export default function Home() {
       </div>
 
       {/* Protokoll-Link + Footer */}
-      <div style={{ position: "fixed", right: 25, bottom: 32, zIndex: 999 }}>
+      <div style={{ position: "fixed", right: 25, bottom: 32, zIndex: 999, display: "flex", gap: 8 }}>
         <button
           style={{
             background: "#fff",
@@ -1789,371 +1764,397 @@ export default function Home() {
         {t[lang].footer}
       </div>
 
-      {/* ==== Bewegungsbuchungs-Modal ==== */}
+      {/* Bewegungsbuchung Modal */}
       {showBewegung && (
-        <div
-          style={{
-            position: "fixed",
-            left: 0,
-            top: 0,
-            width: "100vw",
-            height: "100vh",
-            background: "#000a",
-            zIndex: 10001,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-          onClick={() => setShowBewegung(false)}
-        >
-          <div
-            style={{
-              width: 560,
-              maxWidth: "96vw",
-              background: "#fff",
-              borderRadius: 19,
-              boxShadow: "0 5px 30px #0094cb44",
-              padding: "32px 30px 24px 30px",
-              fontFamily: "Inter,sans-serif",
-              color: "#083d95",
-              position: "relative",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2
+        <Modal onClose={() => setShowBewegung(false)}>
+          <h2 style={{ color: "#0094cb", fontWeight: 900, fontSize: 22, marginTop: 0, marginBottom: 14 }}>
+            {t[lang].bewegungBuchen}
+          </h2>
+          <div style={{ marginBottom: 12 }}>
+            <b>{t[lang].bewegungArt}</b>{" "}
+            <select
+              value={bewegungArt}
+              onChange={(e) => setBewegungArt(e.target.value)}
+              style={{ ...selectStyle(), background: "#e5f1fa" }}
+            >
+              <option value="Eingang">{t[lang].bewegungEingang}</option>
+              <option value="Ausgang">{t[lang].bewegungAusgang}</option>
+            </select>
+          </div>
+          {bewegungKunden.map((k, idx) => (
+            <div
+              key={idx}
               style={{
-                color: "#0094cb",
-                fontWeight: 900,
-                fontSize: 22,
-                marginTop: 0,
-                marginBottom: 14,
+                background: "#f6fcff",
+                border: "1px solid #b1dbef",
+                borderRadius: 10,
+                padding: "10px 14px",
+                marginBottom: 12,
+                display: "flex",
+                gap: 9,
+                alignItems: "center",
               }}
             >
-              {t[lang].bewegungBuchen}
-            </h2>
-            <div style={{ marginBottom: 12 }}>
-              <b>{t[lang].bewegungArt}</b>{" "}
               <select
-                value={bewegungArt}
-                onChange={(e) => setBewegungArt(e.target.value)}
-                style={{
-                  fontWeight: 700,
-                  fontSize: 16,
-                  border: "1.2px solid #0094cb",
-                  borderRadius: 8,
-                  padding: "4px 18px",
-                  marginLeft: 9,
-                  background: "#e5f1fa",
-                  color: "#083d95",
-                }}
+                value={k.kunde}
+                onChange={(e) => handleChangeBewegungKunde(idx, "kunde", e.target.value)}
+                style={{ ...selectStyle(), minWidth: 110 }}
               >
-                <option value="Eingang">{t[lang].bewegungEingang}</option>
-                <option value="Ausgang">{t[lang].bewegungAusgang}</option>
+                <option value="">{lang === "de" ? "Kunde wählen…" : "Select customer…"}</option>
+                {standorte[tab].kunden.map((kc) => (
+                  <option key={kc.name} value={kc.name}>
+                    {kc.name}
+                  </option>
+                ))}
               </select>
-            </div>
-            {bewegungKunden.map((k, idx) => (
-              <div
-                key={idx}
-                style={{
-                  background: "#f6fcff",
-                  border: "1px solid #b1dbef",
-                  borderRadius: 10,
-                  padding: "10px 14px",
-                  marginBottom: 12,
-                  display: "flex",
-                  gap: 9,
-                  alignItems: "center",
-                }}
+              <select
+                value={k.typ}
+                onChange={(e) => handleChangeBewegungKunde(idx, "typ", e.target.value)}
+                style={{ ...selectStyle(), minWidth: 120 }}
               >
-                <select
-                  value={k.kunde}
-                  onChange={(e) =>
-                    handleChangeBewegungKunde(idx, "kunde", e.target.value)
-                  }
-                  style={{
-                    fontWeight: 700,
-                    fontSize: 15,
-                    border: "1.2px solid #0094cb",
-                    borderRadius: 7,
-                    padding: "4px 13px",
-                    color: "#083d95",
-                    background: "#fff",
-                    minWidth: 110,
-                  }}
-                >
-                  <option value="">
-                    {lang === "de" ? "Kunde wählen…" : "Select customer…"}
+                <option value="">{lang === "de" ? "Ladungsträgertyp…" : "Carrier type…"}</option>
+                {ladungstraegerTypen.map((opt) => (
+                  <option key={opt.label} value={opt.label}>
+                    {opt.label}
                   </option>
-                  {standorte[tab].kunden.map((kc) => (
-                    <option key={kc.name} value={kc.name}>
-                      {kc.name}
-                    </option>
-                  ))}
-                </select>
-                {/* Typ */}
+                ))}
+              </select>
+              {ladungstraegerTypen.find((t0) => t0.label === k.typ)?.qualitaeten.length ? (
                 <select
-                  value={k.typ}
-                  onChange={(e) =>
-                    handleChangeBewegungKunde(idx, "typ", e.target.value)
-                  }
-                  style={{
-                    fontWeight: 700,
-                    fontSize: 15,
-                    border: "1.2px solid #0094cb",
-                    borderRadius: 7,
-                    padding: "4px 13px",
-                    color: "#083d95",
-                    background: "#fff",
-                    minWidth: 120,
-                  }}
+                  value={k.qualitaet}
+                  onChange={(e) => handleChangeBewegungKunde(idx, "qualitaet", e.target.value)}
+                  style={{ ...selectStyle(), minWidth: 65 }}
                 >
-                  <option value="">
-                    {lang === "de" ? "Ladungsträgertyp…" : "Carrier type…"}
-                  </option>
-                  {ladungstraegerTypen.map((opt) => (
-                    <option key={opt.label} value={opt.label}>
-                      {opt.label}
-                    </option>
-                  ))}
+                  <option value="">{lang === "de" ? "Qualität…" : "Quality…"}</option>
+                  {ladungstraegerTypen
+                    .find((t0) => t0.label === k.typ)
+                    .qualitaeten.map((q) => (
+                      <option key={q} value={q}>
+                        {q}
+                      </option>
+                    ))}
                 </select>
-                {/* Qualität (wenn nötig) */}
-                {ladungstraegerTypen.find((t0) => t0.label === k.typ)
-                  ?.qualitaeten.length ? (
-                  <select
-                    value={k.qualitaet}
-                    onChange={(e) =>
-                      handleChangeBewegungKunde(idx, "qualitaet", e.target.value)
-                    }
-                    style={{
-                      fontWeight: 700,
-                      fontSize: 15,
-                      border: "1.2px solid #0094cb",
-                      borderRadius: 7,
-                      padding: "4px 13px",
-                      color: "#083d95",
-                      background: "#fff",
-                      minWidth: 65,
-                    }}
-                  >
-                    <option value="">
-                      {lang === "de" ? "Qualität…" : "Quality…"}
-                    </option>
-                    {ladungstraegerTypen
-                      .find((t0) => t0.label === k.typ)
-                      .qualitaeten.map((q) => (
-                        <option key={q} value={q}>
-                          {q}
-                        </option>
-                      ))}
-                  </select>
-                ) : null}
-                {/* Menge */}
-                <input
-                  type="number"
-                  value={k.menge}
-                  onChange={(e) =>
-                    handleChangeBewegungKunde(idx, "menge", e.target.value)
-                  }
-                  min={1}
-                  placeholder={t[lang].bewegungMenge}
-                  style={{
-                    width: 85,
-                    border: "1.2px solid #0094cb",
-                    borderRadius: 7,
-                    fontWeight: 700,
-                    padding: "3px 12px",
-                    fontSize: 15,
-                    background: "#fff",
-                    color: "#083d95",
-                  }}
-                />
-                {/* + / - Button */}
-                {bewegungKunden.length > 1 && (
-                  <button
-                    style={{
-                      background: "#e53454",
-                      color: "#fff",
-                      fontWeight: 700,
-                      border: "none",
-                      borderRadius: 8,
-                      padding: "5px 10px",
-                      cursor: "pointer",
-                      fontSize: 15,
-                    }}
-                    onClick={() => handleRemoveBewegungKunde(idx)}
-                  >
-                    −
-                  </button>
-                )}
-                {idx === bewegungKunden.length - 1 && (
-                  <button
-                    style={{
-                      background: "#0094cb",
-                      color: "#fff",
-                      fontWeight: 800,
-                      border: "none",
-                      borderRadius: 8,
-                      padding: "5px 10px",
-                      marginLeft: 7,
-                      cursor: "pointer",
-                      fontSize: 15,
-                    }}
-                    onClick={handleAddBewegungKunde}
-                  >
-                    +
-                  </button>
-                )}
-              </div>
-            ))}
-            {bewegungMsg && (
-              <div
+              ) : null}
+              <input
+                type="number"
+                value={k.menge}
+                onChange={(e) => handleChangeBewegungKunde(idx, "menge", e.target.value)}
+                min={1}
+                placeholder={t[lang].bewegungMenge}
                 style={{
-                  color:
-                    bewegungMsg === t[lang].bewegungErfasst ? "#0a6e2b" : "#e53454",
-                  background:
-                    bewegungMsg === t[lang].bewegungErfasst ? "#e7faee" : "#ffe3e3",
+                  width: 85,
+                  border: "1.2px solid #0094cb",
                   borderRadius: 7,
                   fontWeight: 700,
+                  padding: "3px 12px",
                   fontSize: 15,
-                  padding: "8px 10px",
-                  margin: "0 0 9px 0",
-                }}
-              >
-                {bewegungMsg}
-              </div>
-            )}
-            <div style={{ textAlign: "center", marginTop: 11 }}>
-              <button
-                onClick={handleBuchenBewegung}
-                style={{
-                  background: "#0094cb",
-                  color: "#fff",
-                  fontWeight: 800,
-                  border: "none",
-                  borderRadius: 11,
-                  padding: "10px 40px",
-                  fontSize: 16,
-                  cursor: "pointer",
-                  marginRight: 11,
-                }}
-              >
-                {t[lang].bewegungBuchen}
-              </button>
-              <button
-                onClick={() => setShowBewegung(false)}
-                style={{
                   background: "#fff",
-                  color: "#0094cb",
-                  fontWeight: 800,
-                  border: "1.2px solid #0094cb",
-                  borderRadius: 11,
-                  padding: "10px 34px",
-                  fontSize: 16,
-                  cursor: "pointer",
+                  color: "#083d95",
                 }}
-              >
-                {t[lang].abbrechen}
-              </button>
+              />
+              {bewegungKunden.length > 1 && (
+                <button style={smallBtn("#e53454")} onClick={() => handleRemoveBewegungKunde(idx)}>
+                  −
+                </button>
+              )}
+              {idx === bewegungKunden.length - 1 && (
+                <button style={smallBtn("#0094cb")} onClick={handleAddBewegungKunde}>
+                  +
+                </button>
+              )}
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* ==== Protokoll-Modal ==== */}
-      {showProtokoll && (
-        <div
-          style={{
-            position: "fixed",
-            left: 0,
-            top: 0,
-            width: "100vw",
-            height: "100vh",
-            background: "#000a",
-            zIndex: 10001,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-          onClick={() => setShowProtokoll(false)}
-        >
-          <div
-            style={{
-              width: "620px",
-              maxHeight: "86vh",
-              overflowY: "auto",
-              background: "#fff",
-              borderRadius: 19,
-              boxShadow: "0 5px 30px #0094cb44",
-              padding: "36px 36px 25px 36px",
-              fontFamily: "Inter,sans-serif",
-              color: "#083d95",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2
-              style={{
-                color: "#0094cb",
-                fontWeight: 900,
-                fontSize: 24,
-                marginTop: 0,
-                marginBottom: 12,
-              }}
-            >
-              {t[lang].protokollTitle}
-            </h2>
-            {protokoll.length === 0 ? (
-              <div
-                style={{
-                  color: "#aaa",
-                  fontWeight: 600,
-                  marginTop: 22,
-                }}
-              >
-                {t[lang].keineAenderungen}
-              </div>
-            ) : (
-              <ul style={{ fontSize: 15, listStyle: "none", padding: 0 }}>
-                {protokoll
-                  .slice()
-                  .reverse()
-                  .map((p, i) => (
-                    <li key={i} style={{ marginBottom: 7 }}>
-                      <span style={{ fontWeight: 600 }}>{p.zeit}</span>
-                      {" – "}
-                      <span style={{ fontWeight: 700 }}>{p.user}</span>
-                      {": "}
-                      <span>{p.aktion}</span>
-                      <span style={{ color: "#555" }}>
-                        {p.details ? " (" + p.details + ")" : ""}
-                      </span>
-                    </li>
-                  ))}
-              </ul>
-            )}
-            <button
-              style={{
-                marginTop: 20,
-                background: "#0094cb",
-                color: "#fff",
-                fontWeight: 800,
-                border: "none",
-                borderRadius: 10,
-                padding: "10px 32px",
-                fontSize: 16,
-                cursor: "pointer",
-              }}
-              onClick={() => setShowProtokoll(false)}
-            >
-              {t[lang].schliessen}
+          ))}
+          {bewegungMsg && (
+            <Msg text={bewegungMsg} ok={bewegungMsg === t[lang].bewegungErfasst} />
+          )}
+          <div style={{ textAlign: "center", marginTop: 11 }}>
+            <button onClick={handleBuchenBewegung} style={primaryBtn()}>
+              {t[lang].bewegungBuchen}
+            </button>
+            <button onClick={() => setShowBewegung(false)} style={outlineBtn()}>
+              {t[lang].abbrechen}
             </button>
           </div>
-        </div>
+        </Modal>
+      )}
+
+      {/* Protokoll Modal */}
+      {showProtokoll && (
+        <Modal onClose={() => setShowProtokoll(false)}>
+          <h2 style={{ color: "#0094cb", fontWeight: 900, fontSize: 24, marginTop: 0, marginBottom: 12 }}>
+            {t[lang].protokollTitle}
+          </h2>
+          {protokoll.length === 0 ? (
+            <div style={{ color: "#aaa", fontWeight: 600, marginTop: 22 }}>
+              {t[lang].keineAenderungen}
+            </div>
+          ) : (
+            <ul style={{ fontSize: 15, listStyle: "none", padding: 0 }}>
+              {protokoll
+                .slice()
+                .reverse()
+                .map((p, i) => (
+                  <li key={i} style={{ marginBottom: 7 }}>
+                    <span style={{ fontWeight: 600 }}>{p.zeit}</span>
+                    {" – "}
+                    <span style={{ fontWeight: 700 }}>{p.user}</span>
+                    {": "}
+                    <span>{p.aktion}</span>
+                    <span style={{ color: "#555" }}>{p.details ? " (" + p.details + ")" : ""}</span>
+                  </li>
+                ))}
+            </ul>
+          )}
+          <button style={primaryBtn()} onClick={() => setShowProtokoll(false)}>
+            {t[lang].schliessen}
+          </button>
+        </Modal>
+      )}
+
+      {/* Admin: Benutzerliste */}
+      {showAdmin && (
+        <AdminUsersModal
+          lang={lang}
+          onClose={() => setShowAdmin(false)}
+          t={t}
+          currentUser={user}
+          loadUsers={loadUsers}
+          saveUsers={(u) => saveUsers(u)}
+          onDelete={(deletedEmail) => addProtokoll(t[lang].protokollUserGeloescht, deletedEmail)}
+        />
       )}
     </div>
   );
 }
 
-// ===== BAR CHART KOMPONENTE =====
+/* ===== Reusable UI Helpers ===== */
+function Modal({ children, onClose }) {
+  return (
+    <div
+      style={{
+        position: "fixed", left: 0, top: 0, width: "100vw", height: "100vh",
+        background: "#000a", zIndex: 10001, display: "flex", alignItems: "center", justifyContent: "center",
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          width: 620, maxWidth: "96vw", background: "#fff", borderRadius: 19,
+          boxShadow: "0 5px 30px #0094cb44", padding: "32px 30px 24px 30px",
+          fontFamily: "Inter,sans-serif", color: "#083d95", position: "relative",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {children}
+        <div style={{ textAlign: "right", marginTop: 12 }}>
+          <button onClick={onClose} style={outlineBtn()}>OK</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AdminUsersModal({ lang, onClose, t, currentUser, loadUsers, saveUsers, onDelete }) {
+  const [users, setUsers] = useState(loadUsers());
+  function handleDelete(email) {
+    if (currentUser && currentUser.email === email) {
+      alert(t[lang].nichtSelbstLoeschen);
+      return;
+    }
+    if (!confirm(t[lang].wirklichLoeschen)) return;
+    const neu = users.filter((u) => u.email !== email);
+    setUsers(neu);
+    saveUsers(neu);
+    onDelete(email);
+  }
+  return (
+    <Modal onClose={onClose}>
+      <h2 style={{ color: "#0094cb", fontWeight: 900, fontSize: 22, marginTop: 0, marginBottom: 12 }}>
+        {t[lang].adminTitle}
+      </h2>
+      {users.length === 0 ? (
+        <div style={{ color: "#aaa" }}>–</div>
+      ) : (
+        <div style={{ maxHeight: "60vh", overflowY: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+            <thead>
+              <tr style={{ textAlign: "left", borderBottom: "1px solid #e3f1fb" }}>
+                <th style={{ padding: "6px 4px" }}>{t[lang].vorname}</th>
+                <th style={{ padding: "6px 4px" }}>{t[lang].nachname}</th>
+                <th style={{ padding: "6px 4px" }}>{t[lang].email}</th>
+                <th style={{ padding: "6px 4px" }}>{t[lang].sicherheitsfrage}</th>
+                <th style={{ padding: "6px 4px" }}>{t[lang].registriertAm}</th>
+                <th style={{ padding: "6px 4px" }}>{t[lang].admin}</th>
+                <th style={{ padding: "6px 4px" }} />
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((u, i) => (
+                <tr key={u.email} style={{ borderBottom: "1px solid #f0f7fd" }}>
+                  <td style={{ padding: "6px 4px" }}>{u.firstName}</td>
+                  <td style={{ padding: "6px 4px" }}>{u.lastName}</td>
+                  <td style={{ padding: "6px 4px" }}>{u.email}</td>
+                  <td style={{ padding: "6px 4px" }}>
+                    {u.question === "q1" ? t[lang].frage1 : u.question === "q2" ? t[lang].frage2 : t[lang].frage3}
+                  </td>
+                  <td style={{ padding: "6px 4px" }}>
+                    {u.createdAt ? new Date(u.createdAt).toLocaleString() : "–"}
+                  </td>
+                  <td style={{ padding: "6px 4px" }}>
+                    {i === 0 || (u.email || "").toLowerCase().startsWith("admin") ? "✔" : "–"}
+                  </td>
+                  <td style={{ padding: "6px 4px", textAlign: "right" }}>
+                    <button
+                      onClick={() => handleDelete(u.email)}
+                      style={{ ...smallBtn("#e53454"), padding: "4px 10px" }}
+                    >
+                      {t[lang].loeschen}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div style={{ color: "#5787b9", fontSize: 12, marginTop: 6 }}>
+            Hinweis: Admin = erster registrierter Benutzer oder E‑Mail beginnt mit „admin“.
+          </div>
+        </div>
+      )}
+    </Modal>
+  );
+}
+
+function Msg({ text, ok }) {
+  return (
+    <div
+      style={{
+        color: ok ? "#0a6e2b" : "#e53454",
+        background: ok ? "#e7faee" : "#ffe3e3",
+        borderRadius: 7,
+        fontWeight: 700,
+        fontSize: 15,
+        padding: "8px 10px",
+        margin: "0 0 9px 0",
+      }}
+    >
+      {text}
+    </div>
+  );
+}
+
+function inputStyle() {
+  return {
+    fontSize: 16,
+    border: "1.5px solid #0094cb",
+    borderRadius: 10,
+    padding: "10px 14px",
+    background: "#f4fbfd",
+    color: "#083d95",
+    width: "100%",
+  };
+}
+function primaryBtn() {
+  return {
+    background: "#0094cb",
+    color: "#fff",
+    fontWeight: 800,
+    border: "none",
+    borderRadius: 11,
+    padding: "10px 40px",
+    fontSize: 16,
+    cursor: "pointer",
+  };
+}
+function secondaryBtn() {
+  return {
+    background: "#083d95",
+    color: "#fff",
+    fontWeight: 800,
+    border: "none",
+    borderRadius: 11,
+    padding: "10px 40px",
+    fontSize: 16,
+    cursor: "pointer",
+  };
+}
+function outlineBtn() {
+  return {
+    background: "#fff",
+    color: "#0094cb",
+    fontWeight: 800,
+    border: "1.2px solid #0094cb",
+    borderRadius: 11,
+    padding: "10px 34px",
+    fontSize: 16,
+    cursor: "pointer",
+  };
+}
+function selectStyle() {
+  return {
+    fontWeight: 700,
+    fontSize: 16,
+    border: "1.2px solid #0094cb",
+    borderRadius: 6,
+    padding: "4px 13px",
+    color: "#083d95",
+    background: "#fff",
+  };
+}
+function numberInput() {
+  return {
+    width: 80,
+    marginLeft: 9,
+    borderRadius: 5,
+    border: "1.2px solid #0094cb",
+    background: "#fff",
+    padding: "2px 7px",
+    fontWeight: 700,
+    fontSize: 15,
+    color: "#083d95",
+  };
+}
+function smallBtn(bg) {
+  return {
+    background: bg,
+    color: "#fff",
+    fontWeight: 700,
+    border: "none",
+    borderRadius: 6,
+    padding: "4px 12px",
+    fontSize: 15,
+    marginLeft: 8,
+    cursor: "pointer",
+  };
+}
+function addBtn() {
+  return {
+    background: "#0094cb",
+    color: "#fff",
+    fontWeight: 800,
+    fontSize: 15,
+    border: "none",
+    borderRadius: 9,
+    padding: "7px 19px",
+    marginBottom: 8,
+    cursor: "pointer",
+    marginRight: 9,
+  };
+}
+function topNumber() {
+  return {
+    width: 65,
+    marginLeft: 11,
+    borderRadius: 6,
+    border: "1.2px solid #0094cb",
+    background: "#e5f1fa",
+    padding: "3px 8px",
+    fontWeight: 700,
+    fontSize: 15,
+    color: "#083d95",
+  };
+}
+
+// ===== BAR CHART =====
 function BarChart({ labels, values, color, suffix = "", max = 100 }) {
   const h = 140;
   const _max = Math.max(max, ...values, 1);
@@ -2169,18 +2170,10 @@ function BarChart({ labels, values, color, suffix = "", max = 100 }) {
               marginBottom: 7,
               transition: "height 0.3s",
             }}
-            title={values[i] + suffix}
+            title={(values[i] || 0) + suffix}
           />
-          <div style={{ fontWeight: 700, fontSize: 16, color: "#083d95" }}>
-            {lbl}
-          </div>
-          <div
-            style={{
-              fontWeight: 500,
-              color: "#3194cb",
-              fontSize: 14,
-            }}
-          >
+          <div style={{ fontWeight: 700, fontSize: 16, color: "#083d95" }}>{lbl}</div>
+          <div style={{ fontWeight: 500, color: "#3194cb", fontSize: 14 }}>
             {(values[i] || 0) + suffix}
           </div>
         </div>
