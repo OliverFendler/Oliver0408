@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 /* =========================
     LADUNGSTRÄGER KONFIG
@@ -147,9 +147,16 @@ const t = {
     abbrechen: "Abbrechen",
     protokollPwReset: "Passwort zurückgesetzt",
     protokollUserGeloescht: "Benutzer gelöscht",
+
+    // NEU: Meldungen + Quick‑Link
+    bewegungBestandFehlt:
+      "Kein passender Bestand (Typ/Qualität) vorhanden – bitte zuerst Grundbestand anlegen bzw. beschaffen.",
+    bewegungOhneGrundbestand:
+      "Bitte zuerst Grundbestand/Inventur für diesen Standort anlegen.",
+    quicklinkGrundbestand: "Grundbestand anlegen",
   },
   en: {
-    // (EN strings mirrored from DE for bilingual UI)
+    // Auth
     login: "Login",
     register: "Register",
     haveAccount: "Already have an account?",
@@ -188,6 +195,7 @@ const t = {
     resetPwKurz: "New password too short (min. 4 chars).",
     resetPwMismatch: "New passwords do not match.",
     resetErfolg: "Password updated. Please log in.",
+    // Admin
     adminListeBtn: "Admin: Users",
     adminTitle: "Registered users",
     registriertAm: "Registered at",
@@ -195,6 +203,7 @@ const t = {
     loeschen: "Delete",
     wirklichLoeschen: "Delete user?",
     nichtSelbstLoeschen: "You cannot delete your own account here.",
+    // App UI/Daten
     standort: "Location",
     standortEdit: "Edit location name",
     lagerflaecheProStellplatz: "Storage area per slot (m²)",
@@ -278,6 +287,13 @@ const t = {
     abbrechen: "Cancel",
     protokollPwReset: "Password reset",
     protokollUserGeloescht: "User deleted",
+
+    // NEW: messages + quick link
+    bewegungBestandFehlt:
+      "No matching stock (type/quality) available – please create initial stock or procure first.",
+    bewegungOhneGrundbestand:
+      "Please create initial/inventory stock for this location first.",
+    quicklinkGrundbestand: "Create initial stock",
   },
 };
 
@@ -338,6 +354,7 @@ export default function Home() {
   // Auth UI
   const [authMode, setAuthMode] = useState("login"); // "login" | "register"
   const [loginEmail, setLoginEmail] = useState("");
+  theconst = 0;
   const [loginPw, setLoginPw] = useState("");
   const [reg, setReg] = useState({
     firstName: "",
@@ -367,7 +384,12 @@ export default function Home() {
     { kunde: "", typ: "", qualitaet: "", menge: "" },
   ]);
   const [bewegungArt, setBewegungArt] = useState("Eingang");
+  // bewegungMsg kann String oder Objekt {text, ok?, cta?} sein
   const [bewegungMsg, setBewegungMsg] = useState("");
+
+  // Grundbestand‑Fokus (Quick‑Link)
+  const gbRef = useRef(null);
+  const [gbHighlight, setGbHighlight] = useState(false);
 
   // Laden/Speichern
   useEffect(() => {
@@ -396,13 +418,11 @@ export default function Home() {
     localStorage.setItem(LS_USERS, JSON.stringify(users));
   }
 
-  // Admin Logik (einfach): admin, wenn erster registrierter User ODER Email beginnt mit "admin"
+  // Admin Logik
   function isAdmin(u) {
     if (!u) return false;
     const users = loadUsers();
-    return (
-      users.length > 0 && users[0].email === u.email
-    ) || u.email.toLowerCase().startsWith("admin");
+    return (users.length > 0 && users[0].email === u.email) || u.email.toLowerCase().startsWith("admin");
   }
 
   // Protokoll
@@ -478,6 +498,15 @@ export default function Home() {
     setUser(null);
   }
 
+  // Quick‑Link: Grundbestand fokussieren
+  function focusGrundbestand() {
+    if (gbRef.current) {
+      gbRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      setGbHighlight(true);
+      setTimeout(() => setGbHighlight(false), 1600);
+    }
+  }
+
   // Passwort vergessen – Steps
   function startForgot() {
     setFpStep(1);
@@ -525,7 +554,8 @@ export default function Home() {
     if (idx >= 0) {
       users[idx].password = fpNewPw;
       saveUsers(users);
-      addProtokoll(t[lang].protokollPwReset, fpUser.email);
+      addProtokoll(t[lang].prot
+okollPwReset, fpUser.email);
       setFpMsg(t[lang].resetErfolg);
       setTimeout(() => {
         setShowForgot(false);
@@ -703,12 +733,21 @@ export default function Home() {
   }
 
   // Bewegungen
-  function handleOpenBewegung() {
-    setBewegungKunden([{ kunde: "", typ: "", qualitaet: "", menge: "" }]);
+  function handleOpenBewegung(vorbelegterKunde = "") {
+    // Gibt es überhaupt Grundbestand?
+    const gb = standorte[tab].grundbestaende || [];
+    if (!gb.length) {
+      // Hinweis + Quick-Link Fokus
+      alert(t[lang].bewegungOhneGrundbestand);
+      focusGrundbestand();
+      return;
+    }
+    setBewegungKunden([{ kunde: vorbelegterKunde || "", typ: "", qualitaet: "", menge: "" }]);
     setBewegungArt("Eingang");
     setShowBewegung(true);
     setBewegungMsg("");
   }
+
   function handleChangeBewegungKunde(idx, feld, val) {
     const arr = [...bewegungKunden];
     arr[idx][feld] = val;
@@ -723,6 +762,7 @@ export default function Home() {
     arr.splice(idx, 1);
     setBewegungKunden(arr);
   }
+
   function handleBuchenBewegung() {
     let valid = true;
     if (!bewegungKunden.length || bewegungKunden.some((b) => !b.kunde)) {
@@ -737,19 +777,39 @@ export default function Home() {
     }
     if (!valid) return;
 
-    const grundbestaende = standorte[tab].grundbestaende;
+    const grundbestaende = standorte[tab].grundbestaende || [];
+
+    // Muss passenden Grundbestand (Typ/Qualität) geben
+    for (const b of bewegungKunden) {
+      const match = grundbestaende.find(
+        (g) => g.typ === b.typ && (g.qualitaet || "") === (b.qualitaet || "")
+      );
+      if (!match) {
+        setBewegungMsg({
+          text: t[lang].bewegungBestandFehlt,
+          cta: "grundbestand",
+        });
+        return;
+      }
+    }
+
+    // Bei Ausgang muss der Bestand reichen
     if (bewegungArt === "Ausgang") {
       for (const b of bewegungKunden) {
         const gb = grundbestaende.find(
           (g) => g.typ === b.typ && (g.qualitaet || "") === (b.qualitaet || "")
         );
         if (!gb || gb.bestand < Number(b.menge)) {
-          setBewegungMsg(t[lang].bewegungNichtGenugBestand);
+          setBewegungMsg({
+            text: t[lang].bewegungNichtGenugBestand,
+            cta: "grundbestand",
+          });
           return;
         }
       }
     }
 
+    // Buchen
     const neu = [...standorte];
     bewegungKunden.forEach((b) => {
       const gb = neu[tab].grundbestaende.find(
@@ -764,6 +824,7 @@ export default function Home() {
         gb.inventur -= Number(b.menge);
       }
     });
+
     if (!neu[tab].bewegungen) neu[tab].bewegungen = [];
     neu[tab].bewegungen.push({
       zeit: new Date().toLocaleString(),
@@ -772,21 +833,28 @@ export default function Home() {
       user: user ? `${user.firstName} ${user.lastName} <${user.email}>` : "",
     });
     setStandorte(neu);
+
     addProtokoll(
       t[lang].protokollBewegung,
       `${bewegungArt}: ${bewegungKunden
-        .map((b) => `Kunde: ${b.kunde}, Typ: ${b.typ}, Quali: ${b.qualitaet}, Menge: ${b.menge}`)
+        .map(
+          (b) =>
+            `Kunde: ${b.kunde}, Typ: ${b.typ}, Quali: ${b.qualitaet}, Menge: ${b.menge}`
+        )
         .join(" | ")}`
     );
+
     setBewegungMsg(t[lang].bewegungErfasst);
     setTimeout(() => {
       setShowBewegung(false);
       setBewegungMsg("");
     }, 1100);
   }
+
   function getKundenEinAusgang(sidx, kName, typ, qualitaet) {
     const standort = standorte[sidx];
-    let eingang = 0, ausgang = 0;
+    let eingang = 0,
+      ausgang = 0;
     if (standort.bewegungen && standort.bewegungen.length) {
       standort.bewegungen.forEach((m) => {
         m.details.forEach((b) => {
@@ -802,7 +870,10 @@ export default function Home() {
 
   // Übersicht
   function calculateStandort(standort) {
-    let stellplaetze = 0, lagerflaeche = 0, lagerkosten = 0, umschlagMonat = 0;
+    let stellplaetze = 0,
+      lagerflaeche = 0,
+      lagerkosten = 0,
+      umschlagMonat = 0;
     standort.kunden.forEach((kunde) =>
       kunde.ladungstraeger.forEach((lt) => {
         const palettenMonat = (lt.mengeTag || 0) * (lt.arbeitstage || 0);
@@ -817,7 +888,9 @@ export default function Home() {
     return { stellplaetze, lagerflaeche, lagerkosten, umschlagMonat };
   }
   function calculateGesamt(standorteArr) {
-    let lagerflaeche = 0, lagerkosten = 0, stellplaetze = 0;
+    let lagerflaeche = 0,
+      lagerkosten = 0,
+      stellplaetze = 0;
     standorteArr.forEach((s) => {
       const r = calculateStandort(s);
       lagerflaeche += r.lagerflaeche;
@@ -856,7 +929,10 @@ export default function Home() {
           {/* Toggle */}
           <div style={{ display: "flex", gap: 8, justifyContent: "center", margin: "8px 0 16px 0" }}>
             <button
-              onClick={() => { setAuthMode("login"); setAuthMsg(""); }}
+              onClick={() => {
+                setAuthMode("login");
+                setAuthMsg("");
+              }}
               style={{
                 background: authMode === "login" ? "#0094cb" : "#fff",
                 color: authMode === "login" ? "#fff" : "#083d95",
@@ -872,7 +948,10 @@ export default function Home() {
               {t[lang].login}
             </button>
             <button
-              onClick={() => { setAuthMode("register"); setAuthMsg(""); }}
+              onClick={() => {
+                setAuthMode("register");
+                setAuthMsg("");
+              }}
               style={{
                 background: authMode === "register" ? "#083d95" : "#fff",
                 color: authMode === "register" ? "#fff" : "#083d95",
@@ -908,13 +987,18 @@ export default function Home() {
                   value={loginPw}
                   onChange={(e) => setLoginPw(e.target.value)}
                   style={inputStyle()}
-                  onKeyDown={(e) => { if (e.key === "Enter") handleLogin(); }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleLogin();
+                  }}
                 />
               </div>
               <div style={{ textAlign: "right", marginBottom: 12 }}>
                 <a
                   href="#"
-                  onClick={(e) => { e.preventDefault(); startForgot(); }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    startForgot();
+                  }}
                   style={{ color: "#0094cb", fontWeight: 700, fontSize: 14 }}
                 >
                   {t[lang].passwortVergessen}
@@ -928,7 +1012,11 @@ export default function Home() {
                 {t[lang].noAccount}{" "}
                 <a
                   href="#"
-                  onClick={(e) => { e.preventDefault(); setAuthMode("register"); setAuthMsg(""); }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setAuthMode("register");
+                    setAuthMsg("");
+                  }}
                   style={{ color: "#0094cb", fontWeight: 800 }}
                 >
                   {t[lang].switchToRegister}
@@ -1002,7 +1090,11 @@ export default function Home() {
                 {t[lang].haveAccount}{" "}
                 <a
                   href="#"
-                  onClick={(e) => { e.preventDefault(); setAuthMode("login"); setAuthMsg(""); }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setAuthMode("login");
+                    setAuthMsg("");
+                  }}
                   style={{ color: "#0094cb", fontWeight: 800 }}
                 >
                   {t[lang].switchToLogin}
@@ -1030,7 +1122,9 @@ export default function Home() {
                 />
                 {fpMsg && <Msg text={fpMsg} ok={false} />}
                 <div style={{ textAlign: "right" }}>
-                  <button onClick={fpNext} style={primaryBtn()}>{t[lang].resetWeiter}</button>
+                  <button onClick={fpNext} style={primaryBtn()}>
+                    {t[lang].resetWeiter}
+                  </button>
                 </div>
               </>
             )}
@@ -1040,8 +1134,20 @@ export default function Home() {
                 <div style={{ fontWeight: 700, color: "#083d95", marginBottom: 6 }}>
                   {t[lang].sicherheitsfrage}
                 </div>
-                <div style={{ background: "#f6fcff", border: "1px solid #b1dbef", padding: "8px 10px", borderRadius: 8, marginBottom: 10 }}>
-                  {fpUser.question === "q1" ? t[lang].frage1 : fpUser.question === "q2" ? t[lang].frage2 : t[lang].frage3}
+                <div
+                  style={{
+                    background: "#f6fcff",
+                    border: "1px solid #b1dbef",
+                    padding: "8px 10px",
+                    borderRadius: 8,
+                    marginBottom: 10,
+                  }}
+                >
+                  {fpUser.question === "q1"
+                    ? t[lang].frage1
+                    : fpUser.question === "q2"
+                    ? t[lang].frage2
+                    : t[lang].frage3}
                 </div>
                 <input
                   type="text"
@@ -1052,7 +1158,9 @@ export default function Home() {
                 />
                 {fpMsg && <Msg text={fpMsg} ok={false} />}
                 <div style={{ textAlign: "right" }}>
-                  <button onClick={fpCheckAnswer} style={primaryBtn()}>{t[lang].resetPruefen}</button>
+                  <button onClick={fpCheckAnswer} style={primaryBtn()}>
+                    {t[lang].resetPruefen}
+                  </button>
                 </div>
               </>
             )}
@@ -1075,7 +1183,9 @@ export default function Home() {
                 />
                 {fpMsg && <Msg text={fpMsg} ok={fpMsg === t[lang].resetErfolg} />}
                 <div style={{ textAlign: "right" }}>
-                  <button onClick={fpSaveNew} style={primaryBtn()}>{t[lang].resetSpeichern}</button>
+                  <button onClick={fpSaveNew} style={primaryBtn()}>
+                    {t[lang].resetSpeichern}
+                  </button>
                 </div>
               </>
             )}
@@ -1084,7 +1194,7 @@ export default function Home() {
       </div>
     );
 
-  // ==== App UI (unverändertes Grunddesign) ====
+  // ==== App UI ====
   const g = calculateGesamt(standorte);
 
   return (
@@ -1140,7 +1250,7 @@ export default function Home() {
             {lang === "de" ? "EN" : "DE"}
           </button>
 
-          {/* Admin Button (nur für Admins) */}
+          {/* Admin Button */}
           {isAdmin(user) && (
             <button
               onClick={() => setShowAdmin(true)}
@@ -1182,9 +1292,8 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Standorte-Tabs + Rest deiner App (unverändert) */}
+      {/* Standorte-Tabs */}
       <div style={{ margin: "0 26px 0 26px" }}>
-        {/* Tabs */}
         <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
           {standorte.map((s, i) => (
             <div
@@ -1243,17 +1352,26 @@ export default function Home() {
           )}
         </div>
 
-        {/* Grundbestand/Inventur */}
+        {/* --------- Grundbestand/Inventur (mit Fokus/Highlight) --------- */}
         <div
+          ref={gbRef}
           style={{
-            background: "#f8fafc",
+            background: gbHighlight ? "#fffbea" : "#f8fafc",
             borderRadius: 15,
             padding: "18px 22px",
             margin: "18px 0 16px 0",
-            boxShadow: "0 1px 8px #b9e6fa22",
+            boxShadow: gbHighlight ? "0 0 0 3px #ffb902 inset, 0 2px 14px #ffdf9e" : "0 1px 8px #b9e6fa22",
+            transition: "box-shadow 0.25s, background 0.25s",
           }}
         >
-          <div style={{ fontWeight: 900, color: "#083d95", fontSize: 18, marginBottom: 7 }}>
+          <div
+            style={{
+              fontWeight: 900,
+              color: "#083d95",
+              fontSize: 18,
+              marginBottom: 7,
+            }}
+          >
             {t[lang].grundbestand} / {t[lang].inventur} {t[lang].standort}
           </div>
           <button
@@ -1295,6 +1413,7 @@ export default function Home() {
                     padding: "7px 9px",
                   }}
                 >
+                  {/* Typ */}
                   <select
                     value={gb.typ}
                     onChange={(e) => updateGrundbestand(tab, gidx, "typ", e.target.value)}
@@ -1306,6 +1425,7 @@ export default function Home() {
                       </option>
                     ))}
                   </select>
+                  {/* Qualität, falls nötig */}
                   {ladungstraegerTypen.find((t0) => t0.label === gb.typ)?.qualitaeten.length ? (
                     <select
                       value={gb.qualitaet}
@@ -1322,6 +1442,7 @@ export default function Home() {
                         ))}
                     </select>
                   ) : null}
+                  {/* Grundbestand */}
                   <label>
                     {t[lang].grundbestand}
                     <input
@@ -1331,6 +1452,7 @@ export default function Home() {
                       style={numberInput()}
                     />
                   </label>
+                  {/* Inventur-Bestand */}
                   <label>
                     {t[lang].inventur}
                     <input
@@ -1343,6 +1465,7 @@ export default function Home() {
                       {t[lang].inventurSpeichern}
                     </button>
                   </label>
+                  {/* Abweichung */}
                   <div
                     style={{
                       fontWeight: 800,
@@ -1352,9 +1475,18 @@ export default function Home() {
                   >
                     {t[lang].abweichung}: {(gb.inventur || 0) - (gb.bestand || 0)}
                   </div>
-                  <div style={{ marginLeft: 18, color: "#0094cb", fontWeight: 700, fontSize: 16 }}>
+                  {/* Bedarf */}
+                  <div
+                    style={{
+                      marginLeft: 18,
+                      color: "#0094cb",
+                      fontWeight: 700,
+                      fontSize: 16,
+                    }}
+                  >
                     {t[lang].bedarfNextMonth}: {bedarfNextMonth}
                   </div>
+                  {/* Warnung */}
                   {inventurWarnung && (
                     <div
                       style={{
@@ -1369,6 +1501,7 @@ export default function Home() {
                       {t[lang].warnungBestand}
                     </div>
                   )}
+                  {/* Entfernen */}
                   <button style={smallBtn("#e53454")} onClick={() => removeGrundbestand(tab, gidx)}>
                     {t[lang].entfernen}
                   </button>
@@ -1455,6 +1588,7 @@ export default function Home() {
                       padding: "16px 12px",
                     }}
                   >
+                    {/* Name + Entfernen */}
                     <div style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 10 }}>
                       <input
                         value={kunde.name}
@@ -1476,6 +1610,7 @@ export default function Home() {
                       </button>
                     </div>
 
+                    {/* Ladungsträger-Liste */}
                     <div>
                       {kunde.ladungstraeger.length === 0 ? (
                         <div style={{ color: "#bbb", margin: "10px 0 12px 20px" }}>
@@ -1499,6 +1634,7 @@ export default function Home() {
                                 padding: "7px 8px",
                               }}
                             >
+                              {/* Typ */}
                               <select
                                 value={lt.typ}
                                 style={selectStyle()}
@@ -1510,6 +1646,7 @@ export default function Home() {
                                   </option>
                                 ))}
                               </select>
+                              {/* Qualität */}
                               {ladungstraegerTypen.find((t0) => t0.label === lt.typ)?.qualitaeten.length ? (
                                 <select
                                   value={lt.qualitaet}
@@ -1526,6 +1663,7 @@ export default function Home() {
                                     ))}
                                 </select>
                               ) : null}
+                              {/* Menge pro Tag */}
                               <label>
                                 {t[lang].mengeTag}
                                 <input
@@ -1535,6 +1673,7 @@ export default function Home() {
                                   style={numberInput()}
                                 />
                               </label>
+                              {/* Arbeitstage */}
                               <label>
                                 {t[lang].arbeitstage}
                                 <input
@@ -1544,6 +1683,7 @@ export default function Home() {
                                   style={{ ...numberInput(), width: 58 }}
                                 />
                               </label>
+                              {/* Tage Clearing Ladestelle */}
                               <label>
                                 {t[lang].tageClearingLadestelle}
                                 <input
@@ -1555,6 +1695,7 @@ export default function Home() {
                                   style={{ ...numberInput(), width: 65 }}
                                 />
                               </label>
+                              {/* Tage Clearing Entladestelle */}
                               <label>
                                 {t[lang].tageClearingEntladestelle}
                                 <input
@@ -1566,6 +1707,7 @@ export default function Home() {
                                   style={{ ...numberInput(), width: 65 }}
                                 />
                               </label>
+                              {/* Paletten pro Stellplatz */}
                               <label>
                                 {t[lang].palettenProStellplatz}
                                 <input
@@ -1577,16 +1719,28 @@ export default function Home() {
                                   style={{ ...numberInput(), width: 65 }}
                                 />
                               </label>
+                              {/* Vertragsmenge */}
                               <label>
                                 {t[lang].vertragsmenge}
                                 <input
                                   type="number"
                                   value={lt.vertragsmenge || ""}
-                                  onChange={(e) => updateLadungstraeger(tab, kidx, lidx, "vertragsmenge", e.target.value)}
+                                  onChange={(e) =>
+                                    updateLadungstraeger(tab, kidx, lidx, "vertragsmenge", e.target.value)
+                                  }
                                   style={{ ...numberInput(), width: 95 }}
                                 />
                               </label>
-                              <div style={{ marginLeft: 14, fontWeight: 800, fontSize: 15, display: "flex", alignItems: "center" }}>
+                              {/* Istmenge/Ampel */}
+                              <div
+                                style={{
+                                  marginLeft: 14,
+                                  fontWeight: 800,
+                                  fontSize: 15,
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
                                 {t[lang].istmenge}: {istmenge}
                                 <span
                                   title={ampel.info}
@@ -1597,9 +1751,13 @@ export default function Home() {
                                     height: 18,
                                     borderRadius: "50%",
                                     background:
-                                      ampel.color === "green" ? "#1ebc38" :
-                                      ampel.color === "orange" ? "#ffb902" :
-                                      ampel.color === "red" ? "#e53454" : "#cfcfcf",
+                                      ampel.color === "green"
+                                        ? "#1ebc38"
+                                        : ampel.color === "orange"
+                                        ? "#ffb902"
+                                        : ampel.color === "red"
+                                        ? "#e53454"
+                                        : "#cfcfcf",
                                     border: "1.7px solid #aaa",
                                     boxShadow: "0 1px 3px #0002",
                                   }}
@@ -1607,16 +1765,23 @@ export default function Home() {
                                 <span
                                   style={{
                                     color:
-                                      ampel.color === "red" ? "#e53454" :
-                                      ampel.color === "orange" ? "#ffb902" :
-                                      ampel.color === "green" ? "#1ebc38" : "#aaa",
-                                    fontWeight: 700, marginLeft: 5, fontSize: 14,
+                                      ampel.color === "red"
+                                        ? "#e53454"
+                                        : ampel.color === "orange"
+                                        ? "#ffb902"
+                                        : ampel.color === "green"
+                                        ? "#1ebc38"
+                                        : "#aaa",
+                                    fontWeight: 700,
+                                    marginLeft: 5,
+                                    fontSize: 14,
                                   }}
                                   title={ampel.info}
                                 >
                                   {ampel.color === "red" ? "!" : ampel.color === "orange" ? "•" : ampel.color === "green" ? "✔" : ""}
                                 </span>
                               </div>
+                              {/* Ein-/Ausgang kumuliert */}
                               <div style={{ marginLeft: 13, fontSize: 13 }}>
                                 <b>{t[lang].einAusgangHistorie}:</b>{" "}
                                 <span style={{ color: "#3194cb" }}>
@@ -1627,6 +1792,7 @@ export default function Home() {
                                   {t[lang].bewegungAusgang}: {einAus.ausgang}
                                 </span>
                               </div>
+                              {/* Entfernen */}
                               <button style={smallBtn("#e53454")} onClick={() => removeLadungstraeger(tab, kidx, lidx)}>
                                 {t[lang].entfernen}
                               </button>
@@ -1634,11 +1800,33 @@ export default function Home() {
                           );
                         })
                       )}
-                      <button onClick={() => addLadungstraeger(tab, kidx)} style={smallBtn("#083d95")}>
-                        + {t[lang].ladungstraegerHinzufuegen}
-                      </button>
+
+                      {/* Aktionen unter der Ladungsträgerliste */}
+                      <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 7 }}>
+                        <button onClick={() => addLadungstraeger(tab, kidx)} style={smallBtn("#083d95")}>
+                          + {t[lang].ladungstraegerHinzufuegen}
+                        </button>
+                        {/* NEU: Bewegung buchen direkt daneben */}
+                        <button
+                          onClick={() => handleOpenBewegung(standorte[tab].kunden[kidx].name)}
+                          style={{
+                            background: "#fff",
+                            color: "#083d95",
+                            border: "1.5px solid #083d95",
+                            fontWeight: 700,
+                            borderRadius: 7,
+                            padding: "6px 14px",
+                            fontSize: 15,
+                            cursor: "pointer",
+                          }}
+                          title={t[lang].bewegungBuchen}
+                        >
+                          {t[lang].bewegungBuchen}
+                        </button>
+                      </div>
                     </div>
 
+                    {/* Notizen */}
                     <div style={{ marginTop: 10 }}>
                       <label style={{ fontWeight: 700 }}>{t[lang].notizen}</label>
                       <textarea
@@ -1704,28 +1892,8 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Bewegungsbuchung-Button */}
-      <div style={{ position: "fixed", right: 25, bottom: 92, zIndex: 999 }}>
-        <button
-          style={{
-            background: "#fff",
-            color: "#083d95",
-            border: "1.5px solid #083d95",
-            fontWeight: 700,
-            borderRadius: 12,
-            padding: "8px 21px",
-            fontSize: 15,
-            cursor: "pointer",
-            boxShadow: "0 1px 8px #b9e6fa22",
-          }}
-          onClick={handleOpenBewegung}
-        >
-          {t[lang].bewegungBuchen}
-        </button>
-      </div>
-
       {/* Protokoll-Link + Footer */}
-      <div style={{ position: "fixed", right: 25, bottom: 32, zIndex: 999, display: "flex", gap: 8 }}>
+      <div style={{ position: "fixed", right: 25, bottom: 32, zIndex: 999 }}>
         <button
           style={{
             background: "#fff",
@@ -1807,6 +1975,7 @@ export default function Home() {
                   </option>
                 ))}
               </select>
+              {/* Typ */}
               <select
                 value={k.typ}
                 onChange={(e) => handleChangeBewegungKunde(idx, "typ", e.target.value)}
@@ -1819,6 +1988,7 @@ export default function Home() {
                   </option>
                 ))}
               </select>
+              {/* Qualität (wenn nötig) */}
               {ladungstraegerTypen.find((t0) => t0.label === k.typ)?.qualitaeten.length ? (
                 <select
                   value={k.qualitaet}
@@ -1835,6 +2005,7 @@ export default function Home() {
                     ))}
                 </select>
               ) : null}
+              {/* Menge */}
               <input
                 type="number"
                 value={k.menge}
@@ -1852,6 +2023,7 @@ export default function Home() {
                   color: "#083d95",
                 }}
               />
+              {/* + / - */}
               {bewegungKunden.length > 1 && (
                 <button style={smallBtn("#e53454")} onClick={() => handleRemoveBewegungKunde(idx)}>
                   −
@@ -1864,9 +2036,24 @@ export default function Home() {
               )}
             </div>
           ))}
+
+          {/* Meldung mit Quick‑Link */}
           {bewegungMsg && (
-            <Msg text={bewegungMsg} ok={bewegungMsg === t[lang].bewegungErfasst} />
+            <MsgAction
+              text={typeof bewegungMsg === "string" ? bewegungMsg : bewegungMsg.text}
+              ok={typeof bewegungMsg === "string" && bewegungMsg === t[lang].bewegungErfasst}
+              ctaLabel={
+                typeof bewegungMsg === "object" && bewegungMsg.cta === "grundbestand"
+                  ? t[lang].quicklinkGrundbestand
+                  : null
+              }
+              onCta={() => {
+                setShowBewegung(false);
+                setTimeout(() => focusGrundbestand(), 60);
+              }}
+            />
           )}
+
           <div style={{ textAlign: "center", marginTop: 11 }}>
             <button onClick={handleBuchenBewegung} style={primaryBtn()}>
               {t[lang].bewegungBuchen}
@@ -1932,22 +2119,38 @@ function Modal({ children, onClose }) {
   return (
     <div
       style={{
-        position: "fixed", left: 0, top: 0, width: "100vw", height: "100vh",
-        background: "#000a", zIndex: 10001, display: "flex", alignItems: "center", justifyContent: "center",
+        position: "fixed",
+        left: 0,
+        top: 0,
+        width: "100vw",
+        height: "100vh",
+        background: "#000a",
+        zIndex: 10001,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
       }}
       onClick={onClose}
     >
       <div
         style={{
-          width: 620, maxWidth: "96vw", background: "#fff", borderRadius: 19,
-          boxShadow: "0 5px 30px #0094cb44", padding: "32px 30px 24px 30px",
-          fontFamily: "Inter,sans-serif", color: "#083d95", position: "relative",
+          width: 620,
+          maxWidth: "96vw",
+          background: "#fff",
+          borderRadius: 19,
+          boxShadow: "0 5px 30px #0094cb44",
+          padding: "32px 30px 24px 30px",
+          fontFamily: "Inter,sans-serif",
+          color: "#083d95",
+          position: "relative",
         }}
         onClick={(e) => e.stopPropagation()}
       >
         {children}
         <div style={{ textAlign: "right", marginTop: 12 }}>
-          <button onClick={onClose} style={outlineBtn()}>OK</button>
+          <button onClick={onClose} style={outlineBtn()}>
+            OK
+          </button>
         </div>
       </div>
     </div>
@@ -2004,10 +2207,7 @@ function AdminUsersModal({ lang, onClose, t, currentUser, loadUsers, saveUsers, 
                     {i === 0 || (u.email || "").toLowerCase().startsWith("admin") ? "✔" : "–"}
                   </td>
                   <td style={{ padding: "6px 4px", textAlign: "right" }}>
-                    <button
-                      onClick={() => handleDelete(u.email)}
-                      style={{ ...smallBtn("#e53454"), padding: "4px 10px" }}
-                    >
+                    <button onClick={() => handleDelete(u.email)} style={{ ...smallBtn("#e53454"), padding: "4px 10px" }}>
                       {t[lang].loeschen}
                     </button>
                   </td>
@@ -2038,6 +2238,45 @@ function Msg({ text, ok }) {
       }}
     >
       {text}
+    </div>
+  );
+}
+
+// Meldungsleiste mit optionalem Quick‑Link‑Button
+function MsgAction({ text, ok, ctaLabel, onCta }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        gap: 10,
+        alignItems: "center",
+        color: ok ? "#0a6e2b" : "#e53454",
+        background: ok ? "#e7faee" : "#ffe3e3",
+        borderRadius: 7,
+        fontWeight: 700,
+        fontSize: 15,
+        padding: "8px 10px",
+        margin: "0 0 9px 0",
+      }}
+    >
+      <span style={{ flex: 1 }}>{text}</span>
+      {ctaLabel && (
+        <button
+          onClick={onCta}
+          style={{
+            background: "#fff",
+            color: "#083d95",
+            border: "1.2px solid #083d95",
+            borderRadius: 8,
+            padding: "6px 10px",
+            fontSize: 14,
+            cursor: "pointer",
+            fontWeight: 800,
+          }}
+        >
+          {ctaLabel}
+        </button>
+      )}
     </div>
   );
 }
