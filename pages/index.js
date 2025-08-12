@@ -366,7 +366,6 @@ export default function Home() {
   // Auth UI
   const [authMode, setAuthMode] = useState("login"); // "login" | "register"
   const [loginEmail, setLoginEmail] = useState("");
-  theconst = 0;
   const [loginPw, setLoginPw] = useState("");
   const [reg, setReg] = useState({
     firstName: "",
