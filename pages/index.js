@@ -148,7 +148,13 @@ const t = {
     protokollPwReset: "Passwort zurückgesetzt",
     protokollUserGeloescht: "Benutzer gelöscht",
 
-    // NEU: Meldungen + Quick‑Link
+    // NEU: Bestandsprüfung + Quick‑Link
+    bestandspruefung: "Bestandsprüfung",
+    keinGrundbestandPassend: "Kein Grundbestand für {typ} / Qualität {qual} am Standort.",
+    grundbestandAndereQualitaetVorhanden: "Nur andere Qualität vorhanden.",
+    verfuegbarerBestand: "Verfügbarer Bestand",
+    bestandFuerMonatFehlt: "Zu wenig Bestand für Monatsbedarf. Fehlmenge",
+    bestandFuerVertragFehlt: "Zu wenig Bestand für Vertragsmenge. Fehlmenge",
     bewegungBestandFehlt:
       "Kein passender Bestand (Typ/Qualität) vorhanden – bitte zuerst Grundbestand anlegen bzw. beschaffen.",
     bewegungOhneGrundbestand:
@@ -288,7 +294,13 @@ const t = {
     protokollPwReset: "Password reset",
     protokollUserGeloescht: "User deleted",
 
-    // NEW: messages + quick link
+    // NEW: stock checks + quick link
+    bestandspruefung: "Stock check",
+    keinGrundbestandPassend: "No initial stock for {typ} / quality {qual} at this location.",
+    grundbestandAndereQualitaetVorhanden: "Only different quality available.",
+    verfuegbarerBestand: "Available stock",
+    bestandFuerMonatFehlt: "Insufficient stock for monthly demand. Shortfall",
+    bestandFuerVertragFehlt: "Insufficient stock for contract volume. Shortfall",
     bewegungBestandFehlt:
       "No matching stock (type/quality) available – please create initial stock or procure first.",
     bewegungOhneGrundbestand:
@@ -354,6 +366,7 @@ export default function Home() {
   // Auth UI
   const [authMode, setAuthMode] = useState("login"); // "login" | "register"
   const [loginEmail, setLoginEmail] = useState("");
+  theconst = 0;
   const [loginPw, setLoginPw] = useState("");
   const [reg, setReg] = useState({
     firstName: "",
@@ -553,7 +566,6 @@ export default function Home() {
     if (idx >= 0) {
       users[idx].password = fpNewPw;
       saveUsers(users);
-      // FIX: korrekter Key ohne Zeilenumbruch
       addProtokoll(t[lang].protokollPwReset, fpUser.email);
       setFpMsg(t[lang].resetErfolg);
       setTimeout(() => {
@@ -562,6 +574,59 @@ export default function Home() {
         setLoginEmail(fpUser.email);
       }, 900);
     }
+  }
+
+  // ===== Helpers: Grundbestand & Validierung =====
+  function getGbFor(sidx, typ, qualitaet) {
+    const s = standorte[sidx];
+    if (!s || !s.grundbestaende) return null;
+    return (
+      s.grundbestaende.find(
+        (g) => g.typ === typ && (g.qualitaet || "") === (qualitaet || "")
+      ) || null
+    );
+  }
+  function getGbByTyp(sidx, typ) {
+    const s = standorte[sidx];
+    if (!s || !s.grundbestaende) return [];
+    return s.grundbestaende.filter((g) => g.typ === typ);
+  }
+  function formatQual(q) {
+    return q || (lang === "de" ? "–" : "–");
+  }
+
+  // Voll-Validierung eines Ladungsträgers
+  function validateLt(sidx, lt) {
+    const typ = lt.typ;
+    const qual = lt.qualitaet || "";
+    const gb = getGbFor(sidx, typ, qual);
+    const gbListSameTyp = getGbByTyp(sidx, typ);
+
+    const stock = gb ? Number(gb.inventur ?? gb.bestand ?? 0) : 0;
+    const demandMonth = (Number(lt.mengeTag) || 0) * (Number(lt.arbeitstage) || 0);
+    const contract = Number(lt.vertragsmenge) || 0;
+
+    const okTypeQuali = !!gb;
+    const okMonth = !gb ? false : stock >= demandMonth;
+    const fehlmengeMonth = Math.max(0, demandMonth - stock);
+
+    // Vertragsmenge nur prüfen, wenn gesetzt (>0)
+    const okContract = !gb ? false : (contract > 0 ? stock >= contract : true);
+    const fehlmengeContract = contract > 0 ? Math.max(0, contract - stock) : 0;
+
+    const hasSameTypOtherQual = !gb && gbListSameTyp.length > 0;
+
+    return {
+      okTypeQuali,
+      hasSameTypOtherQual,
+      stock,
+      demandMonth,
+      fehlmengeMonth,
+      okMonth,
+      contract,
+      fehlmengeContract,
+      okContract,
+    };
   }
 
   // Standortfunktionen
@@ -620,16 +685,19 @@ export default function Home() {
     neu[sidx].kunden[kidx][feld] = val;
     setStandorte(neu);
   }
+
   function addLadungstraeger(sidx, kidx) {
-    const grundbestaende = standorte[sidx].grundbestaende;
-    if (grundbestaende.length === 0) {
+    const gbList = standorte[sidx].grundbestaende || [];
+    if (gbList.length === 0) {
       alert(t[lang].warnungLadungstraegerImGrundbestand);
       return;
     }
+    // Neu: beim Anlegen automatisch den ersten verfügbaren Grundbestand (Typ+Qualität) vorbelegen
+    const first = gbList[0];
     const neu = [...standorte];
     neu[sidx].kunden[kidx].ladungstraeger.push({
-      typ: ladungstraegerTypen[0].label,
-      qualitaet: "",
+      typ: first?.typ || ladungstraegerTypen[0].label,
+      qualitaet: first?.qualitaet || "",
       mengeTag: 0,
       arbeitstage: 20,
       tageClearingLadestelle: 10,
@@ -638,8 +706,12 @@ export default function Home() {
       vertragsmenge: "",
     });
     setStandorte(neu);
-    addProtokoll(t[lang].protokollLadungsträgerHinzu, `Kunde: ${standorte[sidx].kunden[kidx].name}`);
+    addProtokoll(
+      t[lang].protokollLadungsträgerHinzu,
+      `Kunde: ${standorte[sidx].kunden[kidx].name}`
+    );
   }
+
   function removeLadungstraeger(sidx, kidx, lidx) {
     const neu = [...standorte];
     const kName = neu[sidx].kunden[kidx].name;
@@ -647,6 +719,7 @@ export default function Home() {
     setStandorte(neu);
     addProtokoll(t[lang].protokollLadungsträgerEntf, `Kunde: ${kName}`);
   }
+
   function updateLadungstraeger(sidx, kidx, lidx, feld, val) {
     const neu = [...standorte];
     if (
@@ -663,6 +736,7 @@ export default function Home() {
     }
     setStandorte(neu);
   }
+
   function addGrundbestand(sidx) {
     const neu = [...standorte];
     neu[sidx].grundbestaende.push({
@@ -733,10 +807,8 @@ export default function Home() {
 
   // Bewegungen
   function handleOpenBewegung(vorbelegterKunde = "") {
-    // Gibt es überhaupt Grundbestand?
     const gb = standorte[tab].grundbestaende || [];
     if (!gb.length) {
-      // Hinweis + Quick-Link Fokus
       alert(t[lang].bewegungOhneGrundbestand);
       focusGrundbestand();
       return;
@@ -1620,6 +1692,10 @@ export default function Home() {
                           const istmenge = (lt.mengeTag || 0) * (lt.arbeitstage || 0);
                           const ampel = getVertragsAmpel(lt.vertragsmenge, istmenge);
                           const einAus = getKundenEinAusgang(tab, kunde.name, lt.typ, lt.qualitaet);
+
+                          // NEU: Validierung bestandsseitig
+                          const v = validateLt(tab, lt);
+
                           return (
                             <div
                               key={lidx}
@@ -1631,6 +1707,7 @@ export default function Home() {
                                 background: "#eaf7ff",
                                 borderRadius: 8,
                                 padding: "7px 8px",
+                                flexWrap: "wrap",
                               }}
                             >
                               {/* Typ */}
@@ -1730,6 +1807,7 @@ export default function Home() {
                                   style={{ ...numberInput(), width: 95 }}
                                 />
                               </label>
+
                               {/* Istmenge/Ampel */}
                               <div
                                 style={{
@@ -1780,6 +1858,7 @@ export default function Home() {
                                   {ampel.color === "red" ? "!" : ampel.color === "orange" ? "•" : ampel.color === "green" ? "✔" : ""}
                                 </span>
                               </div>
+
                               {/* Ein-/Ausgang kumuliert */}
                               <div style={{ marginLeft: 13, fontSize: 13 }}>
                                 <b>{t[lang].einAusgangHistorie}:</b>{" "}
@@ -1791,6 +1870,61 @@ export default function Home() {
                                   {t[lang].bewegungAusgang}: {einAus.ausgang}
                                 </span>
                               </div>
+
+                              {/* NEU: Bestandsprüfung / Fehlmengenanzeige */}
+                              <div
+                                style={{
+                                  flexBasis: "100%",
+                                  display: "flex",
+                                  gap: 8,
+                                  alignItems: "center",
+                                  marginTop: 6,
+                                  padding: "6px 8px",
+                                  borderRadius: 8,
+                                  background: v.okTypeQuali && v.okMonth && v.okContract ? "#e7faee" : "#ffe3e3",
+                                  color: v.okTypeQuali && v.okMonth && v.okContract ? "#0a6e2b" : "#a3122a",
+                                  fontWeight: 700,
+                                  fontSize: 13.5,
+                                }}
+                                title={t[lang].bestandspruefung}
+                              >
+                                {!v.okTypeQuali && (
+                                  <>
+                                    <span>
+                                      {t[lang].keinGrundbestandPassend
+                                        .replace("{typ}", lt.typ)
+                                        .replace("{qual}", formatQual(lt.qualitaet))}
+                                    </span>
+                                    {v.hasSameTypOtherQual && (
+                                      <span style={{ color: "#b35a00" }}>
+                                        — {t[lang].grundbestandAndereQualitaetVorhanden}
+                                      </span>
+                                    )}
+                                  </>
+                                )}
+
+                                {v.okTypeQuali && (
+                                  <>
+                                    <span>
+                                      {t[lang].verfuegbarerBestand}: <b>{v.stock}</b>
+                                    </span>
+                                    {v.demandMonth > 0 && !v.okMonth && (
+                                      <span>
+                                        — {t[lang].bestandFuerMonatFehlt}: <b>{v.fehlmengeMonth}</b>
+                                      </span>
+                                    )}
+                                    {v.contract > 0 && !v.okContract && (
+                                      <span>
+                                        — {t[lang].bestandFuerVertragFehlt}: <b>{v.fehlmengeContract}</b>
+                                      </span>
+                                    )}
+                                    {(v.okMonth && (v.contract === 0 || v.okContract)) && (
+                                      <span>— OK</span>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+
                               {/* Entfernen */}
                               <button style={smallBtn("#e53454")} onClick={() => removeLadungstraeger(tab, kidx, lidx)}>
                                 {t[lang].entfernen}
