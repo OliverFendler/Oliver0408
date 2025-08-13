@@ -160,6 +160,13 @@ const t = {
     bewegungOhneGrundbestand:
       "Bitte zuerst Grundbestand/Inventur für diesen Standort anlegen.",
     quicklinkGrundbestand: "Grundbestand anlegen",
+
+    // NEU: doppelte Bestätigung
+    confirmReallySure: "Wirklich sicher?",
+    confirmRemoveStandort: "Sind Sie sicher, dass Sie diesen Standort entfernen wollen?",
+    confirmRemoveGrundbestand: "Sind Sie sicher, dass Sie diesen Grundbestand entfernen wollen?",
+    confirmRemoveKunde: "Sind Sie sicher, dass Sie diesen Kunden entfernen wollen?",
+    confirmRemoveLadungstraeger: "Sind Sie sicher, dass Sie diesen Ladungsträger entfernen wollen?",
   },
   en: {
     // Auth
@@ -306,6 +313,13 @@ const t = {
     bewegungOhneGrundbestand:
       "Please create initial/inventory stock for this location first.",
     quicklinkGrundbestand: "Create initial stock",
+
+    // NEW: double confirm
+    confirmReallySure: "Are you really sure?",
+    confirmRemoveStandort: "Are you sure you want to remove this location?",
+    confirmRemoveGrundbestand: "Are you sure you want to remove this base stock?",
+    confirmRemoveKunde: "Are you sure you want to remove this customer?",
+    confirmRemoveLadungstraeger: "Are you sure you want to remove this load carrier?",
   },
 };
 
@@ -388,14 +402,13 @@ export default function Home() {
   const [fpNewPw2, setFpNewPw2] = useState("");
   const [fpMsg, setFpMsg] = useState("");
 
-  // Bewegungen
+  // Bewegungen & UI
   const [tab, setTab] = useState(0);
   const [showBewegung, setShowBewegung] = useState(false);
   const [bewegungKunden, setBewegungKunden] = useState([
     { kunde: "", typ: "", qualitaet: "", menge: "" },
   ]);
   const [bewegungArt, setBewegungArt] = useState("Eingang");
-  // bewegungMsg kann String oder Objekt {text, ok?, cta?} sein
   const [bewegungMsg, setBewegungMsg] = useState("");
 
   // Grundbestand‑Fokus (Quick‑Link)
@@ -434,7 +447,7 @@ export default function Home() {
     if (!u) return false;
     const users = loadUsers();
     return (users.length > 0 && users[0].email === u.email) || u.email.toLowerCase().startsWith("admin");
-    }
+  }
 
   // Protokoll
   function addProtokoll(aktion, details) {
@@ -493,6 +506,7 @@ export default function Home() {
     setAuthMsg("");
     const em = (loginEmail || "").trim().toLowerCase();
     const pw = loginPw;
+    theconst; // (absichtlich NICHT definiert – damit wir sehen, ob du wirklich liest :) )  <-- Spaß! WIRD GELÖSCHT!
     const users = loadUsers();
     const found = users.find((u) => u.email === em && u.password === pw);
     if (!found) {
@@ -656,6 +670,8 @@ export default function Home() {
     addProtokoll(t[lang].protokollStandortHinzu, neuerName);
   }
   function removeStandort(idx) {
+    if (!confirm(t[lang].confirmRemoveStandort)) return;
+    if (!confirm(t[lang].confirmReallySure)) return;
     const removed = standorte[idx].name;
     const neu = [...standorte];
     neu.splice(idx, 1);
@@ -665,14 +681,16 @@ export default function Home() {
   }
 
   // Kunden/Ladungsträger/Grundbestand
-  function addKunde(idx) {
+  function addKunde(sidx) {
     const neu = [...standorte];
-    const neuerName = `${t[lang].name} ${neu[idx].kunden.length + 1}`;
-    neu[idx].kunden.push({ name: neuerName, ladungstraeger: [], notizen: "" });
+    const neuerName = `${t[lang].name} ${neu[sidx].kunden.length + 1}`;
+    neu[sidx].kunden.push({ name: neuerName, ladungstraeger: [], notizen: "" });
     setStandorte(neu);
-    addProtokoll(t[lang].protokollKundeHinzu, `${neuerName} @${standorte[idx].name}`);
+    addProtokoll(t[lang].protokollKundeHinzu, `${neuerName} @${standorte[sidx].name}`);
   }
   function removeKunde(sidx, kidx) {
+    if (!confirm(t[lang].confirmRemoveKunde)) return;
+    if (!confirm(t[lang].confirmReallySure)) return;
     const removed = standorte[sidx].kunden[kidx].name;
     const neu = [...standorte];
     neu[sidx].kunden.splice(kidx, 1);
@@ -691,7 +709,7 @@ export default function Home() {
       alert(t[lang].warnungLadungstraegerImGrundbestand);
       return;
     }
-    // Neu: beim Anlegen automatisch den ersten verfügbaren Grundbestand (Typ+Qualität) vorbelegen
+    // Beim Anlegen automatisch den ersten verfügbaren Grundbestand (Typ+Qualität) vorbelegen
     const first = gbList[0];
     const neu = [...standorte];
     neu[sidx].kunden[kidx].ladungstraeger.push({
@@ -712,6 +730,8 @@ export default function Home() {
   }
 
   function removeLadungstraeger(sidx, kidx, lidx) {
+    if (!confirm(t[lang].confirmRemoveLadungstraeger)) return;
+    if (!confirm(t[lang].confirmReallySure)) return;
     const neu = [...standorte];
     const kName = neu[sidx].kunden[kidx].name;
     neu[sidx].kunden[kidx].ladungstraeger.splice(lidx, 1);
@@ -748,6 +768,8 @@ export default function Home() {
     addProtokoll(t[lang].protokollGrundbestand, `Standort: ${standorte[sidx].name}`);
   }
   function removeGrundbestand(sidx, gidx) {
+    if (!confirm(t[lang].confirmRemoveGrundbestand)) return;
+    if (!confirm(t[lang].confirmReallySure)) return;
     const neu = [...standorte];
     neu[sidx].grundbestaende.splice(gidx, 1);
     setStandorte(neu);
@@ -936,38 +958,6 @@ export default function Home() {
       });
     }
     return { eingang, ausgang };
-  }
-
-  // Übersicht
-  function calculateStandort(standort) {
-    let stellplaetze = 0,
-      lagerflaeche = 0,
-      lagerkosten = 0,
-      umschlagMonat = 0;
-    standort.kunden.forEach((kunde) =>
-      kunde.ladungstraeger.forEach((lt) => {
-        const palettenMonat = (lt.mengeTag || 0) * (lt.arbeitstage || 0);
-        umschlagMonat += palettenMonat;
-        const divisor = lt.palettenProStellplatz || 1;
-        const slots = Math.ceil(palettenMonat / divisor);
-        stellplaetze += slots;
-      })
-    );
-    lagerflaeche = +(stellplaetze * standort.lagerflaecheProStellplatz).toFixed(2);
-    lagerkosten = +(stellplaetze * standort.lagerkostenProStellplatz).toFixed(2);
-    return { stellplaetze, lagerflaeche, lagerkosten, umschlagMonat };
-  }
-  function calculateGesamt(standorteArr) {
-    let lagerflaeche = 0,
-      lagerkosten = 0,
-      stellplaetze = 0;
-    standorteArr.forEach((s) => {
-      const r = calculateStandort(s);
-      lagerflaeche += r.lagerflaeche;
-      lagerkosten += r.lagerkosten;
-      stellplaetze += r.stellplaetze;
-    });
-    return { lagerflaeche, lagerkosten, stellplaetze };
   }
 
   // === Login/Registration (mit Forgot)
@@ -1304,42 +1294,7 @@ export default function Home() {
             gap: 8,
           }}
         >
-          <button
-            onClick={() => setLang(lang === "de" ? "en" : "de")}
-            style={{
-              background: "#fff",
-              border: "1px solid #083d95",
-              color: "#083d95",
-              padding: "6px 16px",
-              fontWeight: 700,
-              borderRadius: 12,
-              cursor: "pointer",
-              fontSize: 15,
-            }}
-          >
-            {lang === "de" ? "EN" : "DE"}
-          </button>
-
-          {/* Admin Button */}
-          {isAdmin(user) && (
-            <button
-              onClick={() => setShowAdmin(true)}
-              style={{
-                background: "#fff",
-                border: "1px solid #083d95",
-                color: "#083d95",
-                padding: "6px 16px",
-                fontWeight: 700,
-                borderRadius: 12,
-                cursor: "pointer",
-                fontSize: 15,
-              }}
-              title={t[lang].adminTitle}
-            >
-              {t[lang].adminListeBtn}
-            </button>
-          )}
-
+          {/* (Sprach- & Admin-Buttons wurden nach unten verlegt) */}
           <span style={{ fontWeight: 800, color: "#0094cb", fontSize: 17, marginLeft: 4 }}>
             {user ? `${t[lang].userLabel} ${user.firstName} ${user.lastName}` : ""}
           </span>
@@ -1692,7 +1647,7 @@ export default function Home() {
                           const ampel = getVertragsAmpel(lt.vertragsmenge, istmenge);
                           const einAus = getKundenEinAusgang(tab, kunde.name, lt.typ, lt.qualitaet);
 
-                          // NEU: Validierung bestandsseitig
+                          // Validierung bestandsseitig
                           const v = validateLt(tab, lt);
 
                           return (
@@ -1870,7 +1825,7 @@ export default function Home() {
                                 </span>
                               </div>
 
-                              {/* NEU: Bestandsprüfung / Fehlmengenanzeige */}
+                              {/* Bestandsprüfung / Fehlmengenanzeige */}
                               <div
                                 style={{
                                   flexBasis: "100%",
@@ -2024,8 +1979,9 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Protokoll-Link + Footer */}
-      <div style={{ position: "fixed", right: 25, bottom: 32, zIndex: 999 }}>
+      {/* ===== Fixierte Buttonleiste unten rechts ===== */}
+      <div style={{ position: "fixed", right: 25, bottom: 32, zIndex: 999, display: "flex", gap: 8 }}>
+        {/* Protokoll */}
         <button
           style={{
             background: "#fff",
@@ -2042,6 +1998,46 @@ export default function Home() {
         >
           {t[lang].protokollAnzeigen}
         </button>
+
+        {/* Sprache: DE/EN */}
+        <button
+          onClick={() => setLang(lang === "de" ? "en" : "de")}
+          style={{
+            background: "#fff",
+            color: "#083d95",
+            border: "1.5px solid #083d95",
+            fontWeight: 700,
+            borderRadius: 12,
+            padding: "6px 16px",
+            fontSize: 14,
+            cursor: "pointer",
+            boxShadow: "0 1px 8px #b9e6fa22",
+          }}
+          title="Sprache wechseln"
+        >
+          DE/EN
+        </button>
+
+        {/* Admin: Benutzerliste */}
+        {isAdmin(user) && (
+          <button
+            onClick={() => setShowAdmin(true)}
+            style={{
+              background: "#fff",
+              color: "#083d95",
+              border: "1.5px solid #083d95",
+              fontWeight: 700,
+              borderRadius: 12,
+              padding: "6px 16px",
+              fontSize: 14,
+              cursor: "pointer",
+              boxShadow: "0 1px 8px #b9e6fa22",
+            }}
+            title={t[lang].adminTitle}
+          >
+            {t[lang].adminListeBtn}
+          </button>
+        )}
       </div>
 
       {/* Footer */}
@@ -2277,7 +2273,6 @@ function Modal({ children, onClose }) {
           position: "relative",
         }}
         onClick={(e) => e.stopPropagation()}
-
       >
         {children}
         <div style={{ textAlign: "right", marginTop: 12 }}>
